@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A10 Fintech | Modern Business Banking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0a0b14; color: white; }
+        .hero-gradient {
+            background: radial-gradient(circle at top center, rgba(99, 102, 241, 0.15) 0%, rgba(10, 11, 20, 0) 70%);
+        }
+        .a10-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero-gradient min-h-screen flex flex-col">
+        <!-- Navigation -->
+        <nav class="container mx-auto px-6 py-8 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <!-- A10 LOGO SVG -->
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="8" fill="#6366F1"/>
+                    <path d="M20 10L28 26H12L20 10Z" fill="white" fill-opacity="0.2"/>
+                    <path d="M20 14L25 24H15L20 14Z" fill="white"/>
+                    <rect x="18" y="26" width="4" height="4" rx="1" fill="white"/>
+                </svg>
+                <span class="text-2xl font-bold tracking-tight">A10 <span class="text-indigo-500">FINTECH</span></span>
+            </div>
+            <div class="hidden md:flex gap-8 text-sm font-medium text-slate-400">
+                <a href="#" class="hover:text-white transition">Personal</a>
+                <a href="#" class="hover:text-white transition">Business</a>
+                <a href="#" class="hover:text-white transition">Platform</a>
+                <a href="#" class="hover:text-white transition">Pricing</a>
+            </div>
+            <div class="flex gap-4">
+                <button class="px-5 py-2 text-sm font-semibold hover:text-indigo-400 transition">Log In</button>
+                <button class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-semibold transition shadow-lg shadow-indigo-500/20">Open Account</button>
+            </div>
+        </nav>
+
+        <!-- Main Hero -->
+        <main class="container mx-auto px-6 pt-20 flex-grow text-center">
+            <div class="max-w-4xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-bold uppercase tracking-widest mb-8">
+                    <i class="fas fa-shield-alt"></i> Michigan Based Fintech
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold leading-tight mb-6">
+                    Banking infrastructure for <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">modern businesses.</span>
+                </h1>
+                <p class="text-xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+                    A10 Fintech provides secure, scalable business checking, global payouts, and high-velocity card issuing. No monthly fees. No hidden limits.
+                </p>
+                
+                <div class="flex flex-col md:flex-row justify-center gap-4 mb-20">
+                    <button class="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold transition flex items-center justify-center gap-3">
+                        Start for Free <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="px-8 py-4 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold transition">
+                        View Demo
+                    </button>
+                </div>
+
+                <!-- Trusted Badges -->
+                <div class="flex flex-wrap justify-center gap-8 opacity-40 grayscale hover:grayscale-0 transition duration-500">
+                    <span class="text-xl font-bold tracking-tighter italic">Stripe Issuing</span>
+                    <span class="text-xl font-bold tracking-tighter uppercase">Wise Partner</span>
+                    <span class="text-xl font-bold tracking-tighter">Plaid Verified</span>
+                    <span class="text-xl font-bold tracking-tighter">Persona KYC</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-auto border-t border-slate-800 bg-slate-950/50 py-12">
+            <div class="container mx-auto px-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                    <div class="col-span-1 md:col-span-2">
+                        <div class="flex items-center gap-3 mb-6">
+                            <svg width="30" height="30" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="40" height="40" rx="8" fill="#6366F1"/>
+                                <path d="M20 14L25 24H15L20 14Z" fill="white"/>
+                            </svg>
+                            <span class="text-xl font-bold">A10 FINTECH LLC</span>
+                        </div>
+                        <p class="text-sm text-slate-500 max-w-sm leading-relaxed mb-6">
+                            A10 Fintech is a software platform, not a bank. All banking services are provided through our partner infrastructure via Wise Payments Limited.
+                        </p>
+                        <div class="text-xs text-slate-600 space-y-2">
+                            <p><i class="fas fa-map-marker-alt mr-2"></i> [Your Michigan Virtual Address], Michigan</p>
+                            <p><i class="fas fa-envelope mr-2"></i> support@a10fintech.com</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-6 text-sm uppercase tracking-widest text-slate-400">Legal</h4>
+                        <ul class="space-y-4 text-sm text-slate-500">
+                            <li><a href="#" class="hover:text-indigo-400 transition">Terms of Service</a></li>
+                            <li><a href="#" class="hover:text-indigo-400 transition">Privacy Policy</a></li>
+                            <li><a href="#" class="hover:text-indigo-400 transition">Cookie Settings</a></li>
+                            <li><a href="#" class="hover:text-indigo-400 transition">Complaints</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold mb-6 text-sm uppercase tracking-widest text-slate-400">Platform</h4>
+                        <ul class="space-y-4 text-sm text-slate-500">
+                            <li><a href="#" class="hover:text-indigo-400 transition">Wise Payouts</a></li>
+                            <li><a href="#" class="hover:text-indigo-400 transition">Stripe Issuing</a></li>
+                            <li><a href="#" class="hover:text-indigo-400 transition">Security Protocol</a></li>
+                            <li><a href="#" class="hover:text-indigo-400 transition">API Documentation</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pt-8 border-t border-slate-800 text-center text-xs text-slate-600">
+                    &copy; 2026 A10 Fintech LLC. All rights reserved. Registered in Michigan, USA.
+                </div>
+            </div>
+        </footer>
+    </div>
+
+</body>
