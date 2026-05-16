@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mova99 — Premium Marketplace</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --black: #0a0a0a;
+    --white: #fafafa;
+    --orange: #FF6100;
+    --gold-light: #FF8C3A;
+    --gray: #888;
+    --light: #f2f0eb;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--black);
+    color: var(--white);
+    overflow-x: hidden;
+    cursor: none;
+}
+
+/* Custom cursor */
+.cursor {
+    width: 8px; height: 8px;
+    background: var(--orange);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease;
+}
+.cursor-follower {
+    width: 32px; height: 32px;
+    border: 1px solid rgba(255,97,0,0.4);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transition: all 0.12s ease;
+}
+
+/* NAV */
+nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 24px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.9), transparent);
+    backdrop-filter: blur(2px);
+}
+
+.nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: -0.5px;
+    color: var(--white);
+    text-decoration: none;
+}
+
+.nav-logo span { color: var(--orange); }
+
+.nav-links { display: flex; gap: 12px; align-items: center; }
+
+.btn-nav-login {
+    padding: 10px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--white);
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    cursor: none;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+.btn-nav-login:hover { border-color: var(--orange); color: var(--orange); }
+
+.btn-nav-signup {
+    padding: 10px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--black);
+    background: var(--orange);
+    border: 1px solid var(--orange);
+    cursor: none;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+.btn-nav-signup:hover { background: var(--gold-light); border-color: var(--gold-light); }
+
+/* HERO */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 120px 48px 80px;
+}
+
+.hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(255,97,0,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(255,97,0,0.05) 0%, transparent 50%),
+                linear-gradient(135deg, #0a0a0a 0%, #111 50%, #0a0a0a 100%);
+}
+
+.hero-grid {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,97,0,0.04) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,97,0,0.04) 1px, transparent 1px);
+    background-size: 80px 80px;
+}
+
+.hero-content {
+    position: relative;
+    text-align: center;
+    max-width: 900px;
+    z-index: 2;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border: 1px solid rgba(255,97,0,0.4);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+}
+
+.hero-badge::before {
+    content: '';
+    width: 4px; height: 4px;
+    background: var(--orange);
+    border-radius: 50%;
+}
+
+.hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(52px, 9vw, 110px);
+    font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -2px;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.4s forwards;
+}
+
+.hero-title-italic {
+    font-style: italic;
+    color: var(--orange);
+}
+
+.hero-subtitle {
+    font-size: clamp(14px, 2vw, 18px);
+    font-weight: 300;
+    color: var(--gray);
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 28px auto 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.6s forwards;
+}
+
+.hero-cta {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.8s forwards;
+}
+
+.btn-primary {
+    padding: 16px 40px;
+    background: var(--orange);
+    color: var(--black);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,0.1);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+.btn-primary:hover::after { transform: translateX(0); }
+
+.btn-secondary {
+    padding: 16px 40px;
+    background: transparent;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    cursor: none;
+    transition: all 0.3s ease;
+}
+.btn-secondary:hover { border-color: var(--white); }
+
+/* MARQUEE */
+.marquee-wrap {
+    padding: 20px 0;
+    background: var(--orange);
+    overflow: hidden;
+    white-space: nowrap;
+}
+.marquee-track {
+    display: inline-block;
+    animation: marquee 20s linear infinite;
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--black);
+    letter-spacing: 0.05em;
+}
+.marquee-track span { margin: 0 32px; }
+.marquee-dot { color: rgba(0,0,0,0.4); }
+
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* FEATURES */
+.features {
+    padding: 120px 48px;
+    background: var(--light);
+    color: var(--black);
+}
+
+.features-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 80px;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.section-label {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 12px;
+}
+
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -1px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+}
+
+.feature-card {
+    background: white;
+    padding: 48px 40px;
+    transition: background 0.3s ease;
+}
+.feature-card:hover { background: var(--black); color: white; }
+.feature-card:hover .feature-num { color: var(--orange); }
+.feature-card:hover .feature-desc { color: rgba(255,255,255,0.6); }
+
+.feature-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: rgba(0,0,0,0.08);
+    line-height: 1;
+    margin-bottom: 24px;
+    transition: color 0.3s ease;
+}
+
+.feature-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.2;
+}
+
+.feature-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #666;
+    transition: color 0.3s ease;
+}
+
+/* STATS */
+.stats {
+    padding: 80px 48px;
+    background: var(--black);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(255,97,0,0.15);
+}
+.stat-item {
+    background: var(--black);
+    padding: 48px 32px;
+    text-align: center;
+}
+.stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--orange);
+    line-height: 1;
+}
+.stat-label {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-top: 8px;
+}
+
+/* CTA SECTION */
+.cta-section {
+    padding: 140px 48px;
+    background: var(--light);
+    color: var(--black);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: 'MOVA99';
+    position: absolute;
+    font-family: 'Playfair Display', serif;
+    font-size: 200px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgba(0,0,0,0.04);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.cta-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -1px;
+    margin-bottom: 24px;
+    position: relative;
+}
+
+.cta-sub {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 48px;
+    position: relative;
+}
+
+/* FOOTER */
+footer {
+    padding: 48px;
+    background: var(--black);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--white);
+}
+.footer-logo span { color: var(--orange); }
+
+.footer-copy {
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 0.05em;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* FLOATING PRODUCT CARDS */
+.floating-cards {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.float-card {
+    position: absolute;
+    width: 120px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,97,0,0.15);
+    padding: 12px;
+    backdrop-filter: blur(4px);
+    animation: float 6s ease-in-out infinite;
+}
+
+.float-card:nth-child(1) { top: 15%; left: 5%; animation-delay: 0s; }
+.float-card:nth-child(2) { top: 60%; left: 2%; animation-delay: 1.5s; }
+.float-card:nth-child(3) { top: 20%; right: 4%; animation-delay: 3s; }
+.float-card:nth-child(4) { top: 65%; right: 6%; animation-delay: 0.8s; }
+
+.float-card-img {
+    width: 100%; aspect-ratio: 1;
+    background: rgba(255,255,255,0.05);
+    margin-bottom: 8px;
+}
+
+.float-card-name {
+    font-size: 8px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.3;
+}
+
+.float-card-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    color: var(--orange);
+    margin-top: 4px;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(-1deg); }
+    50% { transform: translateY(-16px) rotate(1deg); }
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    nav { padding: 20px 24px; }
+    .hero { padding: 100px 24px 60px; }
+    .features { padding: 80px 24px; }
+    .features-grid { grid-template-columns: 1fr; gap: 2px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .cta-section { padding: 80px 24px; }
+    footer { padding: 32px 24px; }
+    .float-card { display: none; }
+    .btn-nav-login, .btn-nav-signup { padding: 8px 16px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="cursorFollower"></div>
+
+<!-- NAV -->
+<nav>
+    <a href="/" class="nav-logo">Mova<span>99</span></a>
+    <div class="nav-links">
+        <a href="/login" class="btn-nav-login">Sign In</a>
+        <a href="/signup" class="btn-nav-signup">Get Started</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+
+    <div class="floating-cards">
+        <div class="float-card">
+            <div class="float-card-img"></div>
+            <div class="float-card-name">Premium Item</div>
+            <div class="float-card-price">$24.99</div>
+        </div>
+        <div class="float-card">
+            <div class="float-card-img"></div>
+            <div class="float-card-name">Luxury Goods</div>
+            <div class="float-card-price">$39.99</div>
+        </div>
+        <div class="float-card">
+            <div class="float-card-img"></div>
+            <div class="float-card-name">Exclusive</div>
+            <div class="float-card-price">$18.99</div>
+        </div>
+        <div class="float-card">
+            <div class="float-card-img"></div>
+            <div class="float-card-name">Collection</div>
+            <div class="float-card-price">$52.99</div>
+        </div>
+    </div>
+
+    <div class="hero-content">
+        <div class="hero-badge">Premium Dropshipping Marketplace</div>
+        <h1 class="hero-title">
+            Shop <span class="hero-title-italic">without</span><br>
+            Limits
+        </h1>
+        <p class="hero-subtitle">
+            Discover thousands of premium products. Fast delivery, secure payments, and an experience built for the modern shopper.
+        </p>
+        <div class="hero-cta">
+            <a href="/signup" class="btn-primary">Start Shopping</a>
+            <a href="/login" class="btn-secondary">Sign In</a>
+        </div>
+    </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+    <div class="marquee-track">
+        <span>Premium Quality</span><span class="marquee-dot">✦</span>
+        <span>Fast Shipping</span><span class="marquee-dot">✦</span>
+        <span>Secure Checkout</span><span class="marquee-dot">✦</span>
+        <span>Thousands of Products</span><span class="marquee-dot">✦</span>
+        <span>Premium Quality</span><span class="marquee-dot">✦</span>
+        <span>Fast Shipping</span><span class="marquee-dot">✦</span>
+        <span>Secure Checkout</span><span class="marquee-dot">✦</span>
+        <span>Thousands of Products</span><span class="marquee-dot">✦</span>
+        <span>Premium Quality</span><span class="marquee-dot">✦</span>
+        <span>Fast Shipping</span><span class="marquee-dot">✦</span>
+        <span>Secure Checkout</span><span class="marquee-dot">✦</span>
+        <span>Thousands of Products</span><span class="marquee-dot">✦</span>
+    </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features">
+    <div class="features-header">
+        <div>
+            <div class="section-label">Why Mova99</div>
+            <h2 class="section-title">Built for<br><em>discerning</em> shoppers</h2>
+        </div>
+    </div>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-num">01</div>
+            <h3 class="feature-title">Curated Products</h3>
+            <p class="feature-desc">Thousands of hand-picked products from trusted global suppliers. Every item verified for quality and value.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-num">02</div>
+            <h3 class="feature-title">Secure Payments</h3>
+            <p class="feature-desc">Bank-grade encryption powered by Stripe. Your payment information is always protected and private.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-num">03</div>
+            <h3 class="feature-title">Fast Delivery</h3>
+            <p class="feature-desc">Direct shipping to your door in 6-13 business days. Real-time tracking so you always know where your order is.</p>
+        </div>
+    </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+    <div class="stat-item">
+        <div class="stat-num">10K+</div>
+        <div class="stat-label">Products</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Secure</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-num">6-13</div>
+        <div class="stat-label">Day Delivery</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-num">24/7</div>
+        <div class="stat-label">Support</div>
+    </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-section">
+    <h2 class="cta-title">Ready to start<br><em style="font-family:'Playfair Display',serif">shopping?</em></h2>
+    <p class="cta-sub">Join thousands of happy customers today.</p>
+    <a href="/signup" class="btn-primary" style="cursor:none;">Create Free Account</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-logo">Mova<span>99</span></div>
+    <div class="footer-copy">© 2026 Mova99. All rights reserved.</div>
+</footer>
+
+<script>
+const cursor = document.getElementById('cursor');
+const follower = document.getElementById('cursorFollower');
+let mx = 0, my = 0, fx = 0, fy = 0;
+
+document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx - 4 + 'px';
+    cursor.style.top = my - 4 + 'px';
+});
+
+function animateFollower() {
+    fx += (mx - fx - 16) * 0.12;
+    fy += (my - fy - 16) * 0.12;
+    follower.style.left = fx + 'px';
+    follower.style.top = fy + 'px';
+    requestAnimationFrame(animateFollower);
+}
+animateFollower();
+
+document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.style.transform = 'scale(3)');
+    el.addEventListener('mouseleave', () => cursor.style.transform = 'scale(1)');
+});
+</script>
+
+<!-- CONTACT SECTION -->
+<section style="padding:100px 48px;background:#f2f0eb;color:#0a0a0a">
+    <div style="max-width:800px;margin:auto">
+        <p style="font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:#FF6100;margin-bottom:12px">Get In Touch</p>
+        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(32px,5vw,52px);font-weight:900;line-height:1;letter-spacing:-1px;margin-bottom:40px">Send us a<br><em style="font-style:italic">message</em></h2>
+        <form onsubmit="handleContact(event)" style="display:grid;gap:20px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+                <div>
+                    <label style="font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:#444;display:block;margin-bottom:8px">Your Name</label>
+                    <input id="c-name" type="text" placeholder="John Doe" required style="width:100%;padding:14px 16px;border:1.5px solid #ccc;background:white;font-size:14px;outline:none;font-family:inherit;transition:border-color .2s" onfocus="this.style.borderColor='#0a0a0a'" onblur="this.style.borderColor='#ccc'">
+                </div>
+                <div>
+                    <label style="font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:#444;display:block;margin-bottom:8px">Email Address</label>
+                    <input id="c-email" type="email" placeholder="your@email.com" required style="width:100%;padding:14px 16px;border:1.5px solid #ccc;background:white;font-size:14px;outline:none;font-family:inherit;transition:border-color .2s" onfocus="this.style.borderColor='#0a0a0a'" onblur="this.style.borderColor='#ccc'">
+                </div>
+            </div>
+            <div>
+                <label style="font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:#444;display:block;margin-bottom:8px">Subject</label>
+                <input id="c-subject" type="text" placeholder="What is this regarding?" required style="width:100%;padding:14px 16px;border:1.5px solid #ccc;background:white;font-size:14px;outline:none;font-family:inherit;transition:border-color .2s" onfocus="this.style.borderColor='#0a0a0a'" onblur="this.style.borderColor='#ccc'">
+            </div>
+            <div>
+                <label style="font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:#444;display:block;margin-bottom:8px">Message</label>
+                <textarea id="c-msg" placeholder="Write your message here..." required rows="6" style="width:100%;padding:14px 16px;border:1.5px solid #ccc;background:white;font-size:14px;outline:none;font-family:inherit;resize:vertical;transition:border-color .2s" onfocus="this.style.borderColor='#0a0a0a'" onblur="this.style.borderColor='#ccc'"></textarea>
+            </div>
+            <p id="c-status" style="font-size:12px;display:none"></p>
+            <button type="submit" id="c-btn" style="padding:16px 48px;background:#0a0a0a;color:white;font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;border:none;cursor:pointer;width:fit-content;transition:background .3s">Send Message</button>
+        </form>
+    </div>
+</section>
+<script>
+async function handleContact(e){
+    e.preventDefault();
+    const name=document.getElementById('c-name').value.trim();
+    const email=document.getElementById('c-email').value.trim();
+    const subject=document.getElementById('c-subject').value.trim();
+    const msg=document.getElementById('c-msg').value.trim();
+    const status=document.getElementById('c-status');
+    const btn=document.getElementById('c-btn');
+    if(!name||!email||!subject||!msg){status.textContent='All fields are required. Please fill in every box.';status.style.color='#ef4444';status.style.display='block';return;}
+    btn.textContent='Sending...';btn.disabled=true;
+    try{
+        const r=await fetch('/api/get-user?action=contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,subject,message:msg})});
+        const d=await r.json();
+        if(d.success){status.textContent='Message sent! We will get back to you shortly.';status.style.color='#22c55e';status.style.display='block';document.getElementById('c-name').value='';document.getElementById('c-email').value='';var cs=document.getElementById('c-subject');if(cs)cs.value='';document.getElementById('c-msg').value='';}
+        else{status.textContent='Failed to send. Please try again.';status.style.color='#ef4444';status.style.display='block';}
+    }catch(ex){status.textContent='Connection error. Please try again.';status.style.color='#ef4444';status.style.display='block';}
+    btn.textContent='Send Message';btn.disabled=false;
+}
+</script>
+
+<footer style="background:#0a0a0a;color:#fafafa;padding:60px 48px 32px;font-family:'DM Sans',sans-serif">
+    <div style="max-width:1200px;margin:auto">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:40px;margin-bottom:48px">
+            <div>
+                <h3 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;font-style:italic;margin:0 0 20px"><span style="color:#fafafa">Mova</span><span style="color:#FF6100">99</span></h3>
+                <p style="font-size:12px;color:#888;line-height:1.7;max-width:220px">Premium dropshipping marketplace. Quality products delivered across the USA.</p>
+            </div>
+            <div>
+                <h4 style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:#FF6100;margin:0 0 16px">Company Info</h4>
+                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none;hover:color:#fafafa">About Mova99</a></li>
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none">Affiliate &amp; Influencer Program</a></li>
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none">Contact Us</a></li>
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none">Careers</a></li>
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none">Press</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:#FF6100;margin:0 0 16px">Customer Service</h4>
+                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none">Return &amp; Refund Policy</a></li>
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none">Intellectual Property Policy</a></li>
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none">Shipping Info</a></li>
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none">Report Suspicious Activity</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:#FF6100;margin:0 0 16px">Help</h4>
+                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none">Support Center &amp; FAQ</a></li>
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none">Safety Center</a></li>
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none">Purchase Protection</a></li>
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none">Sitemap</a></li>
+                    <li><a href="#" style="font-size:12px;color:#888;text-decoration:none">Partner with Mova99</a></li>
+                </ul>
+            </div>
+        </div>
+        <div style="border-top:1px solid #222;padding-top:32px">
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px;margin-bottom:24px">
+                <div>
+                    <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#888;margin:0 0 12px">Connect With Us</p>
+                    <div style="display:flex;gap:14px">
+                        <a href="#" style="color:#888;text-decoration:none;font-size:16px">&#x24BE;</a>
+                        <a href="#" style="color:#888;text-decoration:none;font-size:14px;font-weight:700">f</a>
+                        <a href="#" style="color:#888;text-decoration:none;font-size:14px;font-weight:700">X</a>
+                        <a href="#" style="color:#888;text-decoration:none;font-size:14px">&#x266B;</a>
+                        <a href="#" style="color:#888;text-decoration:none;font-size:14px">&#x25B6;</a>
+                    </div>
+                </div>
+                <div>
+                    <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#888;margin:0 0 12px">We Accept</p>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                        <span style="background:#1a1a5e;color:white;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">VERVE</span>
+                        <span style="background:#1a1a8f;color:white;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">VISA</span>
+                        <span style="background:#eb001b;color:white;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">MC</span>
+                        <span style="background:#2d6cdf;color:white;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">AMEX</span>
+                        <span style="background:#231f20;color:white;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">DISCOVER</span>
+                        <span style="background:#000;color:#FF6100;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">Apple Pay</span>
+                        <span style="background:#4285f4;color:white;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">G Pay</span>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid #1a1a1a;padding-top:20px">
+                <p style="font-size:11px;color:#555;margin:0">© 2022 – 2026 Mova99 Inc. All rights reserved.</p>
+                <div style="display:flex;gap:20px;flex-wrap:wrap">
+                    <a href="#" style="font-size:11px;color:#555;text-decoration:none;hover:color:#fafafa">Terms of Use</a>
+                    <a href="#" style="font-size:11px;color:#555;text-decoration:none">Privacy Policy</a>
+                    <a href="#" style="font-size:11px;color:#555;text-decoration:none">Your Privacy Choices</a>
+                    <a href="#" style="font-size:11px;color:#555;text-decoration:none">Ad Choices</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+</html>
