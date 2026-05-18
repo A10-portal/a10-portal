@@ -1,0 +1,12 @@
+{
+  "name": "foundry-v1",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@signalwire/compatibility-api": "^3.1.0",
+    "resend": "^3.2.0",
+    "mongodb": "^6.0.0",
+    "axios": "^1.6.0",
+    "stripe": "^14.0.0"
+  }
+}
