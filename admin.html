@@ -4,22 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mova99 Admin</title>
-<style>html,body{visibility:hidden!important;background:#fff}</style>
+<style>.ip-hidden{opacity:0;pointer-events:none}.ip-visible{opacity:1;transition:opacity .2s ease}</style>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.classList.add('ip-hidden');
+});
 (async function() {
+    async function show() {
+        await document.fonts.ready;
+        var body = document.body;
+        if (body) { body.classList.remove('ip-hidden'); body.classList.add('ip-visible'); }
+        else { document.addEventListener('DOMContentLoaded', function(){ document.body.classList.remove('ip-hidden'); document.body.classList.add('ip-visible'); }); }
+    }
     try {
-        const r = await fetch('/api/admin-api?action=check-ip');
-        const d = await r.json();
+        var r = await fetch('/api/admin-api?action=check-ip');
+        var d = await r.json();
         if (d.allowed) {
-            document.documentElement.style.visibility = '';
-            document.body.style.visibility = '';
+            show();
         } else {
             window.location.replace('/');
         }
     } catch(e) {
-        // If ADMIN_ALLOWED_IP is blank, allow through
-        document.documentElement.style.visibility = '';
-        document.body.style.visibility = '';
+        show(); // allow if check fails (ADMIN_ALLOWED_IP blank)
     }
 })();
 </script>
