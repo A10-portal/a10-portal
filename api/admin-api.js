@@ -205,6 +205,17 @@ async function handleReferralStats(req, res) {
 
 export default async function handler(req, res) {
     const action = req.query.action;
+
+    // ── IP check — called before admin page renders ──────────────
+    if (action === 'check-ip') {
+        const clientIP = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || '';
+        const allowedIP = (process.env.ADMIN_ALLOWED_IP || '').trim();
+        if (!allowedIP) return res.status(200).json({ allowed: true });
+        const allowed = clientIP === allowedIP || clientIP.includes(allowedIP);
+        console.log('[admin] IP check — client:', clientIP, 'allowed:', allowedIP, 'result:', allowed);
+        return res.status(200).json({ allowed });
+    }
+
     if (action === 'auth') return handleAuth(req, res);
     if (!verifyToken(req)) return res.status(401).json({ error: 'Unauthorized' });
     if (action === 'stats') return handleStats(req, res);
