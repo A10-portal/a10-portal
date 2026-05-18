@@ -1,27 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-TK7Y07K9VH"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- IP GATE: runs before anything renders -->
+    <script>
+    (function() {
+        // Hide everything immediately so no flash of content
+        document.documentElement.style.visibility = 'hidden';
 
-  gtag('config', 'G-TK7Y07K9VH');
-</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mova99 Admin</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-<style>
-body { font-family: 'Inter', sans-serif; background: #f5f5f5; }
-.tab-btn { padding: 16px 24px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; border-bottom: 2px solid transparent; }
-.tab-btn.active { border-bottom: 2px solid black; }
-.card { background: white; border: 1px solid #e5e7eb; padding: 24px; border-radius: 2px; }
-.stat-card { background: white; border: 2px solid black; padding: 24px; text-align: center; }
-</style>
+        fetch('/api/admin-api?action=check-ip', {
+            method: 'GET',
+            credentials: 'same-origin'
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.allowed) {
+                // IP is allowed — reveal the page
+                document.documentElement.style.visibility = '';
+            } else {
+                // Not allowed — redirect immediately, never reveal page
+                window.location.replace('/index.html');
+            }
+        })
+        .catch(function() {
+            // On any error (network, server down), deny access
+            window.location.replace('/index.html');
+        });
+    })();
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TK7Y07K9VH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TK7Y07K9VH');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mova99 Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+    body { font-family: 'Inter', sans-serif; background: #f5f5f5; }
+    .tab-btn { padding: 16px 24px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; border-bottom: 2px solid transparent; }
+    .tab-btn.active { border-bottom: 2px solid black; }
+    .card { background: white; border: 1px solid #e5e7eb; padding: 24px; border-radius: 2px; }
+    .stat-card { background: white; border: 2px solid black; padding: 24px; text-align: center; }
+    </style>
 </head>
 <body>
 
@@ -179,15 +205,12 @@ function renderAdminOrders() {
     var el = document.getElementById('c-orders');
     var all = adminOrdersCache;
 
-    // Pending = not yet fulfilled (no cjOrderId, not shipped/delivered/declined/cancelled)
     var pending = all.filter(function(o) {
         return !o.cjOrderId && o.status !== 'shipped' && o.status !== 'delivered' && o.status !== 'declined' && o.status !== 'cancelled';
     });
-    // Processing = CJ order placed or marked shipped (in transit)
     var processing = all.filter(function(o) {
         return o.cjOrderId || o.status === 'shipped';
     });
-    // Delivered = confirmed delivered
     var delivered = all.filter(function(o) {
         return o.status === 'delivered';
     });
@@ -229,23 +252,19 @@ function renderAdminOrders() {
         var sc = statusColor[o.status] || 'text-gray-400';
         var statusLabel = (o.status||'').replace(/_/g,' ');
         out.push('<div class="card border-2 ' + (adminOrderTab === 'pending' ? 'border-yellow-200' : 'border-transparent') + '">');
-        // Header
         out.push('<div class="flex justify-between items-start mb-3">');
         out.push('<div><p class="text-[9px] uppercase text-gray-400">Order ID</p><p class="text-[9px] font-800 font-mono break-all">' + o._id + '</p></div>');
         out.push('<span class="text-[9px] font-800 uppercase ' + sc + '">' + statusLabel + '</span>');
         out.push('</div>');
-        // Details grid
         out.push('<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">');
         out.push('<div><p class="text-[8px] uppercase text-gray-400">Customer</p><p class="text-[9px] font-800">' + (o.customerName || o.shippingName||'N/A') + '</p></div>');
         out.push('<div><p class="text-[8px] uppercase text-gray-400">Email</p><p class="text-[9px]">' + (o.customerEmail||'—') + '</p></div>');
         out.push('<div><p class="text-[8px] uppercase text-gray-400">Total</p><p class="text-[9px] font-800">$' + ((o.amountTotal||0)/100).toFixed(2) + '</p></div>');
         var _od=new Date(o.createdAt); out.push('<div><p class="text-[8px] uppercase text-gray-400">Date & Time</p><p class="text-[9px]">' + _od.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' ' + _od.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}) + '</p></div>');
         out.push('</div>');
-        // Address
         if (o.shippingAddress) {
             out.push('<div class="mb-3 text-[9px] text-gray-500">📍 ' + (o.shippingAddress.line1||'') + ', ' + (o.shippingAddress.city||'') + ', ' + (o.shippingAddress.state||'') + ' ' + (o.shippingAddress.postal_code||'') + '</div>');
         }
-        // Items with images
         if (o.items && o.items.length) {
             out.push('<div class="border-t pt-3 space-y-2">');
             o.items.forEach(function(item) {
@@ -261,15 +280,12 @@ function renderAdminOrders() {
             });
             out.push('</div>');
         }
-        // Tracking
         if (o.trackingNumber) {
             out.push('<div class="mt-2 pt-2 border-t"><p class="text-[8px] uppercase text-gray-400">Tracking: <span class="text-black font-800">' + o.trackingNumber + '</span></p></div>');
         }
-        // Decline reason
         if (o.declineReason) {
             out.push('<div class="mt-2 pt-2 border-t"><p class="text-[8px] text-red-500">Declined: ' + o.declineReason + '</p></div>');
         }
-        // Stripe link + Fill button
         out.push('<div class="mt-3 pt-3 border-t flex gap-2">');
         out.push('<button onclick="fillFulfillForm(&quot;' + o._id + '&quot;,&quot;' + (o.userId||'') + '&quot;)" class="flex-1 text-[8px] font-800 uppercase border-2 border-black py-2 hover:bg-black hover:text-white transition-all">Fill Fulfill Form</button>');
         if (o.paymentIntentId) {
@@ -322,20 +338,15 @@ function renderUsersList() {
         var pinBorder = isPinned ? 'border-yellow-400 bg-yellow-50' : 'border-transparent hover:border-black';
 
         out.push('<div class="card border-2 ' + pinBorder + ' transition-all" data-uid="' + uid + '">');
-        // Header row
         out.push('<div class="flex items-start gap-2">');
-        // Clickable expand area
         out.push('<div class="cursor-pointer flex-1" onclick="var d=document.getElementById(\'u-' + uid + '\');if(d)d.classList.toggle(\'hidden\')">');
         out.push('<p class="text-[11px] font-black uppercase">' + (isPinned ? '&#128204; ' : '') + (u.fullName||'N/A') + '</p>');
         out.push('<p class="text-[9px] text-gray-400">' + (u.email||'') + '</p>');
         out.push('<p class="text-[8px] font-800 text-blue-400 mt-1">ID: ' + uid + '</p>');
         out.push('</div>');
-        // Right side buttons
         out.push('<div class="flex-shrink-0 flex items-start gap-1 mt-0.5">');
         out.push('<div class="text-right mr-1"><p class="text-[9px] font-800 uppercase text-purple-500">' + (u.referralCode||'') + '</p><p class="text-[8px] text-gray-400">' + (u.totalOrders||0) + ' orders</p></div>');
-        // Open Dashboard button (NEW - item 1)
         out.push('<button onclick="adminOpenUserDashboard(\'' + uid + '\')" class="bg-blue-600 text-white text-[7px] font-800 uppercase px-2 py-1 hover:bg-blue-700 transition-all whitespace-nowrap" title="View user dashboard">Open</button>');
-        // Three-dot menu
         out.push('<div class="relative">');
         out.push('<button onclick="toggleUserMenu(event,\'' + uid + '\')" class="w-7 h-7 flex flex-col items-center justify-center gap-0.5 hover:bg-gray-100 rounded">');
         out.push('<span class="w-1 h-1 bg-gray-600 rounded-full"></span><span class="w-1 h-1 bg-gray-600 rounded-full"></span><span class="w-1 h-1 bg-gray-600 rounded-full"></span>');
@@ -346,9 +357,7 @@ function renderUsersList() {
         out.push('</div></div>');
         out.push('</div></div>');
 
-        // Expanded details
         out.push('<div id="u-' + uid + '" class="hidden mt-4 pt-4 border-t">');
-        // Info grid
         out.push('<div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">');
         out.push('<div><p class="text-[8px] uppercase text-gray-400">User ID</p><p class="text-[9px] font-800 break-all">' + uid + '</p></div>');
         out.push('<div><p class="text-[8px] uppercase text-gray-400">Phone</p><p class="text-[9px] font-800">' + (u.phone||'N/A') + '</p></div>');
@@ -358,7 +367,6 @@ function renderUsersList() {
         out.push('<div><p class="text-[8px] uppercase text-gray-400">Users Referred</p><p class="text-[9px] font-800">' + (u.referredUsers||0) + '</p></div>');
         out.push('</div>');
 
-        // Stats grid
         out.push('<div class="grid grid-cols-2 gap-4 mb-4">');
         out.push('<div class="bg-gray-50 p-3"><p class="text-[9px] font-800 uppercase mb-2">Orders</p>');
         out.push('<div class="space-y-1">');
@@ -380,7 +388,6 @@ function renderUsersList() {
         out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">Rev This Week</span><span class="text-[9px] font-800">$' + ((u.referralRevenueWeek||0)/100).toFixed(2) + '</span></div>');
         out.push('</div></div></div>');
 
-        // Edit fields
         out.push('<div class="border-t pt-3"><p class="text-[9px] font-800 uppercase text-gray-400 mb-2">Edit User Details</p>');
         out.push('<div class="space-y-2">');
         var fnSafe = (u.fullName||'').replace(/"/g,'&quot;');
@@ -395,13 +402,12 @@ function renderUsersList() {
     out.push('</div>');
     el.innerHTML = out.join('');
 }
+
 function toggleUserMenu(e, uid) {
     e.stopPropagation();
-    // Close all other menus
     document.querySelectorAll('[id^="umenu-"]').forEach(function(m) { m.classList.add('hidden'); });
     var menu = document.getElementById('umenu-' + uid);
     if (menu) menu.classList.toggle('hidden');
-    // Close on outside click
     setTimeout(function() {
         document.addEventListener('click', function closer() {
             document.querySelectorAll('[id^="umenu-"]').forEach(function(m) { m.classList.add('hidden'); });
@@ -427,7 +433,6 @@ async function loadReferralStats(uid) {
     if (!el) return;
     el.innerHTML = '<p class="text-[8px] text-gray-400 animate-pulse">Loading...</p>';
 
-    // Get the referral code for this user from the cached data
     var user = allUsersCache.find(function(u) { return u.uniqueID === uid; });
     var refCode = user ? (user.referralCode || '') : '';
 
@@ -437,7 +442,6 @@ async function loadReferralStats(uid) {
     }
 
     try {
-        // Fetch all orders and filter by users referred by this code
         var r = await af('/api/admin-api?action=referral-stats&refCode=' + encodeURIComponent(refCode) + (from ? '&dateFrom=' + from : '') + (to ? '&dateTo=' + to : ''));
         var d = await r.json();
         el.innerHTML =
@@ -447,6 +451,7 @@ async function loadReferralStats(uid) {
             '<div class="flex justify-between"><span class="text-[8px] text-gray-400">Revenue from Referrals</span><span class="text-[9px] font-800 text-green-600">$' + ((d.referralRevenue||0)/100).toFixed(2) + '</span></div>';
     } catch(e) { el.innerHTML = '<p class="text-[9px] text-red-500">Failed to load stats</p>'; }
 }
+
 function toggleUser(id) {
     var el = document.getElementById(id);
     if (el) el.classList.toggle('hidden');
@@ -534,7 +539,6 @@ async function updateUser(userId, field) {
     setTimeout(function() { msgEl.classList.add('hidden'); }, 3000);
 }
 
-
 function fillFulfillForm(orderId, userId) {
     showTab('fulfill');
     setTimeout(function() {
@@ -545,32 +549,20 @@ function fillFulfillForm(orderId, userId) {
     }, 100);
 }
 
-
 function adminOpenUserDashboard(userId) {
-    // Write the user session into localStorage BEFORE opening the tab
-    // Dashboard gatekeeper reads localStorage on load — this guarantees it works
     var adminToken = sessionStorage.getItem('adminToken');
     var impersonateData = {
         token: 'admin-view-' + adminToken,
         id: userId,
-        expiry: Date.now() + 60 * 60 * 1000, // 1 hour
+        expiry: Date.now() + 60 * 60 * 1000,
         isAdminView: true
     };
-    // Backup current admin session
-    var adminSession = sessionStorage.getItem('adminToken');
-    // Write user session to localStorage so new tab picks it up instantly
     localStorage.setItem('foundry_session', JSON.stringify(impersonateData));
-    // Open dashboard in new tab
     window.open('/dashboard', '_blank');
-    // Immediately restore the current page's admin session awareness
-    // (localStorage is shared across tabs — we restore after a tick)
     setTimeout(function() {
-        // The new tab has already read localStorage. We keep it as-is
-        // Admin panel uses sessionStorage for its token, so it stays logged in
         console.log('Admin opened dashboard for user:', userId);
     }, 100);
 }
-
 </script>
 </body>
 </html>
