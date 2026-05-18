@@ -1,10 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mova99 Admin</title>
+<style>body{display:none!important}</style>
 <script>
-// IP check fires before anything renders
 (async function() {
     try {
-        const r = await fetch('/api/admin-api?action=check-ip', { method: 'GET' });
+        const r = await fetch('/api/admin-api?action=check-ip');
         const d = await r.json();
-        if (!d.allowed) {
+        if (d.allowed) {
+            document.body.style.display = '';
+        } else {
             window.location.replace('/');
         }
     } catch(e) {
@@ -12,13 +20,6 @@
     }
 })();
 </script>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mova99 Admin</title>
-
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
