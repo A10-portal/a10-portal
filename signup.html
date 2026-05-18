@@ -3,68 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/png" href="/image/logo.PNG">
+<title>Sign Up - Mova99</title>
+<link rel="icon" type="image/png" href="/image/logo.PNG">
 <meta name="description" content="Create your free Mova99 account and shop 10 million+ products delivered across the USA.">
 <meta name="robots" content="index, follow">
 <meta property="og:title" content="Sign Up - Mova99">
 <meta property="og:url" content="https://www.mova99.com/signup">
 <meta property="og:type" content="website">
 <link rel="canonical" href="https://www.mova99.com/signup">
-<title>Sign Up - Mova99</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-        /* ── Global White Theme Override ── */
-        *, *::before, *::after { box-sizing: border-box; }
-        html, body { background: #ffffff !important; color: #1a1a1a !important; }
-        body { background-color: #ffffff !important; }
-        
-        /* Dark backgrounds → white */
-        [style*="background:#ffffff"], [style*="background:#ffffff"],
-        [style*="background:#111"], [style*="background:#f0f0f0"] {
-            background: #ffffff !important;
-        }
-        /* White/light text → dark */
-        [style*="color:#1a1a1a"], [style*="color:#ffffff"],
-        [style*="color:#1a1a1a"], [style*="color:#f5f5f5"] {
-            color: #1a1a1a !important;
-        }
-        /* Inputs */
-        input, textarea, select {
-            background: #ffffff !important;
-            color: #1a1a1a !important;
-            border-color: #e0e0e0 !important;
-        }
-        input::placeholder, textarea::placeholder {
-            color: #aaaaaa !important;
-        }
-        /* Left panels on login/signup */
-        .left-panel, .panel { 
-            background: linear-gradient(135deg, #f5f5f5, #ececec) !important; 
-        }
-        .left-panel *, .panel * { color: #1a1a1a !important; }
-        /* Cards */
-        .card, .form-container { background: #ffffff !important; }
-        /* Dark nav/header bars → keep brand dark */
-        .top-bar, .header-bar, nav.dark { background: #f0f0f0 !important; }
-
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{--black:#ffffff;--white:#fafafa;--orange:#FF6100;--gray:#888}
-body{font-family:'DM Sans',sans-serif;background:#ffffff;color:#1a1a1a;min-height:100vh;display:grid;grid-template-columns:1fr 1fr;cursor:none}
+:root{--orange:#FF6100;--gray:#888}
+html,body{background:#ffffff;color:#1a1a1a;min-height:100vh}
+body{font-family:'DM Sans',sans-serif;display:grid;grid-template-columns:1fr 1fr;cursor:none}
 .cursor{width:8px;height:8px;background:var(--orange);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transition:transform .15s ease}
 .cursor-follower{width:32px;height:32px;border:1px solid rgba(255,97,0,.4);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transition:all .12s ease}
 .left-panel{background:linear-gradient(160deg,#f5f5f5 0%,#ececec 100%);display:flex;flex-direction:column;justify-content:space-between;padding:48px;position:relative;overflow:hidden}
 .left-panel::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(255,97,0,.1),transparent 65%);bottom:-150px;right:-150px}
-.panel-logo{color:#1a1a1a !important;font-family:'Playfair Display',serif;font-size:24px;font-weight:900;font-style:italic;color:#1a1a1a;text-decoration:none;position:relative;z-index:2}
+.panel-logo{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;font-style:italic;color:#1a1a1a;text-decoration:none;position:relative;z-index:2}
 .panel-logo span{color:var(--orange)}
 .panel-content{position:relative;z-index:2}
-.panel-headline{font-family:'Playfair Display',serif;font-size:clamp(36px,4vw,52px);font-weight:900;line-height:1.05;letter-spacing:-1px;margin-bottom:20px}
+.panel-headline{font-family:'Playfair Display',serif;font-size:clamp(36px,4vw,52px);font-weight:900;line-height:1.05;letter-spacing:-1px;margin-bottom:20px;color:#1a1a1a}
 .panel-headline em{color:var(--orange);font-style:italic}
 .panel-sub{font-size:15px;color:var(--gray);line-height:1.6;max-width:340px;margin-bottom:40px}
 .perks{display:flex;flex-direction:column;gap:14px}
 .perk{display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(0,0,0,.6)}
 .perk-dot{width:6px;height:6px;background:var(--orange);border-radius:50%;flex-shrink:0}
 .panel-footer{font-size:11px;color:rgba(0,0,0,.3);letter-spacing:.05em;position:relative;z-index:2}
-.right-panel{background:#f5f5f5;display:flex;align-items:flex-start;justify-content:center;padding:48px;overflow-y:auto}
+.right-panel{background:#ffffff;display:flex;align-items:flex-start;justify-content:center;padding:48px;overflow-y:auto}
 .form-container{width:100%;max-width:420px;padding:20px 0}
 .form-title{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:#1a1a1a;margin-bottom:6px;letter-spacing:-.5px}
 .form-sub{font-size:13px;color:#888;margin-bottom:32px}
@@ -73,94 +40,81 @@ body{font-family:'DM Sans',sans-serif;background:#ffffff;color:#1a1a1a;min-heigh
 .form-group{margin-bottom:16px}
 .form-label{display:block;font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:#aaa;margin-bottom:8px}
 .form-label .opt{font-size:9px;color:#bbb;text-transform:none;letter-spacing:0;margin-left:4px}
-.form-input{width:100%;padding:13px 16px;border:1.5px solid #e0e0e0;background:#f0f0f0;color:#1a1a1a;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--black);outline:none;transition:border-color .2s;cursor:none;border-radius:0;-webkit-appearance:none}
+.form-input{width:100%;padding:13px 16px;border:1.5px solid #e0e0e0;background:#ffffff;color:#1a1a1a;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;border-radius:4px}
 .form-input:focus{border-color:#FF6100}
 .form-input::placeholder{color:#bbb}
-.form-input.error{border-color:#ef4444}
-.consent-box{background:#f0f0f0;border:1px solid #444;padding:16px;margin-bottom:14px}
+.consent-box{background:#f9f9f9;border:1px solid #e0e0e0;padding:16px;margin-bottom:14px;border-radius:4px}
 .consent-row{display:flex;align-items:flex-start;gap:12px}
-.consent-row input[type=checkbox]{width:16px;height:16px;flex-shrink:0;margin-top:2px;accent-color:#ffffff;cursor:pointer}
-.consent-label{font-size:11px;color:#ccc;line-height:1.6;cursor:pointer}
-.consent-label a{color:#4da6ff;font-weight:700;text-decoration:underline}
-.consent-label strong{color:#1a1a1a}
-.error-msg{font-size:11px;color:#ef4444;margin-bottom:14px;display:none;padding:10px 14px;background:#fff5f5;border-left:3px solid #ef4444}
-.btn-submit{width:100%;padding:16px;background:#ffffff;color:#1a1a1a;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;border:none;cursor:none;transition:background .3s;margin-top:8px;border-radius:0}
+.consent-row input[type=checkbox]{width:16px;height:16px;flex-shrink:0;margin-top:2px;accent-color:#FF6100;cursor:pointer}
+.consent-label{font-size:11px;color:#555;line-height:1.6;cursor:pointer}
+.consent-label a{color:#FF6100;font-weight:700;text-decoration:underline}
+.error-msg{font-size:11px;color:#ef4444;margin-bottom:14px;display:none;padding:10px 14px;background:#fff5f5;border-left:3px solid #ef4444;border-radius:4px}
+.btn-submit{width:100%;padding:16px;background:#FF6100;color:#ffffff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border:none;cursor:pointer;transition:background .3s;margin-top:8px;border-radius:4px}
 .btn-submit:hover{background:#e05500}
-.btn-submit:disabled{background:#999}
-@media(max-width:768px){body{grid-template-columns:1fr}.left-panel{display:none}.right-panel{background:#ffffff;padding:40px 24px}.form-title{color:#1a1a1a}.form-sub a{color:#1a1a1a;border-color:#1a1a1a}.form-label{color:#aaa}.form-input{background:#f5f5f5;border-color:#333;color:#1a1a1a}.form-input::placeholder{color:#444}.form-input:focus{border-color:var(--orange)}.consent-box{background:#f0f0f0;border-color:#444}.consent-label{color:#ccc}.btn-submit{background:var(--orange);color:var(--black)}}
+.btn-submit:disabled{background:#ccc;cursor:not-allowed}
+@media(max-width:768px){body{grid-template-columns:1fr}.left-panel{display:none}.right-panel{padding:40px 24px}}
 </style>
 </head>
 <body>
 <div class="cursor" id="cursor"></div>
 <div class="cursor-follower" id="cf"></div>
+
 <div class="left-panel">
     <a href="/" class="panel-logo">Mova<span>99</span></a>
     <div class="panel-content">
         <h2 class="panel-headline">Join<br>the<br><em>movement.</em></h2>
-        <p class="panel-sub">Create your free account and access thousands of premium products delivered straight to your door.</p>
+        <p class="panel-sub">Create your free account and access millions of premium products delivered straight to your door.</p>
         <div class="perks">
             <div class="perk"><div class="perk-dot"></div>Free to join, no hidden fees</div>
-            <div class="perk"><div class="perk-dot"></div>Thousands of curated products</div>
+            <div class="perk"><div class="perk-dot"></div>10 million+ curated products</div>
             <div class="perk"><div class="perk-dot"></div>Secure Stripe payments</div>
             <div class="perk"><div class="perk-dot"></div>Real-time order tracking</div>
             <div class="perk"><div class="perk-dot"></div>Earn from referrals</div>
         </div>
     </div>
-    <div class="panel-footer">© 2026 Mova99 — Premium Marketplace</div>
+    <div class="panel-footer">© 2026 Mova99 LLC — Premium Marketplace</div>
 </div>
+
 <div class="right-panel">
     <div class="form-container">
         <h1 class="form-title">Create Account</h1>
         <p class="form-sub">Already have an account? <a href="/login">Sign in</a></p>
+
         <div class="form-row">
             <div class="form-group"><label class="form-label">First Name</label><input id="firstName" type="text" class="form-input" placeholder="John"></div>
             <div class="form-group"><label class="form-label">Last Name</label><input id="lastName" type="text" class="form-input" placeholder="Doe"></div>
         </div>
         <div class="form-group"><label class="form-label">Email Address</label><input id="email" type="email" class="form-input" placeholder="your@email.com"></div>
-        <div class="form-group"><label class="form-label">Phone Number <span class="opt">(required for verification)</span></label><input id="phone" type="tel" class="form-input" placeholder="+1 (555) 000-0000"></div>
         <div class="form-group"><label class="form-label">Password</label><input id="password" type="password" class="form-input" placeholder="Min. 6 characters"></div>
         <div class="form-group"><label class="form-label">Confirm Password</label><input id="password2" type="password" class="form-input" placeholder="Repeat password"></div>
         <div class="form-group"><label class="form-label">Referral Code <span class="opt">(optional)</span></label><input id="referralCode" type="text" class="form-input" placeholder="MOVA-XXXXX" style="text-transform:uppercase"></div>
+
         <div class="consent-box">
             <div class="consent-row">
-                <input type="checkbox" id="termsCheck" required>
-                <label class="consent-label" for="termsCheck">I agree to Mova99's <a href="/docs/15_terms_of_service.pdf" style="color:#4da6ff;font-weight:700;text-decoration:underline">Terms of Service</a> and <a href="/docs/16_privacy_policy.pdf" style="color:#4da6ff;font-weight:700;text-decoration:underline">Privacy Policy</a>. I understand my data will be used to process orders and improve my experience.</label>
+                <input type="checkbox" id="termsCheck">
+                <label class="consent-label" for="termsCheck">I agree to Mova99's <a href="/docs/15_terms_of_service.pdf" target="_blank">Terms of Service</a> and <a href="/docs/16_privacy_policy.pdf" target="_blank">Privacy Policy</a>. I understand my data will be used to process orders and improve my experience.</label>
             </div>
         </div>
-        <div class="consent-box">
-            <div class="consent-row">
-                <input type="checkbox" id="smsCheck" required>
-                <label class="consent-label" for="smsCheck"><strong style="color:#FF6100">I consent to receive</strong> promotional messages, order updates, and verification codes from Mova99 via <strong style="color:#FF6100">SMS and email</strong>. Message &amp; data rates may apply. Reply STOP to opt out at any time. Message frequency varies.</label>
-            </div>
-        </div>
+
         <p id="error-msg" class="error-msg"></p>
         <button id="submit-btn" onclick="handleRegister()" class="btn-submit">Create Account</button>
     </div>
 </div>
+
 <script>
 const cursor=document.getElementById('cursor'),cf=document.getElementById('cf');
 let mx=0,my=0,fx=0,fy=0;
 document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx-4+'px';cursor.style.top=my-4+'px';});
 (function af(){fx+=(mx-fx-16)*.12;fy+=(my-fy-16)*.12;cf.style.left=fx+'px';cf.style.top=fy+'px';requestAnimationFrame(af);})();
-document.querySelectorAll('a,button,input').forEach(el=>{el.addEventListener('mouseenter',()=>cursor.style.transform='scale(2.5)');el.addEventListener('mouseleave',()=>cursor.style.transform='scale(1)');});
+document.querySelectorAll('a,button,input').forEach(el=>{
+    el.addEventListener('mouseenter',()=>cursor.style.transform='scale(2.5)');
+    el.addEventListener('mouseleave',()=>cursor.style.transform='scale(1)');
+});
 
+// Auto-fill referral code from URL
 const refParam=new URLSearchParams(window.location.search).get('ref');
 if(refParam) document.getElementById('referralCode').value=refParam.toUpperCase();
-
 document.getElementById('referralCode').addEventListener('input',function(){this.value=this.value.toUpperCase();});
-
-// Phone auto-format to E.164 / SignalWire format
-document.getElementById('phone').addEventListener('input',function(){
-    let v=this.value.replace(/\D/g,'');
-    if(v.length>0&&!v.startsWith('1'))v='1'+v;
-    if(v.length>11)v=v.slice(0,11);
-    let f='';
-    if(v.length>=1)f='+'+v.slice(0,1);
-    if(v.length>1)f+=' ('+v.slice(1,4);
-    if(v.length>4)f+=') '+v.slice(4,7);
-    if(v.length>7)f+='-'+v.slice(7,11);
-    this.value=f;
-});
 
 document.addEventListener('keypress',e=>{if(e.key==='Enter')handleRegister();});
 
@@ -168,230 +122,177 @@ async function handleRegister(){
     const firstName=document.getElementById('firstName').value.trim();
     const lastName=document.getElementById('lastName').value.trim();
     const email=document.getElementById('email').value.trim();
-    const phone=document.getElementById('phone').value.trim();
     const password=document.getElementById('password').value;
     const password2=document.getElementById('password2').value;
     const referralCode=document.getElementById('referralCode').value.trim().toUpperCase();
     const termsCheck=document.getElementById('termsCheck').checked;
-    const smsCheck=document.getElementById('smsCheck').checked;
     const errEl=document.getElementById('error-msg');
     const btn=document.getElementById('submit-btn');
 
     errEl.style.display='none';
-    if(!firstName||!lastName||!email||!password){errEl.textContent='Please fill in all required fields.';errEl.style.display='block';return;}
-    if(!termsCheck){errEl.textContent='You must agree to our Terms of Service and Privacy Policy to create an account.';errEl.style.display='block';return;}
-    if(!smsCheck){errEl.textContent='You must consent to receive messages from Mova99 to create an account.';errEl.style.display='block';return;}
+
+    if(!firstName||!lastName){errEl.textContent='Please enter your first and last name.';errEl.style.display='block';return;}
+    if(!email){errEl.textContent='Please enter your email address.';errEl.style.display='block';return;}
+    if(!password){errEl.textContent='Please enter a password.';errEl.style.display='block';return;}
+    if(!termsCheck){errEl.textContent='You must agree to our Terms of Service and Privacy Policy.';errEl.style.display='block';return;}
     if(password!==password2){errEl.textContent='Passwords do not match.';errEl.style.display='block';return;}
     if(password.length<6){errEl.textContent='Password must be at least 6 characters.';errEl.style.display='block';return;}
 
-    // Convert phone to E.164
-    const rawPhone = phone.replace(/\D/g, '');
-    const e164Phone = rawPhone.length===11 ? '+'+rawPhone : rawPhone.length===10 ? '+1'+rawPhone : phone;
+    btn.textContent='Creating Account...';
+    btn.disabled=true;
 
-    if (!e164Phone || e164Phone.replace(/\D/g,'').length < 10) {
-        errEl.textContent = 'A valid phone number is required for verification.';
-        errEl.style.display = 'block'; return;
+    try {
+        const res = await fetch('/api/register', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+                fullName: firstName+' '+lastName,
+                email,
+                password,
+                referralCode,
+                emailConsent: true
+            })
+        });
+        const data = await res.json();
+        if(data.pendingVerification) {
+            window._regData = { fullName: firstName+' '+lastName, email, password, referralCode, emailConsent: true };
+            showOTPModal(email);
+            btn.textContent='Create Account';
+            btn.disabled=false;
+        } else if(data.token){
+            localStorage.setItem('foundry_session', JSON.stringify({
+                token: data.token,
+                id: data.id,
+                expiry: Date.now() + 24*60*60*1000
+            }));
+            window.location.href='/dashboard';
+        } else {
+            errEl.textContent = data.error || 'Registration failed. Please try again.';
+            errEl.style.display='block';
+            btn.textContent='Create Account';
+            btn.disabled=false;
+        }
+    } catch(e) {
+        errEl.textContent='Connection error. Please try again.';
+        errEl.style.display='block';
+        btn.textContent='Create Account';
+        btn.disabled=false;
     }
-
-    // Store all data — only send to API after phone is verified
-    _regData = { fullName: firstName+' '+lastName, email, phone: e164Phone, password, referralCode, smsConsent: smsCheck, emailConsent: true };
-
-    // Open phone verification modal
-    document.getElementById('pv-phone-display').textContent = e164Phone;
-    document.getElementById('pv-err1').style.display = 'none';
-    document.getElementById('pv-step1').style.display = 'block';
-    document.getElementById('pv-step2').style.display = 'none';
-    document.getElementById('pv-code').value = '';
-    document.getElementById('phoneVerifyModal').style.display = 'flex';
 }
 </script>
 
-<footer style="background:#ffffff;color:#1a1a1a;padding:60px 48px 32px;font-family:'DM Sans',sans-serif">
-    <div style="max-width:1200px;margin:auto">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:40px;margin-bottom:48px">
-            <div>
-                <h3 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;font-style:italic;margin:0 0 20px"><span style="color:#1a1a1a">Mova</span><span style="color:#FF6100">99</span></h3>
-                <p style="font-size:12px;color:#888;line-height:1.7;max-width:220px">Premium marketplace. Quality products delivered across the USA.</p>
-            </div>
-            <div>
-                <h4 style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:#FF6100;margin:0 0 16px">Company Info</h4>
-                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
-                    <li><a href="/docs/01_about_mova99.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">About Mova99</a></li>
-                    <li><a href="/docs/02_affiliate_influencer_program.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Affiliate &amp; Influencer Program</a></li>
-                    <li><a href="/docs/03_contact_us.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Contact Us</a></li>
-                    <li><a href="/docs/04_careers.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Careers</a></li>
-                    <li><a href="/docs/05_press.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Press</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:#FF6100;margin:0 0 16px">Customer Service</h4>
-                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
-                    <li><a href="/docs/06_return_refund_policy.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Return &amp; Refund Policy</a></li>
-                    <li><a href="/docs/07_intellectual_property_policy.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Intellectual Property Policy</a></li>
-                    <li><a href="/docs/08_shipping_info.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Shipping Info</a></li>
-                    <li><a href="/docs/09_report_suspicious_activity.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Report Suspicious Activity</a></li>
-                </ul>
-            </div>
-            <div>
-                <h4 style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:#FF6100;margin:0 0 16px">Help</h4>
-                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
-                    <li><a href="/docs/10_support_center_faq.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Support Center &amp; FAQ</a></li>
-                    <li><a href="/docs/11_safety_center.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Safety Center</a></li>
-                    <li><a href="/docs/12_purchase_protection.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Purchase Protection</a></li>
-                    <li><a href="/docs/13_sitemap.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Sitemap</a></li>
-                    <li><a href="/docs/14_partner_with_mova99.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Partner with Mova99</a></li>
-                </ul>
-            </div>
-        </div>
-        <div style="border-top:1px solid #e5e7eb;padding-top:32px">
-            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px;margin-bottom:24px">
-                <div>
-                    <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#888;margin:0 0 12px">Connect With Us</p>
-                    <div style="display:flex;gap:14px">
-                        <a href="#" style="color:#888;text-decoration:none;font-size:16px">&#x24BE;</a>
-                        <a href="#" style="color:#888;text-decoration:none;font-size:14px;font-weight:700">f</a>
-                        <a href="#" style="color:#888;text-decoration:none;font-size:14px;font-weight:700">X</a>
-                        <a href="#" style="color:#888;text-decoration:none;font-size:14px">&#x266B;</a>
-                        <a href="#" style="color:#888;text-decoration:none;font-size:14px">&#x25B6;</a>
-                    </div>
-                </div>
-                <div>
-                    <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#888;margin:0 0 12px">We Accept</p>
-                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-                        <span style="background:#1a1a5e;color:#1a1a1a;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">VERVE</span>
-                        <span style="background:#1a1a8f;color:#1a1a1a;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">VISA</span>
-                        <span style="background:#eb001b;color:#1a1a1a;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">MC</span>
-                        <span style="background:#2d6cdf;color:#1a1a1a;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">AMEX</span>
-                        <span style="background:#231f20;color:#1a1a1a;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">DISCOVER</span>
-                        <span style="background:#000;color:#FF6100;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">Apple Pay</span>
-                        <span style="background:#4285f4;color:#1a1a1a;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">G Pay</span>
-                    </div>
-                </div>
-            </div>
-            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid #1a1a1a;padding-top:20px">
-                <p style="font-size:11px;color:#555;margin:0">© 2026 Mova99 LLC. All rights reserved.</p>
-                <div style="display:flex;gap:20px;flex-wrap:wrap">
-                    <a href="/docs/15_terms_of_service.pdf" target="_blank" style="font-size:11px;color:#555;text-decoration:none">Terms of Service</a>
-                    <a href="/docs/16_privacy_policy.pdf" target="_blank" style="font-size:11px;color:#555;text-decoration:none">Privacy Policy</a>
-                </div>
-            </div>
-        </div>
+<!-- ── Email Verification Modal ─────────── -->
+<div id="otpModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;padding:32px 28px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.2);text-align:center">
+    <div style="width:52px;height:52px;background:#fff3ed;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px">📧</div>
+    <h3 style="font-size:18px;font-weight:900;color:#1a1a1a;margin:0 0 8px">Check Your Email</h3>
+    <p style="font-size:13px;color:#666;line-height:1.6;margin:0 0 6px">We sent a 6-digit verification code to</p>
+    <p id="otpEmailDisplay" style="font-size:13px;font-weight:700;color:#FF6100;margin:0 0 24px"></p>
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px">
+      <input id="otp1" type="tel" maxlength="1" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:800;border:2px solid #e0e0e0;border-radius:8px;outline:none;color:#1a1a1a" oninput="otpMove(this,'otp2')" onkeydown="otpBack(event,this,'')">
+      <input id="otp2" type="tel" maxlength="1" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:800;border:2px solid #e0e0e0;border-radius:8px;outline:none;color:#1a1a1a" oninput="otpMove(this,'otp3')" onkeydown="otpBack(event,this,'otp1')">
+      <input id="otp3" type="tel" maxlength="1" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:800;border:2px solid #e0e0e0;border-radius:8px;outline:none;color:#1a1a1a" oninput="otpMove(this,'otp4')" onkeydown="otpBack(event,this,'otp2')">
+      <input id="otp4" type="tel" maxlength="1" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:800;border:2px solid #e0e0e0;border-radius:8px;outline:none;color:#1a1a1a" oninput="otpMove(this,'otp5')" onkeydown="otpBack(event,this,'otp3')">
+      <input id="otp5" type="tel" maxlength="1" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:800;border:2px solid #e0e0e0;border-radius:8px;outline:none;color:#1a1a1a" oninput="otpMove(this,'otp6')" onkeydown="otpBack(event,this,'otp4')">
+      <input id="otp6" type="tel" maxlength="1" style="width:44px;height:52px;text-align:center;font-size:22px;font-weight:800;border:2px solid #e0e0e0;border-radius:8px;outline:none;color:#1a1a1a" oninput="otpMove(this,'')" onkeydown="otpBack(event,this,'otp5')">
     </div>
-</footer>
-
-
-<!-- Phone Verification Modal -->
-<div id="phoneVerifyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
-    <div style="background:white;max-width:400px;width:90%;padding:40px;position:relative;animation:slideUp .3s ease">
-        <div id="pv-step1">
-            <h2 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:#ffffff;margin:0 0 8px">Verify Your Phone</h2>
-            <p style="font-size:13px;color:#888;margin:0 0 24px;line-height:1.5">We will send a 6-digit code to <strong id="pv-phone-display" style="color:#ffffff"></strong> to confirm it is yours.</p>
-            <button onclick="sendPhoneCode()" id="pv-send-btn" style="width:100%;padding:15px;background:#ffffff;color:#1a1a1a;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border:none;cursor:pointer">Send Verification Code</button>
-            <p id="pv-err1" style="font-size:11px;color:#ef4444;margin-top:12px;display:none;font-weight:700;text-transform:uppercase"></p>
-            <p style="text-align:center;margin-top:16px"><button onclick="closeVerifyModal()" style="background:none;border:none;font-size:12px;color:#888;cursor:pointer;font-family:inherit">Cancel</button></p>
-        </div>
-        <div id="pv-step2" style="display:none">
-            <h2 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:#ffffff;margin:0 0 8px">Enter Code</h2>
-            <p style="font-size:13px;color:#888;margin:0 0 24px;line-height:1.5" id="pv-code-sub">Enter the 6-digit code sent to your phone.</p>
-            <input type="tel" id="pv-code" maxlength="6" placeholder="000000"
-                style="width:100%;padding:16px;border:2px solid #e0e0e0;font-size:28px;font-weight:900;letter-spacing:10px;text-align:center;outline:none;font-family:'DM Sans',sans-serif;color:#ffffff;box-sizing:border-box;margin-bottom:16px">
-            <p style="text-align:center;font-size:12px;color:#888;margin-bottom:16px">
-                Did not get it? <span onclick="sendPhoneCode()" style="color:#ffffff;font-weight:700;text-decoration:underline;cursor:pointer">Resend code</span>
-            </p>
-            <button onclick="verifyPhoneCode()" id="pv-verify-btn" style="width:100%;padding:15px;background:#ffffff;color:#1a1a1a;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border:none;cursor:pointer">Verify & Create Account</button>
-            <p id="pv-err2" style="font-size:11px;color:#ef4444;margin-top:12px;display:none;font-weight:700;text-transform:uppercase"></p>
-            <p style="text-align:center;margin-top:12px"><button onclick="backToStep1()" style="background:none;border:none;font-size:12px;color:#888;cursor:pointer;font-family:inherit">← Change phone number</button></p>
-        </div>
-    </div>
+    <p id="otpError" style="display:none;color:#e05555;font-size:12px;margin:0 0 12px"></p>
+    <button id="otpVerifyBtn" onclick="verifyOTP()" style="width:100%;padding:14px;background:#FF6100;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;margin-bottom:12px">Verify Email ✓</button>
+    <button onclick="resendOTP()" style="background:none;border:none;color:#FF6100;font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline">Resend Code</button>
+    <p style="font-size:10px;color:#bbb;margin:10px 0 0">Code expires in 10 minutes</p>
+  </div>
 </div>
 
 <script>
-var _regData = {};
+var _pendingEmail = '';
 
-function closeVerifyModal() {
-    document.getElementById('phoneVerifyModal').style.display = 'none';
-    var btn = document.getElementById('submit-btn');
-    btn.textContent = 'Create Account'; btn.disabled = false;
-}
-
-function backToStep1() {
-    document.getElementById('pv-step2').style.display = 'none';
-    document.getElementById('pv-step1').style.display = 'block';
-    document.getElementById('pv-code').value = '';
-    document.getElementById('pv-err2').style.display = 'none';
-}
-
-async function sendPhoneCode() {
-    var sendBtn = document.getElementById('pv-send-btn');
-    var err1 = document.getElementById('pv-err1');
-    err1.style.display = 'none';
-    sendBtn.textContent = 'Sending...'; sendBtn.disabled = true;
-    try {
-        var r = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: _regData.email, password: '__phone_verify__', action: 'send-phone-verify', phone: _regData.phone })
-        });
-        var d = await r.json();
-        if (d.success) {
-            document.getElementById('pv-code-sub').textContent = 'Enter the 6-digit code sent to ' + _regData.phone;
-            document.getElementById('pv-step1').style.display = 'none';
-            document.getElementById('pv-step2').style.display = 'block';
-        } else {
-            err1.textContent = d.error || 'Failed to send code. Check your phone number.';
-            err1.style.display = 'block';
-        }
-    } catch(e) {
-        err1.textContent = 'Connection error. Please try again.';
-        err1.style.display = 'block';
+function otpMove(el, nextId) {
+    el.style.borderColor = '#FF6100';
+    if (el.value.length === 1 && nextId) {
+        document.getElementById(nextId).focus();
     }
-    sendBtn.textContent = 'Send Verification Code'; sendBtn.disabled = false;
+    // Auto verify when all 6 filled
+    var code = ['otp1','otp2','otp3','otp4','otp5','otp6'].map(id => document.getElementById(id).value).join('');
+    if (code.length === 6) verifyOTP();
 }
 
-async function verifyPhoneCode() {
-    var code = document.getElementById('pv-code').value.trim();
-    var err2 = document.getElementById('pv-err2');
-    var btn = document.getElementById('pv-verify-btn');
-    err2.style.display = 'none';
-    if (code.length !== 6) { err2.textContent = 'Enter the 6-digit code.'; err2.style.display = 'block'; return; }
-    btn.textContent = 'Verifying...'; btn.disabled = true;
+function otpBack(e, el, prevId) {
+    if (e.key === 'Backspace' && !el.value && prevId) {
+        document.getElementById(prevId).focus();
+    }
+}
+
+function showOTPModal(email) {
+    _pendingEmail = email;
+    document.getElementById('otpEmailDisplay').textContent = email;
+    document.getElementById('otpModal').style.display = 'flex';
+    setTimeout(function() { document.getElementById('otp1').focus(); }, 100);
+}
+
+async function verifyOTP() {
+    var code = ['otp1','otp2','otp3','otp4','otp5','otp6'].map(id => document.getElementById(id).value).join('');
+    if (code.length < 6) {
+        document.getElementById('otpError').textContent = 'Please enter the full 6-digit code.';
+        document.getElementById('otpError').style.display = 'block';
+        return;
+    }
+    var btn = document.getElementById('otpVerifyBtn');
+    btn.textContent = 'Verifying...';
+    btn.disabled = true;
+    document.getElementById('otpError').style.display = 'none';
     try {
-        // Verify code against temp stored code
-        var vr = await fetch('/api/login', {
+        var res = await fetch('/api/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'verify-phone-code', phone: _regData.phone, code })
+            body: JSON.stringify({ action: 'verify-otp', email: _pendingEmail, otp: code })
         });
-        var vd = await vr.json();
-        if (!vd.success) {
-            err2.textContent = vd.error || 'Invalid code. Please try again.';
-            err2.style.display = 'block';
-            btn.textContent = 'Verify & Create Account'; btn.disabled = false;
-            return;
-        }
-        // Phone verified — now register
-        var r = await fetch('/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(_regData)
-        });
-        var data = await r.json();
-        document.getElementById('phoneVerifyModal').style.display = 'none';
-        if (data.token) {
-            localStorage.setItem('foundry_session', JSON.stringify({ token: data.token, id: data.id, expiry: Date.now() + 24*60*60*1000 }));
+        var data = await res.json();
+        if (data.success && data.token) {
+            localStorage.setItem('foundry_session', JSON.stringify({
+                token: data.token,
+                userId: data.id,
+                referralCode: data.referralCode
+            }));
             window.location.href = '/dashboard';
         } else {
-            var errEl = document.getElementById('error-msg');
-            errEl.textContent = data.error || 'Registration failed.';
-            errEl.style.display = 'block';
-            var sbtn = document.getElementById('submit-btn');
-            sbtn.textContent = 'Create Account'; sbtn.disabled = false;
+            document.getElementById('otpError').textContent = data.error || 'Invalid code. Please try again.';
+            document.getElementById('otpError').style.display = 'block';
+            btn.textContent = 'Verify Email ✓';
+            btn.disabled = false;
+            // Clear boxes on wrong code
+            ['otp1','otp2','otp3','otp4','otp5','otp6'].forEach(id => {
+                document.getElementById(id).value = '';
+                document.getElementById(id).style.borderColor = '#e05555';
+            });
+            document.getElementById('otp1').focus();
         }
     } catch(e) {
-        err2.textContent = 'Connection error. Please try again.';
-        err2.style.display = 'block';
-        btn.textContent = 'Verify & Create Account'; btn.disabled = false;
+        document.getElementById('otpError').textContent = 'Something went wrong. Please try again.';
+        document.getElementById('otpError').style.display = 'block';
+        btn.textContent = 'Verify Email ✓';
+        btn.disabled = false;
     }
+}
+
+async function resendOTP() {
+    if (!_pendingEmail) return;
+    // Re-trigger the registration to resend OTP
+    try {
+        var pendingData = window._regData || {};
+        if (!pendingData.email) return;
+        await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(pendingData)
+        });
+        var inputs = ['otp1','otp2','otp3','otp4','otp5','otp6'];
+        inputs.forEach(id => { document.getElementById(id).value = ''; document.getElementById(id).style.borderColor = '#e0e0e0'; });
+        document.getElementById('otp1').focus();
+        document.getElementById('otpError').textContent = 'New code sent!';
+        document.getElementById('otpError').style.color = '#22c55e';
+        document.getElementById('otpError').style.display = 'block';
+        setTimeout(function() { document.getElementById('otpError').style.display = 'none'; document.getElementById('otpError').style.color = '#e05555'; }, 3000);
+    } catch(e) {}
 }
 </script>
 </body>
