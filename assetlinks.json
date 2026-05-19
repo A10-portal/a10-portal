@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.mova99.www.twa",
+        "sha256_cert_fingerprints": ["19:FB:98:2D:DD:F2:6E:4F:2C:FB:BE:AC:6C:07:91:0C:17:9A:2E:DB:7F:F4:9B:4C:AC:CF:09:C6:41:39:17:DC"]
+      }
+    }]
