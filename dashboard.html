@@ -1939,5 +1939,10 @@ function closeWelcomePopup() {
     if (p) { p.style.opacity='0'; p.style.transition='opacity .3s'; setTimeout(function(){p.style.display='none';},300); }
 }
 </script>
+    <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
 </body>
 </html>
