@@ -14,16 +14,9 @@ function verifyToken(req) {
 }
 
 async function handleAuth(req, res) {
-    const allowedIP = (process.env.ADMIN_ALLOWED_IP || '').trim();
-    if (allowedIP) {
-        const forwardedFor = req.headers['x-forwarded-for'] || '';
-        const allIPs = forwardedFor.split(',').map(s => s.trim()).filter(Boolean);
-        const realIP = req.headers['x-real-ip']?.trim() || '';
-        if (realIP && !allIPs.includes(realIP)) allIPs.push(realIP);
-        const matched = allIPs.some(ip => ip === allowedIP || ip.startsWith(allowedIP) || allowedIP.startsWith(ip));
-        console.log('[admin] auth IP check — all IPs:', allIPs, 'allowed:', allowedIP, 'matched:', matched);
-        if (!matched) return res.status(403).json({ error: 'Access denied — IP not allowed' });
-    }
+    const clientIP = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || '';
+    const allowedIP = process.env.ADMIN_ALLOWED_IP || '';
+    if (allowedIP && clientIP !== allowedIP) return res.status(403).json({ error: 'Access denied' });
     const { password } = req.body || {};
     if (!password || password !== process.env.ADMIN_PASSWORD) return res.status(401).json({ error: 'Invalid password' });
     const token = Buffer.from(process.env.ADMIN_PASSWORD + ':' + Date.now()).toString('base64');
@@ -221,14 +214,11 @@ export default async function handler(req, res) {
 
     // ── IP check — called before admin page renders ──────────────
     if (action === 'check-ip') {
+        const clientIP = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || '';
         const allowedIP = (process.env.ADMIN_ALLOWED_IP || '').trim();
-        if (!allowedIP) return res.status(200).json({ allowed: true, ip: 'unrestricted' });
-        const forwardedFor = req.headers['x-forwarded-for'] || '';
-        const allIPs = forwardedFor.split(',').map(s => s.trim()).filter(Boolean);
-        const realIP = req.headers['x-real-ip']?.trim() || '';
-        if (realIP && !allIPs.includes(realIP)) allIPs.push(realIP);
-        const allowed = allIPs.some(ip => ip === allowedIP || ip.startsWith(allowedIP) || allowedIP.startsWith(ip));
-        console.log('[admin] IP check — all IPs:', allIPs, 'allowed:', allowedIP, 'result:', allowed);
+        if (!allowedIP) return res.status(200).json({ allowed: true });
+        const allowed = clientIP === allowedIP || clientIP.includes(allowedIP);
+        console.log('[admin] IP check — client:', clientIP, 'allowed:', allowedIP, 'result:', allowed);
         return res.status(200).json({ allowed });
     }
 
