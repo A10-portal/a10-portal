@@ -1,28 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff6100">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">>
-        <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-TK7Y07K9VH"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-TK7Y07K9VH');
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/png" href="/image/logo.PNG">
-<meta name="description" content="Login to your Mova99 account and start shopping 10 million+ products delivered across the USA.">
-<meta name="robots" content="index, follow">
-<meta property="og:title" content="Login - Mova99">
-<meta property="og:url" content="https://www.mova99.com/login">
-<meta property="og:type" content="website">
-<link rel="canonical" href="https://www.mova99.com/login">
 <title>Sign In — Mova99</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -159,7 +139,7 @@ body{font-family:'DM Sans',sans-serif;background:#ffffff;color:#1a1a1a;min-heigh
         <p id="error-msg" class="error-msg"></p>
         <button id="submit-btn" onclick="handleLogin()" class="btn-submit">Sign In</button>
         <p style="text-align:center;margin-top:12px"><button onclick="document.getElementById('forgotModal').classList.add('active')" style="background:none;border:none;font-size:12px;color:#888;cursor:pointer;text-decoration:underline;font-family:inherit">Forgot password?</button></p>
-        <p style="text-align:center;font-size:13px;color:#888;margin-top:16px">Don't have an account? <a href="/signup" style="color:#ffffff;font-weight:500;text-decoration:none;border-bottom:1px solid #ffffff">Sign up free</a></p>
+        <p style="text-align:center;font-size:13px;color:#888;margin-top:16px">Don't have an account? <a href="/signup" style="color:#FF6100;font-weight:500;text-decoration:none;border-bottom:1px solid #FF6100">Sign up free</a></p>
     </div>
 </div>
 
@@ -425,11 +405,6 @@ async function forgotResetPassword() {
             document.getElementById('forgot-step4').style.display = 'block';
         } else { errEl.textContent = d.error || 'Failed to reset password.'; errEl.style.display = 'block'; }
     } catch(e) { errEl.textContent = 'Connection error.'; errEl.style.display = 'block'; }
-}
-</script>
-        <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js');
 }
 </script>
 </body>
