@@ -102,12 +102,20 @@ export default async function handler(req, res) {
             }
         }
 
-        // Apply 1.8× markup
-        const result = products.map(p => ({
+        // Apply 2.4x markup
+        let result = products.map(p => ({
             ...p,
             sellPrice: (parseFloat(p.sellPrice || 0) * 2.4).toFixed(2),
             originalPrice: p.sellPrice
         }));
+
+        // Filter by displayed price AFTER markup — guaranteed to match what user sees
+        if (minPrice) {
+            result = result.filter(p => parseFloat(p.sellPrice) >= parseFloat(minPrice));
+        }
+        if (maxPrice) {
+            result = result.filter(p => parseFloat(p.sellPrice) <= parseFloat(maxPrice));
+        }
 
         return res.status(200).json({ products: result, total, page: parseInt(page), pageSize: parseInt(pageSize) });
     } catch (e) {
