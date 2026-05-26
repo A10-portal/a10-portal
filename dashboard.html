@@ -724,10 +724,10 @@
             });
 
             const subtotal = cart.reduce((sum, i) => sum + parseFloat(markup(i.price)), 0);
-            const total = (subtotal + 2.41).toFixed(2);
+            const total = (subtotal + 5.20).toFixed(2);
             cartHtml += '</div><div class="mt-8 pt-6 border-t space-y-2">' +
                 '<div class="flex justify-between"><span class="text-[9px] font-800 uppercase text-gray-400">Subtotal</span><span class="text-[9px] font-800">$' + subtotal.toFixed(2) + '</span></div>' +
-                '<div class="flex justify-between"><span class="text-[9px] font-800 uppercase text-gray-400">Shipping</span><span class="text-[9px] font-800">$2.41</span></div>' +
+                '<div class="flex justify-between"><span class="text-[9px] font-800 uppercase text-gray-400">Shipping</span><span class="text-[9px] font-800">$5.20</span></div>' +
                 '<div class="flex justify-between border-t-2 border-black pt-3 mt-2"><span class="text-xl font-800">Total</span><span class="text-xl font-800">$' + total + '</span></div></div>' +
                 '<div style="margin-top:20px">' +
                 '<label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:8px">Order Note <span style="color:#bbb;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>' +
