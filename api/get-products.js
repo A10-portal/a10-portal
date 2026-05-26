@@ -49,9 +49,8 @@ export default async function handler(req, res) {
         pageSize: parseInt(pageSize),
         countryCode: countryCode || 'US'
     };
-    // Divide by markup (2.4x) so filters match displayed prices
-    if (minPrice) base.priceFrom = (parseFloat(minPrice) / 2.4).toFixed(2);
-    if (maxPrice) base.priceTo   = (parseFloat(maxPrice) / 2.4).toFixed(2);
+    if (minPrice) base.priceFrom = minPrice;
+    if (maxPrice) base.priceTo   = maxPrice;
 
     try {
         let products = [], total = 0;
@@ -102,20 +101,12 @@ export default async function handler(req, res) {
             }
         }
 
-        // Apply 2.4x markup
-        let result = products.map(p => ({
+        // Apply 1.8× markup
+        const result = products.map(p => ({
             ...p,
             sellPrice: (parseFloat(p.sellPrice || 0) * 2.4).toFixed(2),
             originalPrice: p.sellPrice
         }));
-
-        // Filter by displayed price AFTER markup — guaranteed to match what user sees
-        if (minPrice) {
-            result = result.filter(p => parseFloat(p.sellPrice) >= parseFloat(minPrice));
-        }
-        if (maxPrice) {
-            result = result.filter(p => parseFloat(p.sellPrice) <= parseFloat(maxPrice));
-        }
 
         return res.status(200).json({ products: result, total, page: parseInt(page), pageSize: parseInt(pageSize) });
     } catch (e) {
