@@ -15,18 +15,28 @@ const FASHION_KEYWORDS = [
 ];
 
 async function productsFetch(keyword, params, token) {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) {
         try {
+            await sleep(i === 0 ? 0 : 1200 * i); // wait longer each retry
             const p = { ...params };
             if (keyword) p.productNameEn = keyword;
             const r = await axios.get('https://developers.cjdropshipping.com/api2.0/v1/product/list', {
-                headers: { 'CJ-Access-Token': token }, params: p
+                headers: { 'CJ-Access-Token': token }, params: p,
+                timeout: 15000
             });
+            if (r.data?.data) return r.data.data;
+            if ((r.data?.message || '').includes('Too Many Requests')) {
+                await sleep(2000 * (i + 1));
+                continue;
+            }
             return r.data?.data || {};
         } catch (e) {
-            if ((e.response?.data?.message || '').includes('Too Many Requests') && i < 2) {
-                await sleep(1400); continue;
+            const msg = e.response?.data?.message || e.message || '';
+            if (msg.includes('Too Many Requests') && i < 4) {
+                await sleep(2000 * (i + 1));
+                continue;
             }
+            if (i < 4) { await sleep(1500); continue; }
             throw e;
         }
     }
