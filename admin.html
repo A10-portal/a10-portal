@@ -2,820 +2,704 @@
 <html lang="en">
 <head>
     <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff6100">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mova99 Admin</title>
-<style>.ip-hidden{opacity:0;pointer-events:none}.ip-visible{opacity:1;transition:opacity .2s ease}</style>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    document.body.classList.add('ip-hidden');
-});
-(async function() {
-    async function show() {
-        await document.fonts.ready;
-        var body = document.body;
-        if (body) { body.classList.remove('ip-hidden'); body.classList.add('ip-visible'); }
-        else { document.addEventListener('DOMContentLoaded', function(){ document.body.classList.remove('ip-hidden'); document.body.classList.add('ip-visible'); }); }
-    }
-    try {
-        var r = await fetch('/api/admin-api?action=check-ip');
-        var d = await r.json();
-        if (d.allowed) {
-            show();
-        } else {
-            window.location.replace('/');
-        }
-    } catch(e) {
-        show(); // allow if check fails (ADMIN_ALLOWED_IP blank)
-    }
-})();
-</script>
+    <meta name="theme-color" content="#ff6100">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="/image/logo.png">
+    <meta name="description" content="Shop millions of products at unbeatable prices. Fast 3-8 day delivery across the USA. Secure checkout powered by Stripe.">
+    <meta property="og:title" content="Mova99 — Premium USA Marketplace">
+    <meta property="og:description" content="Shop millions of products across every category. Fast delivery, secure checkout and unbeatable prices across the United States.">
+    <meta property="og:url" content="https://www.mova99.com">
+    <meta property="og:type" content="website">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.mova99.com">
+    <title>Mova99 — Premium USA Marketplace</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TK7Y07K9VH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TK7Y07K9VH');
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root{--orange:#ff6100;--orange-light:#ff8533;--orange-pale:#fff3ed;--text:#1a1a1a;--border:#f0f0f0;--bg:#f5f5f5;--white:#ffffff}
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',-apple-system,sans-serif;background:#fff;color:var(--text);overflow-x:hidden}
+        ::-webkit-scrollbar{width:4px}
+        ::-webkit-scrollbar-thumb{background:var(--orange);border-radius:2px}
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-<style>
-body { font-family: 'Inter', sans-serif; background: #f5f5f5; }
-.tab-btn { padding: 16px 24px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; border-bottom: 2px solid transparent; }
-.tab-btn.active { border-bottom: 2px solid black; }
-.card { background: white; border: 1px solid #e5e7eb; padding: 24px; border-radius: 2px; }
-.stat-card { background: white; border: 2px solid black; padding: 24px; text-align: center; }
-</style>
+        /* NAV */
+        .nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px}
+        .nav-inner{max-width:1280px;margin:auto;height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+        .nav-logo{font-size:22px;font-weight:900;font-style:italic;color:var(--orange);text-decoration:none;letter-spacing:-1px}
+        .nav-links{display:flex;align-items:center;gap:8px}
+        .nav-btn{padding:9px 20px;border-radius:24px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .18s}
+        .nav-btn-outline{background:transparent;border:2px solid var(--orange);color:var(--orange)}
+        .nav-btn-solid{background:var(--orange);border:2px solid var(--orange);color:#fff}
+        .nav-btn:hover{opacity:.85;transform:translateY(-1px)}
+        @media(max-width:640px){.nav-links .nav-btn-outline{display:none}}
+
+        /* MARQUEE */
+        .marquee-wrap{background:var(--orange);overflow:hidden;padding:8px 0}
+        .marquee-track{display:flex;animation:marquee 30s linear infinite;white-space:nowrap;gap:0}
+        .marquee-track span{font-size:12px;font-weight:700;color:#fff;padding:0 32px;letter-spacing:.02em}
+        @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+        /* HERO */
+        .hero{background:linear-gradient(135deg,#0a0a0a 0%,#1a0800 50%,#0a0a0a 100%);min-height:520px;display:flex;align-items:center;position:relative;overflow:hidden;padding:60px 24px}
+        .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(255,97,0,.25) 0%,transparent 60%);pointer-events:none}
+        .hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(255,97,0,.15) 0%,transparent 60%);pointer-events:none}
+        .hero-inner{max-width:1280px;margin:auto;width:100%;position:relative;z-index:2}
+        .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,97,0,.15);border:1px solid rgba(255,97,0,.3);border-radius:24px;padding:6px 16px;font-size:11px;font-weight:700;color:#ff8533;text-transform:uppercase;letter-spacing:.08em;margin-bottom:20px}
+        .hero h1{font-size:clamp(36px,5vw,72px);font-weight:900;color:#fff;line-height:1.05;margin-bottom:20px;letter-spacing:-2px}
+        .hero h1 span{color:var(--orange)}
+        .hero p{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,.65);line-height:1.7;max-width:540px;margin-bottom:32px}
+        .hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+        .hero-btn-primary{background:var(--orange);color:#fff;padding:15px 32px;border-radius:12px;font-size:14px;font-weight:800;text-decoration:none;text-transform:uppercase;letter-spacing:.08em;transition:all .2s;border:none;cursor:pointer}
+        .hero-btn-primary:hover{background:var(--orange-light);transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,97,0,.4)}
+        .hero-btn-secondary{background:transparent;color:#fff;padding:15px 32px;border-radius:12px;font-size:14px;font-weight:800;text-decoration:none;text-transform:uppercase;letter-spacing:.08em;transition:all .2s;border:2px solid rgba(255,255,255,.2)}
+        .hero-btn-secondary:hover{border-color:#fff;transform:translateY(-2px)}
+        .hero-stats{display:flex;gap:32px;margin-top:40px;flex-wrap:wrap}
+        .hero-stat{text-align:left}
+        .hero-stat-num{font-size:28px;font-weight:900;color:#fff}
+        .hero-stat-label{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+        /* SECTIONS */
+        .section{padding:64px 24px}
+        .section-inner{max-width:1280px;margin:auto}
+        .section-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px}
+        .section-title{font-size:clamp(22px,3vw,32px);font-weight:900;color:var(--text);letter-spacing:-1px}
+        .section-title span{color:var(--orange)}
+        .section-subtitle{font-size:13px;color:#888;margin-top:6px}
+        .section-link{font-size:13px;font-weight:700;color:var(--orange);text-decoration:none;white-space:nowrap}
+        .section-link:hover{text-decoration:underline}
+
+        /* CATEGORY CHIPS */
+        .cat-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;-ms-overflow-style:none;scrollbar-width:none}
+        .cat-scroll::-webkit-scrollbar{display:none}
+        .cat-chip{display:inline-flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;min-width:80px;text-decoration:none;transition:transform .2s}
+        .cat-chip:hover{transform:translateY(-3px)}
+        .cat-chip-img{width:72px;height:72px;border-radius:50%;background:var(--orange-pale);border:2px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;transition:border-color .18s}
+        .cat-chip:hover .cat-chip-img{border-color:var(--orange)}
+        .cat-chip-img img{width:100%;height:100%;object-fit:cover}
+        .cat-chip-label{font-size:10px;font-weight:600;color:var(--text);text-align:center;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+        /* PRODUCT GRID */
+        .product-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+        @media(min-width:480px){.product-grid{grid-template-columns:repeat(3,1fr)}}
+        @media(min-width:768px){.product-grid{grid-template-columns:repeat(4,1fr);gap:12px}}
+        @media(min-width:1024px){.product-grid{grid-template-columns:repeat(5,1fr)}}
+        @media(min-width:1280px){.product-grid{grid-template-columns:repeat(6,1fr)}}
+        .product-card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:all .22s;display:flex;flex-direction:column}
+        .product-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.10);transform:translateY(-3px);border-color:var(--orange)}
+        .product-img-wrap{aspect-ratio:1;background:#f8f8f8;overflow:hidden;position:relative}
+        .product-img-wrap img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s,transform .4s}
+        .product-img-wrap img.loaded{opacity:1}
+        .product-card:hover .product-img-wrap img{transform:scale(1.05)}
+        .hot-badge{position:absolute;top:8px;left:8px;background:var(--orange);color:#fff;font-size:9px;font-weight:800;padding:3px 7px;border-radius:4px;z-index:2}
+        .product-info{padding:10px 12px;flex:1;display:flex;flex-direction:column;gap:4px}
+        .product-name{font-size:11px;line-height:14px;height:28px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;color:var(--text)}
+        .product-price{font-size:16px;font-weight:800;color:var(--orange)}
+        .product-old{font-size:11px;color:#bbb;text-decoration:line-through}
+        .add-btn{margin:0 10px 10px;padding:10px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;margin-top:auto}
+        .add-btn:hover{background:var(--orange-light);transform:translateY(-1px)}
+
+        /* SKELETON */
+        .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:12px}
+        @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+        /* FEATURES */
+        .features{background:var(--bg)}
+        .features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+        @media(min-width:640px){.features-grid{grid-template-columns:repeat(4,1fr)}}
+        .feature-card{background:#fff;border-radius:14px;padding:24px 20px;text-align:center;border:1px solid var(--border);transition:all .2s}
+        .feature-card:hover{border-color:var(--orange);transform:translateY(-3px)}
+        .feature-icon{font-size:32px;margin-bottom:12px}
+        .feature-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+        .feature-desc{font-size:11px;color:#888;line-height:1.6}
+
+        /* REFERRAL */
+        .referral-section{background:linear-gradient(135deg,#0a0a0a,#1a0800);padding:64px 24px}
+        .referral-inner{max-width:640px;margin:auto;text-align:center}
+        .referral-inner h2{font-size:clamp(24px,4vw,40px);font-weight:900;color:#fff;margin-bottom:12px;letter-spacing:-1px}
+        .referral-inner h2 span{color:var(--orange)}
+        .referral-inner p{font-size:14px;color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:28px}
+
+        /* FOOTER */
+        .footer{background:#0a0a0a;padding:48px 24px 32px;border-top:1px solid #1a1a1a}
+        .footer-inner{max-width:1280px;margin:auto}
+        .footer-grid{display:grid;grid-template-columns:1fr;gap:32px;margin-bottom:40px}
+        @media(min-width:640px){.footer-grid{grid-template-columns:2fr 1fr 1fr}}
+        .footer-logo{font-size:24px;font-weight:900;font-style:italic;color:#fff;margin-bottom:12px;letter-spacing:-1px}
+        .footer-logo span{color:var(--orange)}
+        .footer-desc{font-size:12px;color:#555;line-height:1.7}
+        .footer-heading{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:16px}
+        .footer-link{display:block;font-size:12px;color:#555;text-decoration:none;margin-bottom:10px;transition:color .15s}
+        .footer-link:hover{color:var(--orange)}
+        .footer-bottom{border-top:1px solid #1a1a1a;padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+        .footer-copy{font-size:11px;color:#333}
+
+        /* CART FLOAT */
+        .cart-float{position:fixed;bottom:24px;right:20px;z-index:500;background:var(--orange);border-radius:50%;width:56px;height:56px;display:none;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(255,97,0,.4);cursor:pointer;transition:transform .2s}
+        .cart-float.visible{display:flex}
+        .cart-float:hover{transform:scale(1.1)}
+
+        /* ANIMATIONS */
+        .fade-up{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+        .fade-up.visible{opacity:1;transform:translateY(0)}
+    </style>
 </head>
 <body>
 
-<div id="login-screen" class="flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 w-full max-w-sm border-2 border-black">
-        <h1 class="text-xl font-black uppercase mb-2 text-center">MOVA99</h1>
-        <p class="text-[9px] uppercase text-gray-400 text-center mb-4">Admin Panel</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
-            <button onclick="setAdminType('product')" id="btn-product-admin" style="padding:10px;background:#ff6100;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer">Product Admin</button>
-            <button onclick="setAdminType('food')" id="btn-food-admin" style="padding:10px;background:#1a1a1a;color:#555;border:1px solid #333;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer">Food Admin</button>
+<!-- Navigation -->
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="/" class="nav-logo">Mova<span style="color:#1a1a1a">99</span></a>
+        <div class="nav-links">
+            <a href="/signup" class="nav-btn nav-btn-outline">Sign Up</a>
+            <a href="/login" class="nav-btn nav-btn-solid">Sign In</a>
         </div>
-        <p id="admin-type-label" style="font-size:10px;color:#666;text-align:center;margin-bottom:12px;text-transform:uppercase;letter-spacing:.06em">Signing in as: Product Admin</p>
-        <input id="pass" type="password" placeholder="Admin Password" class="w-full border-2 p-3 text-sm mb-4 outline-none focus:border-black">
-        <button onclick="login()" class="w-full bg-black text-white py-3 text-[10px] font-black uppercase tracking-widest hover:bg-gray-800">Access Panel</button>
-        <p id="login-err" class="text-red-500 text-[10px] text-center mt-3 hidden">Access denied</p>
+    </div>
+</nav>
+
+<!-- Marquee -->
+<div class="marquee-wrap">
+    <div class="marquee-track" id="marquee-track">
+        <span>🛒 Millions of Products</span>
+        <span>🚚 Fast 3-8 Day USA Delivery</span>
+        <span>🔒 Secure Checkout — Stripe</span>
+        <span>💰 Unbeatable Prices</span>
+        <span>🎁 Earn 5% Referral Rewards</span>
+        <span>🏪 Shop Every Category</span>
+        <span>📦 1-2 Day Processing</span>
+        <span>🛒 Millions of Products</span>
+        <span>🚚 Fast 3-8 Day USA Delivery</span>
+        <span>🔒 Secure Checkout — Stripe</span>
+        <span>💰 Unbeatable Prices</span>
+        <span>🎁 Earn 5% Referral Rewards</span>
+        <span>🏪 Shop Every Category</span>
+        <span>📦 1-2 Day Processing</span>
     </div>
 </div>
 
-<div id="panel" class="hidden">
-    <header class="bg-black text-white px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-        <h1 class="text-sm font-black uppercase tracking-widest">MOVA99 Admin</h1>
-        <button onclick="logout()" class="text-[9px] font-800 uppercase border border-white px-4 py-2 hover:bg-white hover:text-black transition-all">Logout</button>
-    </header>
-    <div class="flex border-b bg-white px-4 sticky top-14 z-40">
-        <button class="tab-btn active" id="t-home" onclick="showTab('home')">Home</button>
-        <button class="tab-btn" id="t-orders" onclick="showTab('orders')">Orders</button>
-        <button class="tab-btn" id="t-users" onclick="showTab('users')">Users</button>
-        <button class="tab-btn" id="t-fulfill" onclick="showTab('fulfill')">Fulfill</button>
-        <button class="tab-btn" id="t-push" onclick="showTab('push')">Push</button>
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-badge">🔥 Premium USA Marketplace</div>
+        <h1>Shop <span>Millions</span> of<br>Products Online</h1>
+        <p>Fast delivery across the United States. Unbeatable prices on fashion, electronics, home goods, beauty and everything in between.</p>
+        <div class="hero-btns">
+            <a href="/signup" class="hero-btn-primary">Start Shopping Free →</a>
+            <a href="/login" class="hero-btn-secondary">Sign In</a>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-num">1M+</div><div class="hero-stat-label">Products</div></div>
+            <div class="hero-stat"><div class="hero-stat-num">3-8</div><div class="hero-stat-label">Day Delivery</div></div>
+            <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-label">USA Delivery</div></div>
+            <div class="hero-stat"><div class="hero-stat-num">5%</div><div class="hero-stat-label">Referral Earn</div></div>
+        </div>
     </div>
-    <div class="p-6 max-w-6xl mx-auto">
-        <div id="c-home"></div>
-        <div id="c-orders" class="hidden"></div>
-        <div id="c-users" class="hidden"></div>
-        <div id="c-fulfill" class="hidden"></div>
+</section>
+
+<!-- Trending Products -->
+<section class="section fade-up" style="background:var(--bg);padding-top:48px;padding-bottom:48px">
+    <div class="section-inner">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Trending <span>Products</span></h2>
+                <p class="section-subtitle">Real products — add to cart and checkout instantly</p>
+            </div>
+            <a href="/dashboard" class="section-link">Shop All →</a>
+        </div>
+        <div class="product-grid" id="product-grid">
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+        </div>
+        <div style="text-align:center;margin-top:32px">
+            <a href="/signup" style="display:inline-block;padding:14px 36px;background:var(--orange);color:#fff;border-radius:12px;font-size:13px;font-weight:800;text-decoration:none;text-transform:uppercase;letter-spacing:.08em;transition:all .2s" onmouseover="this.style.background='#ff8533'" onmouseout="this.style.background='#ff6100'">View All Products →</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="section features fade-up">
+    <div class="section-inner">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Why <span>Mova99</span>?</h2>
+                <p class="section-subtitle">Everything you need in one place</p>
+            </div>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon">🛒</div><div class="feature-title">Millions of Products</div><div class="feature-desc">Every category covered — fashion, electronics, home goods, beauty and more</div></div>
+            <div class="feature-card"><div class="feature-icon">🚚</div><div class="feature-title">Fast USA Delivery</div><div class="feature-desc">3-8 business day delivery across the entire United States</div></div>
+            <div class="feature-card"><div class="feature-icon">🔒</div><div class="feature-title">Secure Checkout</div><div class="feature-desc">Powered by Stripe — the most trusted payment platform in the world</div></div>
+            <div class="feature-card"><div class="feature-icon">💰</div><div class="feature-title">Best Prices</div><div class="feature-desc">Unbeatable prices on millions of products updated daily</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- More Products Row 2 -->
+<section class="section fade-up" style="padding-top:48px;padding-bottom:48px">
+    <div class="section-inner">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">New <span>Arrivals</span></h2>
+                <p class="section-subtitle">Fresh products added daily</p>
+            </div>
+            <a href="/signup" class="section-link">Shop Now →</a>
+        </div>
+        <div class="product-grid" id="product-grid-2">
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Referral Section -->
+<section class="referral-section fade-up">
+    <div class="referral-inner">
+        <div style="font-size:48px;margin-bottom:16px">🎁</div>
+        <h2>Earn With <span>Mova99</span></h2>
+        <p>Share your unique referral code and earn <strong style="color:var(--orange)">5% on every order</strong> your friends place — on both products and food orders. No limit on how much you can earn.</p>
+        <a href="/signup" class="hero-btn-primary" style="display:inline-block;text-decoration:none">Sign Up Free & Start Earning →</a>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo">Mova<span>99</span></div>
+                <p class="footer-desc">Your premium online marketplace. Shop millions of products across every category with fast USA delivery and unbeatable prices.</p>
+                <p style="font-size:11px;color:#333;margin-top:12px">support@mova99.com</p>
+            </div>
+            <div>
+                <p class="footer-heading">Shop</p>
+                <a href="/signup" class="footer-link">Create Account</a>
+                <a href="/login" class="footer-link">Sign In</a>
+                <a href="/dashboard" class="footer-link">Marketplace</a>
+            </div>
+            <div>
+                <p class="footer-heading">Legal</p>
+                <a href="/docs/16_privacy_policy.pdf" class="footer-link" target="_blank">Privacy Policy</a>
+                <a href="/docs/15_terms_of_service.pdf" class="footer-link" target="_blank">Terms of Service</a>
+                <a href="/docs/06_return_refund_policy.pdf" class="footer-link" target="_blank">Returns & Refunds</a>
+                <a href="/docs/08_shipping_info.pdf" class="footer-link" target="_blank">Shipping Info</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p class="footer-copy">© 2026 Mova99 LLC · Premium USA Marketplace · www.mova99.com</p>
+            <p style="font-size:11px;color:#333">Powered by Stripe · Secure Payments</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Floating Cart -->
+<div class="cart-float" id="cart-float" onclick="window.location.href='/dashboard'">
+    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+    </svg>
+    <span id="cart-badge" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:9px;font-weight:900;border-radius:50%;width:18px;height:18px;display:none;align-items:center;justify-content:center">0</span>
+</div>
+
+<script>
+let cart = JSON.parse(localStorage.getItem('mova_cart')) || [];
+
+function imgUrl(url) {
+    // CJ product images are public CDN URLs — no proxy needed
+    return url || '';
+}
+
+function updateCartBadge() {
+    const count = cart.length;
+    const badge = document.getElementById('cart-badge');
+    const float = document.getElementById('cart-float');
+    if (badge) { badge.textContent = count > 99 ? '99+' : count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+    if (float) float.classList.toggle('visible', count > 0);
+}
+
+function addToCart(pid, name, price, image, btn) {
+    if (!cart.find(i => i.pid === pid)) {
+        cart.push({ pid, name, price, image, qty: 1 });
+        localStorage.setItem('mova_cart', JSON.stringify(cart));
+        updateCartBadge();
+    }
+    if (btn) {
+        btn.style.background = '#22c55e';
+        btn.innerHTML = '<span>✓</span><span>Added!</span>';
+        setTimeout(() => {
+            btn.style.background = '#ff6100';
+            btn.innerHTML = '<span>🛒</span><span>Add to Cart</span>';
+        }, 1000);
+    }
+}
+
+// Load products grid
+async function loadProductGrid(gridId, page) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    try {
+        const r = await fetch('/api/get-products?pageSize=12&page=' + (page || Math.floor(Math.random()*30)+1));
+        const d = await r.json();
+        const products = Array.isArray(d) ? d : (d.products || []);
+        if (!products.length) return;
+
+        grid.innerHTML = '';
+        products.slice(0, 12).forEach(p => {
+            const showFire = Math.random() < 0.75;
+            const fakeOld = showFire ? (parseFloat(p.sellPrice) * (1.3 + Math.random() * 0.4)).toFixed(2) : null;
+            const pName = (p.productNameEn || p.productName || '').replace(/'/g, '').replace(/"/g, '');
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.style.cursor = 'pointer';
+            card.innerHTML = '<div class="product-img-wrap" onclick="openProductModal('' + p.pid + '','' + pName + '','' + p.sellPrice + '','' + p.productImage + '')">' +
+                (showFire ? '<div class="hot-badge">🔥 HOT</div>' : '') +
+                '<img src="' + imgUrl(p.productImage) + '" alt="' + pName + '" loading="lazy" onload="this.classList.add(\'loaded\')" onerror="this.style.opacity=0.3">' +
+                '</div>' +
+                '<div class="product-info">' +
+                '<p class="product-name">' + (p.productNameEn || p.productName) + '</p>' +
+                '<div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">' +
+                '<span class="product-price">$' + p.sellPrice + '</span>' +
+                (fakeOld ? '<span class="product-old">$' + fakeOld + '</span>' : '') +
+                (showFire ? '<span style="font-size:9px;font-weight:800;color:var(--orange);background:var(--orange-pale);padding:2px 5px;border-radius:3px">' + Math.floor(15+Math.random()*40) + '% OFF</span>' : '') +
+                '</div></div>' +
+                '<button class="add-btn" onclick="openProductModal(\'' + p.pid + '\',\'' + pName + '\',\'' + p.sellPrice + '\',\'' + p.productImage + '\')">' +
+                '<span>👁</span><span>View Details</span></button>';
+            grid.appendChild(card);
+        });
+    } catch(e) {
+        console.error('loadProductGrid error:', e);
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><p style="color:#888;font-size:14px">Could not load products — please refresh</p><a href="/signup" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#ff6100;color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Get Started Free</a></div>';
+    }
+}
+
+// Intersection observer for fade up animations
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Init
+window.addEventListener('DOMContentLoaded', () => {
+    cart = JSON.parse(localStorage.getItem('mova_cart')) || [];
+    updateCartBadge();
+    
+    loadProductGrid('product-grid', Math.floor(Math.random()*20)+1);
+    loadProductGrid('product-grid-2', Math.floor(Math.random()*40)+21);
+});
+</script>
+<!-- Product Details Modal -->
+<div id="productModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;padding:16px;overflow-y:auto">
+    <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;margin:auto;position:relative;overflow:hidden">
+        <button onclick="closeProductModal()" style="position:absolute;top:12px;right:12px;z-index:10;background:#f0f0f0;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer">×</button>
+        <div id="productModalContent" style="padding:20px"></div>
+    </div>
+</div>
+
+<!-- Cart Drawer -->
+<div id="cartDrawer" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5)">
+    <div style="position:absolute;right:0;top:0;bottom:0;width:100%;max-width:420px;background:#fff;overflow-y:auto;padding:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;border-bottom:1px solid #f0f0f0;padding-bottom:16px">
+            <h2 style="font-size:16px;font-weight:900;color:#1a1a1a">Your Cart</h2>
+            <button onclick="closeCartDrawer()" style="background:#f0f0f0;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer">×</button>
+        </div>
+        <div id="cartDrawerItems"></div>
+    </div>
+</div>
+
+<!-- Stripe Embedded Checkout Modal -->
+<div id="stripeModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;padding:16px">
+    <div style="background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative">
+        <button onclick="closeStripeModal()" style="position:absolute;top:12px;right:12px;z-index:10;background:#f0f0f0;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer">×</button>
+        <div id="stripeContainer" style="padding:24px"></div>
     </div>
 </div>
 
 <script>
-window._adminType = 'product';
-function setAdminType(type) {
-    window._adminType = type;
-    const pb = document.getElementById('btn-product-admin');
-    const fb = document.getElementById('btn-food-admin');
-    const lb = document.getElementById('admin-type-label');
-    if (type === 'product') {
-        if (pb) { pb.style.background='#ff6100'; pb.style.color='#fff'; }
-        if (fb) { fb.style.background='#1a1a1a'; fb.style.color='#555'; }
-        if (lb) lb.textContent = 'Signing in as: Product Admin';
-    } else {
-        if (pb) { pb.style.background='#1a1a1a'; pb.style.color='#555'; }
-        if (fb) { fb.style.background='#ff6100'; fb.style.color='#fff'; }
-        if (lb) lb.textContent = 'Signing in as: Food Admin';
+// ── PRODUCT MODAL ─────────────────────────────────────
+async function openProductModal(pid, name, price, image) {
+    const modal = document.getElementById('productModal');
+    const content = document.getElementById('productModalContent');
+    modal.style.display = 'flex';
+    content.innerHTML = '<div style="text-align:center;padding:40px"><div style="width:32px;height:32px;border:3px solid #ff6100;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:auto"></div><p style="margin-top:12px;font-size:13px;color:#888">Loading...</p></div>';
+
+    try {
+        const r = await fetch('/api/get-details?pid=' + encodeURIComponent(pid));
+        const data = await r.json();
+        const variants = data.variants || [];
+        const gallery = data.productGallery || [];
+        const allImgs = [image, ...gallery, ...variants.map(v=>v.variantImage).filter(Boolean)].filter((v,i,a)=>v&&a.indexOf(v)===i).slice(0,6);
+
+        let varHtml = '';
+        const colorVars = variants.filter(v => v.color && v.color.trim());
+        const sizeVars = variants.filter(v => v.size && v.size.trim());
+
+        if (colorVars.length) {
+            varHtml += '<p style="font-size:11px;font-weight:700;color:#333;margin:12px 0 8px;text-transform:uppercase">Colors</p><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
+            colorVars.slice(0,8).forEach((v,i) => {
+                varHtml += '<button onclick="selectVariant(this,'' + v.vid + '','' + (v.variantSellPrice||price) + '')" style="padding:6px 12px;border:2px solid ' + (i===0?'#ff6100':'#ddd') + ';border-radius:20px;background:' + (i===0?'#fff3ed':'#fff') + ';font-size:11px;font-weight:600;cursor:pointer">' + v.color.trim() + '</button>';
+            });
+            varHtml += '</div>';
+        }
+        if (sizeVars.length) {
+            varHtml += '<p style="font-size:11px;font-weight:700;color:#333;margin:0 0 8px;text-transform:uppercase">Sizes</p><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
+            sizeVars.slice(0,8).forEach((v,i) => {
+                varHtml += '<button onclick="selectVariant(this,'' + v.vid + '','' + (v.variantSellPrice||price) + '')" style="padding:6px 12px;border:2px solid ' + (!colorVars.length&&i===0?'#ff6100':'#ddd') + ';border-radius:8px;background:' + (!colorVars.length&&i===0?'#fff3ed':'#fff') + ';font-size:12px;font-weight:700;cursor:pointer">' + v.size.trim().toUpperCase() + '</button>';
+            });
+            varHtml += '</div>';
+        }
+
+        window._modalState = { pid, name, price: parseFloat(price), image, vid: variants[0]?.vid || '', qty: 1 };
+
+        content.innerHTML =
+            '<div style="aspect-ratio:1;overflow:hidden;border-radius:12px;margin-bottom:12px;background:#f8f8f8">' +
+            '<img id="modal-img" src="' + imgUrl(image) + '" style="width:100%;height:100%;object-fit:cover"></div>' +
+            '<div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto">' +
+            allImgs.map(img => '<img src="' + imgUrl(img) + '" onclick="document.getElementById('modal-img').src=this.src" style="width:48px;height:48px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #f0f0f0;flex-shrink:0">').join('') +
+            '</div>' +
+            '<h3 style="font-size:14px;font-weight:800;color:#1a1a1a;margin:0 0 8px;line-height:1.4">' + name + '</h3>' +
+            '<p id="modal-price" style="font-size:22px;font-weight:900;color:#ff6100;margin:0 0 12px">$' + parseFloat(price).toFixed(2) + '</p>' +
+            varHtml +
+            '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+            '<span style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase">Qty</span>' +
+            '<button onclick="changeModalQty(-1)" style="width:28px;height:28px;border:1.5px solid #ddd;border-radius:6px;background:#fff;font-size:16px;cursor:pointer;font-weight:700">−</button>' +
+            '<span id="modal-qty" style="font-size:14px;font-weight:800;min-width:24px;text-align:center">1</span>' +
+            '<button onclick="changeModalQty(1)" style="width:28px;height:28px;border:1.5px solid #ddd;border-radius:6px;background:#fff;font-size:16px;cursor:pointer;font-weight:700">+</button>' +
+            '</div>' +
+            '<div style="background:#f8f8f8;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:#888">' +
+            '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Processing</span><span style="font-weight:700;color:#1a1a1a">1-2 Days</span></div>' +
+            '<div style="display:flex;justify-content:space-between"><span>Delivery</span><span style="font-weight:700;color:#1a1a1a">3-8 Business Days</span></div>' +
+            '</div>' +
+            '<button onclick="addToCartFromModal()" id="modal-add-btn" style="width:100%;padding:14px;background:#ff6100;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.06em">Add to Cart 🛒</button>';
+
+    } catch(e) {
+        content.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:#888;font-size:13px">Could not load details. Please try again.</p><button onclick="closeProductModal()" style="margin-top:12px;padding:10px 20px;background:#ff6100;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700">Close</button></div>';
     }
 }
-let token = sessionStorage.getItem('adminToken');
-if (token) {
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('panel').classList.remove('hidden');
-    loadHome();
+
+function selectVariant(btn, vid, price) {
+    btn.parentElement.querySelectorAll('button').forEach(b => {
+        b.style.borderColor = '#ddd'; b.style.background = '#fff';
+    });
+    btn.style.borderColor = '#ff6100'; btn.style.background = '#fff3ed';
+    if (window._modalState) {
+        window._modalState.vid = vid;
+        window._modalState.price = parseFloat(price);
+        const priceEl = document.getElementById('modal-price');
+        if (priceEl) priceEl.textContent = '$' + parseFloat(price).toFixed(2);
+    }
 }
 
-async function login() {
-    const pass = document.getElementById('pass').value;
+function changeModalQty(delta) {
+    if (!window._modalState) return;
+    window._modalState.qty = Math.max(1, (window._modalState.qty || 1) + delta);
+    const el = document.getElementById('modal-qty');
+    if (el) el.textContent = window._modalState.qty;
+    const priceEl = document.getElementById('modal-price');
+    if (priceEl) priceEl.textContent = '$' + (window._modalState.price * window._modalState.qty).toFixed(2);
+}
+
+function addToCartFromModal() {
+    if (!window._modalState) return;
+    const { pid, name, price, image, qty, vid } = window._modalState;
+    const cartPid = pid + (vid ? '-' + vid : '');
+    const totalPrice = (price * qty).toFixed(2);
+    const cartArr = JSON.parse(localStorage.getItem('mova_cart')) || [];
+    const existing = cartArr.findIndex(i => i.pid === cartPid);
+    if (existing > -1) {
+        cartArr[existing].qty = (cartArr[existing].qty || 1) + qty;
+        cartArr[existing].price = ((parseFloat(cartArr[existing].price) / (cartArr[existing].qty - qty)) * cartArr[existing].qty).toFixed(2);
+    } else {
+        cartArr.push({ pid: cartPid, name, price: totalPrice, image, qty });
+    }
+    localStorage.setItem('mova_cart', JSON.stringify(cartArr));
+    cart = cartArr;
+    updateCartBadge();
+    const btn = document.getElementById('modal-add-btn');
+    if (btn) {
+        btn.textContent = '✓ Added to Cart!';
+        btn.style.background = '#22c55e';
+        setTimeout(() => closeProductModal(), 800);
+    }
+}
+
+function closeProductModal() {
+    document.getElementById('productModal').style.display = 'none';
+}
+
+// ── CART DRAWER ───────────────────────────────────────
+function openCartDrawer() {
+    const drawer = document.getElementById('cartDrawer');
+    drawer.style.display = 'block';
+    renderCartDrawer();
+}
+
+function closeCartDrawer() {
+    document.getElementById('cartDrawer').style.display = 'none';
+}
+
+function renderCartDrawer() {
+    const container = document.getElementById('cartDrawerItems');
+    const cartArr = JSON.parse(localStorage.getItem('mova_cart')) || [];
+
+    if (cartArr.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:40px"><p style="font-size:14px;color:#888;margin-bottom:16px">Your cart is empty</p><a href="/signup" style="display:inline-block;padding:12px 24px;background:#ff6100;color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Start Shopping</a></div>';
+        return;
+    }
+
+    // Initialize checked state
+    if (!window._indexChecked) window._indexChecked = {};
+    cartArr.forEach(i => { if (window._indexChecked[i.pid] === undefined) window._indexChecked[i.pid] = true; });
+
+    const allChecked = cartArr.every(i => window._indexChecked[i.pid] !== false);
+    const checkedItems = cartArr.filter(i => window._indexChecked[i.pid] !== false);
+    const subtotal = checkedItems.reduce((sum, i) => sum + parseFloat(i.price || 0), 0);
+    const totalQty = checkedItems.reduce((sum, i) => sum + (i.qty || 1), 0);
+    const shippingGroups = Math.ceil(totalQty / 6) || 1;
+    const shipping = (2.41 * shippingGroups).toFixed(2);
+    const total = (subtotal + parseFloat(shipping)).toFixed(2);
+
+    let html = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:10px;background:#f9f9f9;border-radius:8px">' +
+        '<input type="checkbox" id="idx-select-all" ' + (allChecked ? 'checked' : '') + ' onchange="indexToggleAll(this.checked)" style="width:16px;height:16px;accent-color:#ff6100;cursor:pointer">' +
+        '<label for="idx-select-all" style="font-size:12px;font-weight:700;cursor:pointer">Select All (' + cartArr.length + ' items)</label></div>';
+
+    cartArr.forEach(item => {
+        const isChecked = window._indexChecked[item.pid] !== false;
+        const safePid = item.pid.replace(/'/g, '');
+        html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid ' + (isChecked ? '#ff6100' : '#f0f0f0') + ';border-radius:10px;margin-bottom:8px;opacity:' + (isChecked ? '1' : '0.6') + ';background:' + (isChecked ? '#fff' : '#fafafa') + '">' +
+            '<input type="checkbox" ' + (isChecked ? 'checked' : '') + ' onchange="indexToggleItem('' + safePid + '',this.checked)" style="width:16px;height:16px;accent-color:#ff6100;cursor:pointer;flex-shrink:0;margin-top:4px">' +
+            '<img src="' + imgUrl(item.image || '') + '" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0">' +
+            '<div style="flex:1;min-width:0">' +
+            '<p style="font-size:11px;font-weight:700;color:#1a1a1a;margin:0 0 4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">' + (item.name || '').split(' — ')[0] + '</p>' +
+            '<p style="font-size:14px;font-weight:800;color:#ff6100;margin:0">$' + parseFloat(item.price || 0).toFixed(2) + '</p>' +
+            '<p style="font-size:10px;color:#aaa;margin:2px 0 0">Qty: ' + (item.qty || 1) + '</p></div>' +
+            '<button onclick="indexRemoveItem('' + safePid + '')" style="font-size:10px;color:#e05555;background:none;border:none;cursor:pointer;padding:4px;flex-shrink:0">✕</button></div>';
+    });
+
+    html += '<div style="border-top:1px solid #f0f0f0;padding-top:16px;margin-top:8px">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px"><span style="color:#888">Selected (' + checkedItems.length + ' items)</span><span style="font-weight:700">$' + subtotal.toFixed(2) + '</span></div>' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:12px"><span style="color:#888">Shipping' + (shippingGroups > 1 ? ' x' + shippingGroups : '') + '</span><span style="font-weight:700">$' + shipping + '</span></div>' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:16px;font-weight:900"><span>Total</span><span style="color:#ff6100">$' + total + '</span></div>' +
+        '<button onclick="indexCheckout()" style="width:100%;padding:14px;background:#ff6100;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.06em">Secure Checkout →</button>' +
+        '<button onclick="window.location.href='/dashboard'" style="width:100%;margin-top:8px;padding:12px;background:transparent;color:#888;border:1px solid #e0e0e0;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer">Continue Shopping</button></div>';
+
+    container.innerHTML = html;
+}
+
+function indexToggleItem(pid, checked) {
+    if (!window._indexChecked) window._indexChecked = {};
+    window._indexChecked[pid] = checked;
+    renderCartDrawer();
+}
+
+function indexToggleAll(checked) {
+    const cartArr = JSON.parse(localStorage.getItem('mova_cart')) || [];
+    cartArr.forEach(i => { window._indexChecked[i.pid] = checked; });
+    renderCartDrawer();
+}
+
+function indexRemoveItem(pid) {
+    let cartArr = JSON.parse(localStorage.getItem('mova_cart')) || [];
+    cartArr = cartArr.filter(i => i.pid !== pid);
+    localStorage.setItem('mova_cart', JSON.stringify(cartArr));
+    cart = cartArr;
+    delete window._indexChecked[pid];
+    updateCartBadge();
+    renderCartDrawer();
+}
+
+async function indexCheckout() {
+    const cartArr = JSON.parse(localStorage.getItem('mova_cart')) || [];
+    const checkedPids = Object.keys(window._indexChecked || {}).filter(pid => window._indexChecked[pid] !== false);
+    const itemsToCheckout = cartArr.filter(i => checkedPids.includes(i.pid));
+
+    if (itemsToCheckout.length === 0) {
+        alert('Please select at least one item to checkout.');
+        return;
+    }
+
+    // Check if logged in
+    const session = JSON.parse(localStorage.getItem('foundry_session'));
+    if (!session) {
+        // Save cart and redirect to login
+        localStorage.setItem('mova_cart', JSON.stringify(cartArr));
+        window.location.href = '/login';
+        return;
+    }
+
+    const btn = document.querySelector('[onclick="indexCheckout()"]');
+    if (btn) { btn.textContent = 'Processing...'; btn.disabled = true; }
+
     try {
-        const r = await fetch('/api/admin-api?action=auth', {
+        const r = await fetch('/api/create-checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: pass, adminType: window._adminType || 'product' })
+            body: JSON.stringify({ cart: cartArr, userId: session.id || '', checkedItems: checkedPids })
         });
-        const d = await r.json();
-        if (d.token) {
-            token = d.token;
-            sessionStorage.setItem('adminToken', token);
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('panel').classList.remove('hidden');
-            loadHome();
+        const data = await r.json();
+        if (data.clientSecret) {
+            showStripeModal(data.clientSecret);
         } else {
-            document.getElementById('login-err').classList.remove('hidden');
-        }
-    } catch (e) {
-        document.getElementById('login-err').classList.remove('hidden');
-    }
-}
-
-function logout() { sessionStorage.clear(); window.location.reload(); }
-
-function af(url, opts) {
-    opts = opts || {};
-    opts.headers = Object.assign({}, opts.headers || {}, { 'x-admin-token': token, 'Content-Type': 'application/json' });
-    return fetch(url, opts);
-}
-
-function showTab(t) {
-    ['home','orders','users','fulfill'].forEach(function(x) {
-        document.getElementById('c-' + x).classList.add('hidden');
-        document.getElementById('t-' + x).classList.remove('active');
-    });
-    document.getElementById('c-' + t).classList.remove('hidden');
-    document.getElementById('t-' + t).classList.add('active');
-    if (t === 'home') loadHome();
-    if (t === 'orders') loadOrders();
-    if (t === 'users') loadUsers();
-    if (t === 'push') { showPushNotificationPanel(); }
-    if (t === 'fulfill') loadFulfill();
-}
-
-function applyDateFilter() {
-    var df = document.getElementById('dateFrom').value;
-    var dt = document.getElementById('dateTo').value;
-    loadHome(df, dt);
-}
-
-async function loadHome(dateFrom, dateTo) {
-    var el = document.getElementById('c-home');
-    el.innerHTML = '<p class="text-[9px] uppercase animate-pulse text-gray-400">Loading...</p>';
-    try {
-        var url = '/api/admin-api?action=stats';
-        if (dateFrom) url += '&dateFrom=' + dateFrom;
-        if (dateTo) url += '&dateTo=' + dateTo;
-        var r = await af(url);
-        var d = await r.json();
-
-        var customHtml = '';
-        if (dateFrom || dateTo) {
-            customHtml = '<div class="mt-4 pt-4 border-t space-y-2">' +
-                '<h4 class="text-[9px] font-800 uppercase text-gray-400 mb-2">Custom Range Results</h4>' +
-                '<div class="flex justify-between"><span class="text-[9px] text-gray-400">Orders</span><span class="font-800">' + (d.customOrders||0) + '</span></div>' +
-                '<div class="flex justify-between"><span class="text-[9px] text-gray-400">Revenue</span><span class="font-800">$' + ((d.customRevenue||0)/100).toFixed(2) + '</span></div>' +
-                '<div class="flex justify-between"><span class="text-[9px] text-gray-400">New Users</span><span class="font-800">' + (d.customUsers||0) + '</span></div>' +
-                '</div>';
-        }
-
-        el.innerHTML =
-            '<h2 class="text-lg font-black uppercase mb-6">Dashboard Overview</h2>' +
-            '<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">' +
-            '<div class="stat-card"><p class="text-4xl font-black">' + (d.totalUsers||0) + '</p><p class="text-[9px] uppercase text-gray-400 mt-2">Total Users</p></div>' +
-            '<div class="stat-card"><p class="text-4xl font-black">' + (d.totalOrders||0) + '</p><p class="text-[9px] uppercase text-gray-400 mt-2">Total Orders</p></div>' +
-            '<div class="stat-card"><p class="text-4xl font-black">' + (d.pendingOrders||0) + '</p><p class="text-[9px] uppercase text-gray-400 mt-2">Pending</p></div>' +
-            '<div class="stat-card"><p class="text-4xl font-black">$' + ((d.totalRevenue||0)/100).toFixed(0) + '</p><p class="text-[9px] uppercase text-gray-400 mt-2">Total Revenue</p></div>' +
-            '</div>' +
-            '<div class="card mb-6">' +
-            '<h3 class="text-[10px] font-black uppercase mb-4">Filter by Date Range</h3>' +
-            '<div class="flex gap-3 flex-wrap items-end">' +
-            '<div><label class="text-[8px] uppercase text-gray-400 block mb-1">From</label><input type="date" id="dateFrom" value="' + (dateFrom||'') + '" class="border p-2 text-sm outline-none focus:border-black"></div>' +
-            '<div><label class="text-[8px] uppercase text-gray-400 block mb-1">To</label><input type="date" id="dateTo" value="' + (dateTo||'') + '" class="border p-2 text-sm outline-none focus:border-black"></div>' +
-            '<button onclick="applyDateFilter()" class="bg-black text-white px-6 py-2 text-[9px] font-800 uppercase">Apply</button>' +
-            '<button onclick="loadHome()" class="border border-black px-6 py-2 text-[9px] font-800 uppercase">Clear</button>' +
-            '</div>' + customHtml + '</div>' +
-            '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">' +
-            '<div class="card"><h3 class="text-[10px] font-black uppercase mb-4">Today</h3><div class="space-y-3">' +
-            '<div class="flex justify-between"><span class="text-[9px] uppercase text-gray-400">Orders</span><span class="text-[10px] font-800">' + (d.ordersToday||0) + '</span></div>' +
-            '<div class="flex justify-between"><span class="text-[9px] uppercase text-gray-400">Revenue</span><span class="text-[10px] font-800">$' + ((d.revenueToday||0)/100).toFixed(2) + '</span></div>' +
-            '<div class="flex justify-between"><span class="text-[9px] uppercase text-gray-400">New Users</span><span class="text-[10px] font-800">' + (d.newUsersToday||0) + '</span></div>' +
-            '</div></div>' +
-            '<div class="card"><h3 class="text-[10px] font-black uppercase mb-4">This Week</h3><div class="space-y-3">' +
-            '<div class="flex justify-between"><span class="text-[9px] uppercase text-gray-400">Orders</span><span class="text-[10px] font-800">' + (d.ordersWeek||0) + '</span></div>' +
-            '<div class="flex justify-between"><span class="text-[9px] uppercase text-gray-400">Revenue</span><span class="text-[10px] font-800">$' + ((d.revenueWeek||0)/100).toFixed(2) + '</span></div>' +
-            '<div class="flex justify-between"><span class="text-[9px] uppercase text-gray-400">New Users</span><span class="text-[10px] font-800">' + (d.newUsersWeek||0) + '</span></div>' +
-            '</div></div></div>';
-    } catch (e) { el.innerHTML = '<p class="text-red-500 text-[9px]">Failed to load stats</p>'; }
-}
-
-var adminOrdersCache = [];
-var adminOrderTab = 'pending';
-
-async function loadOrders() {
-    var el = document.getElementById('c-orders');
-    el.innerHTML = '<p class="text-[9px] uppercase animate-pulse text-gray-400">Loading orders...</p>';
-    try {
-        var r = await af('/api/admin-api?action=orders');
-        adminOrdersCache = await r.json();
-        renderAdminOrders();
-    } catch (e) { el.innerHTML = '<p class="text-red-500 text-[9px]">Failed to load orders</p>'; }
-}
-
-function renderAdminOrders() {
-    var el = document.getElementById('c-orders');
-    var all = adminOrdersCache;
-
-    // Pending = not yet fulfilled (no cjOrderId, not shipped/delivered/declined/cancelled)
-    var pending = all.filter(function(o) {
-        return !o.cjOrderId && o.status !== 'shipped' && o.status !== 'delivered' && o.status !== 'declined' && o.status !== 'cancelled';
-    });
-    // Processing = CJ order placed or marked shipped (in transit)
-    var processing = all.filter(function(o) {
-        return o.cjOrderId || o.status === 'shipped';
-    });
-    // Delivered = confirmed delivered
-    var delivered = all.filter(function(o) {
-        return o.status === 'delivered';
-    });
-
-    var tabMap = { pending: pending, processing: processing, delivered: delivered, all: all };
-    var filtered = tabMap[adminOrderTab] || all;
-
-    var tabBtn = function(id, label, count, color) {
-        var active = adminOrderTab === id;
-        return '<button onclick="adminOrderTab=&quot;' + id + '&quot;;renderAdminOrders()" class="px-4 py-2 text-[9px] font-800 uppercase transition-all ' +
-            (active ? 'bg-black text-white' : 'border-2 border-black text-black hover:bg-black hover:text-white') + '">' +
-            label + ' <span class="' + (active ? 'text-white' : color) + '">(' + count + ')</span></button>';
-    };
-
-    var out = [];
-    out.push('<h2 class="text-lg font-black uppercase mb-4">Orders (' + all.length + ')</h2>');
-    out.push('<div class="flex flex-wrap gap-2 mb-6">');
-    out.push(tabBtn('pending', 'Pending', pending.length, 'text-yellow-500'));
-    out.push(tabBtn('processing', 'Processing', processing.length, 'text-blue-500'));
-    out.push(tabBtn('delivered', 'Delivered', delivered.length, 'text-green-600'));
-    out.push(tabBtn('all', 'All', all.length, 'text-gray-500'));
-    out.push('</div>');
-
-    if (!filtered.length) {
-        out.push('<p class="text-[9px] uppercase text-gray-400 text-center py-8">No orders in this category</p>');
-        el.innerHTML = out.join('');
-        return;
-    }
-
-    var statusColor = {
-        payment_received: 'text-yellow-500', processing: 'text-blue-500',
-        shipped: 'text-green-600', delivered: 'text-green-800',
-        declined: 'text-red-500', cancelled: 'text-red-400',
-        expired: 'text-gray-400', payment_failed: 'text-red-400'
-    };
-
-    out.push('<div class="space-y-4">');
-    filtered.forEach(function(o) {
-        var sc = statusColor[o.status] || 'text-gray-400';
-        var statusLabel = (o.status||'').replace(/_/g,' ');
-        out.push('<div class="card border-2 ' + (adminOrderTab === 'pending' ? 'border-yellow-200' : 'border-transparent') + '">');
-        // Header
-        out.push('<div class="flex justify-between items-start mb-3">');
-        out.push('<div><p class="text-[9px] uppercase text-gray-400">Order ID</p><p class="text-[9px] font-800 font-mono break-all">' + o._id + '</p></div>');
-        out.push('<span class="text-[9px] font-800 uppercase ' + sc + '">' + statusLabel + '</span>');
-        out.push('</div>');
-        // Details grid
-        out.push('<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">');
-        out.push('<div><p class="text-[8px] uppercase text-gray-400">Customer</p><p class="text-[9px] font-800">' + (o.customerName || o.shippingName||'N/A') + '</p></div>');
-        out.push('<div><p class="text-[8px] uppercase text-gray-400">Email</p><p class="text-[9px]">' + (o.customerEmail||'—') + '</p></div>');
-        out.push('<div><p class="text-[8px] uppercase text-gray-400">Total</p><p class="text-[9px] font-800">$' + ((o.amountTotal||0)/100).toFixed(2) + '</p></div>');
-        var _od=new Date(o.createdAt); out.push('<div><p class="text-[8px] uppercase text-gray-400">Date & Time</p><p class="text-[9px]">' + _od.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' ' + _od.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}) + '</p></div>');
-        out.push('</div>');
-        // Address
-        if (o.shippingAddress) {
-            out.push('<div class="mb-3 text-[9px] text-gray-500">📍 ' + (o.shippingAddress.line1||'') + ', ' + (o.shippingAddress.city||'') + ', ' + (o.shippingAddress.state||'') + ' ' + (o.shippingAddress.postal_code||'') + '</div>');
-        }
-        // Items with images
-        if (o.items && o.items.length) {
-            out.push('<div class="border-t pt-3 space-y-2">');
-            o.items.forEach(function(item) {
-                out.push('<div class="flex items-center gap-2">');
-                if (item.image) out.push('<img src="' + item.image + '" class="w-10 h-10 object-cover border flex-shrink-0">');
-                out.push('<div class="flex-1 min-w-0">');
-                out.push('<p class="text-[8px] font-800 uppercase truncate">' + (item.name||item.pid||'') + '</p>');
-                if (item.variant) out.push('<p class="text-[7px] text-blue-500">' + item.variant + '</p>');
-                out.push('<p class="text-[7px] text-gray-400">Qty: ' + (item.qty||1) + ' · SKU: ' + (item.sku||'—') + '</p>');
-                out.push('</div>');
-                out.push('<a href="https://www.mova99.com/dashboard/' + (item.pid||'').split('-')[0] + '" target="_blank" class="text-[7px] text-blue-500 underline flex-shrink-0">CJ</a>');
-                out.push('</div>');
-            });
-            out.push('</div>');
-        }
-        // Tracking
-        if (o.trackingNumber) {
-            out.push('<div class="mt-2 pt-2 border-t"><p class="text-[8px] uppercase text-gray-400">Tracking: <span class="text-black font-800">' + o.trackingNumber + '</span></p></div>');
-        }
-        // Decline reason
-        if (o.declineReason) {
-            out.push('<div class="mt-2 pt-2 border-t"><p class="text-[8px] text-red-500">Declined: ' + o.declineReason + '</p></div>');
-        }
-        // Stripe link + Fill button
-        out.push('<div class="mt-3 pt-3 border-t flex gap-2">');
-        out.push('<button onclick="fillFulfillForm(&quot;' + o._id + '&quot;,&quot;' + (o.userId||'') + '&quot;)" class="flex-1 text-[8px] font-800 uppercase border-2 border-black py-2 hover:bg-black hover:text-white transition-all">Fill Fulfill Form</button>');
-        if (o.paymentIntentId) {
-            out.push('<a href="https://dashboard.stripe.com/payments/' + o.paymentIntentId + '" target="_blank" class="text-[8px] font-800 uppercase border-2 border-blue-500 text-blue-500 py-2 px-3 hover:bg-blue-500 hover:text-white transition-all">Stripe</a>');
-        }
-        out.push('</div>');
-        out.push('</div>');
-    });
-    out.push('</div>');
-    el.innerHTML = out.join('');
-}
-
-// ── PUSH NOTIFICATIONS ──────────────────────────────
-async function showPushNotificationPanel() {
-    // Hide all tabs show home
-    ['c-home','c-orders','c-users','c-fulfill'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
-    const main = document.getElementById('c-home');
-    if (main) main.style.display = 'block';
-    main.innerHTML = '<div style="max-width:560px;margin:0 auto"><h2 style="font-size:16px;font-weight:900;color:#fafafa;margin:0 0 20px">Send Push Notification</h2>' +
-        '<div style="background:#111;border:1px solid #222;border-radius:12px;padding:24px">' +
-        '<div style="margin-bottom:16px"><label style="font-size:10px;font-weight:800;text-transform:uppercase;color:#888;display:block;margin-bottom:6px">Title / Subject</label>' +
-        '<input id="push-title" type="text" placeholder="e.g. New deals just dropped 🔥" style="width:100%;padding:12px;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#fff;font-size:13px;outline:none"></div>' +
-        '<div style="margin-bottom:16px"><label style="font-size:10px;font-weight:800;text-transform:uppercase;color:#888;display:block;margin-bottom:6px">Message Body</label>' +
-        '<textarea id="push-body" placeholder="Write your message..." style="width:100%;padding:12px;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#fff;font-size:13px;outline:none;min-height:90px;resize:vertical"></textarea></div>' +
-        '<div style="margin-bottom:20px"><label style="font-size:10px;font-weight:800;text-transform:uppercase;color:#888;display:block;margin-bottom:6px">Landing Page</label>' +
-        '<select id="push-landing" style="width:100%;padding:12px;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#fff;font-size:13px;outline:none">' +
-        '<option value="/dashboard">Marketplace</option>' +
-        '<option value="/dashboard#cart">Cart</option>' +
-        '<option value="/dashboard#orders">Orders</option>' +
-        '<option value="/dashboard#support">Contact Us</option>' +
-        '</select></div>' +
-        '<p id="push-status" style="display:none;font-size:12px;font-weight:700;padding:10px;border-radius:8px;margin-bottom:12px"></p>' +
-        '<button onclick="sendPushNotification()" style="width:100%;padding:14px;background:#ff6100;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.06em">Send to All Users 🔔</button>' +
-        '</div></div>';
-}
-
-async function sendPushNotification() {
-    const title = document.getElementById('push-title').value.trim();
-    const body = document.getElementById('push-body').value.trim();
-    const landingPage = document.getElementById('push-landing').value;
-    const status = document.getElementById('push-status');
-    if (!title || !body) {
-        status.textContent = 'Please fill in title and message.';
-        status.style.background = '#2a1a1a'; status.style.color = '#ef4444';
-        status.style.display = 'block'; return;
-    }
-    const btn = document.querySelector('[onclick="sendPushNotification()"]');
-    if (btn) { btn.textContent = 'Sending...'; btn.disabled = true; }
-    try {
-        const r = await af('/api/push-notification?action=send', {
-            method: 'POST',
-            body: JSON.stringify({ title, body, landingPage })
-        });
-        const d = await r.json();
-        if (d.success) {
-            status.textContent = 'Sent to ' + (d.sent || 0) + ' devices!';
-            status.style.background = '#0a2a1a'; status.style.color = '#22c55e';
-            document.getElementById('push-title').value = '';
-            document.getElementById('push-body').value = '';
-        } else {
-            status.textContent = d.error || 'Failed to send';
-            status.style.background = '#2a1a1a'; status.style.color = '#ef4444';
-        }
-        status.style.display = 'block';
-    } catch(e) {
-        status.textContent = 'Connection error';
-        status.style.background = '#2a1a1a'; status.style.color = '#ef4444';
-        status.style.display = 'block';
-    }
-    if (btn) { btn.textContent = 'Send to All Users 🔔'; btn.disabled = false; }
-}
-
-// ── TRANSACTIONS ──────────────────────────────────────
-async function showTransactionPanel(userId, userName) {
-    const main = document.getElementById('c-users') || document.getElementById('c-home');
-    if (!main) return;
-    main.innerHTML = '<div style="max-width:600px;margin:0 auto">' +
-        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">' +
-        '<button onclick="loadUsers()" style="padding:8px 16px;background:#1a1a1a;color:#888;border:1px solid #333;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">Back</button>' +
-        '<h2 style="font-size:16px;font-weight:900;color:#fafafa;margin:0">Transactions — ' + (userName || userId) + '</h2></div>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">' +
-        '<button onclick="openTxForm('' + userId + '','credit')" style="padding:12px;background:#0a2a1a;color:#22c55e;border:1px solid #22c55e;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer">+ Credit (Add)</button>' +
-        '<button onclick="openTxForm('' + userId + '','debit')" style="padding:12px;background:#2a0a0a;color:#ef4444;border:1px solid #ef4444;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer">− Debit (Remove)</button></div>' +
-        '<div id="tx-form-area" style="display:none;background:#111;border:1px solid #222;border-radius:10px;padding:18px;margin-bottom:16px"></div>' +
-        '<div id="tx-history-area"></div></div>';
-    loadTxHistory(userId);
-}
-
-function openTxForm(userId, type) {
-    const c = document.getElementById('tx-form-area');
-    const isCredit = type === 'credit';
-    c.style.display = 'block';
-    c.innerHTML = '<h3 style="font-size:12px;font-weight:800;color:' + (isCredit ? '#22c55e' : '#ef4444') + ';margin:0 0 14px">' + (isCredit ? '+ Add Credit' : '− Add Debit') + '</h3>' +
-        '<div style="margin-bottom:10px"><label style="font-size:10px;color:#888;display:block;margin-bottom:4px">Amount ($)</label>' +
-        '<input id="tx-amount" type="number" placeholder="0.00" min="0.01" step="0.01" style="width:100%;padding:10px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#fff;font-size:13px;outline:none"></div>' +
-        '<div style="margin-bottom:10px"><label style="font-size:10px;color:#888;display:block;margin-bottom:4px">Payment Method</label>' +
-        '<select id="tx-method" style="width:100%;padding:10px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#fff;font-size:13px;outline:none">' +
-        '<option value="Direct Deposit">Direct Deposit</option><option value="Check">Check</option></select></div>' +
-        '<div style="margin-bottom:14px"><label style="font-size:10px;color:#888;display:block;margin-bottom:4px">Note (optional)</label>' +
-        '<input id="tx-note" type="text" placeholder="Referral withdrawal..." style="width:100%;padding:10px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#fff;font-size:13px;outline:none"></div>' +
-        '<p id="tx-form-status" style="display:none;font-size:11px;padding:8px;border-radius:6px;margin-bottom:10px"></p>' +
-        '<div style="display:flex;gap:8px">' +
-        '<button onclick="submitTx('' + userId + '','' + type + '')" style="flex:1;padding:12px;background:' + (isCredit ? '#22c55e' : '#ef4444') + ';color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer">Confirm ' + (isCredit ? 'Credit' : 'Debit') + '</button>' +
-        '<button onclick="document.getElementById('tx-form-area').style.display='none'" style="padding:12px 14px;background:#1a1a1a;color:#888;border:1px solid #333;border-radius:8px;font-size:12px;cursor:pointer">Cancel</button></div>';
-}
-
-async function submitTx(userId, type) {
-    const amount = document.getElementById('tx-amount').value;
-    const paymentMethod = document.getElementById('tx-method').value;
-    const note = document.getElementById('tx-note').value;
-    const status = document.getElementById('tx-form-status');
-    if (!amount || parseFloat(amount) <= 0) {
-        status.textContent = 'Enter a valid amount.';
-        status.style.background='#2a0a0a'; status.style.color='#ef4444'; status.style.display='block'; return;
-    }
-    try {
-        const r = await af('/api/admin-api?action=add-transaction', {
-            method:'POST', body:JSON.stringify({ userId, amount:parseFloat(amount), type, paymentMethod, note })
-        });
-        const d = await r.json();
-        if (d.success) {
-            status.textContent = (type==='credit'?'+':'-') + '$' + parseFloat(amount).toFixed(2) + ' applied!';
-            status.style.background = type==='credit'?'#0a2a1a':'#2a0a0a';
-            status.style.color = type==='credit'?'#22c55e':'#ef4444';
-            status.style.display='block';
-            setTimeout(() => { document.getElementById('tx-form-area').style.display='none'; loadTxHistory(userId); }, 1400);
-        } else {
-            status.textContent = d.error || 'Failed.';
-            status.style.background='#2a0a0a'; status.style.color='#ef4444'; status.style.display='block';
+            alert('Checkout failed: ' + (data.error || 'Please try again.'));
+            if (btn) { btn.textContent = 'Secure Checkout →'; btn.disabled = false; }
         }
     } catch(e) {
-        status.textContent='Connection error.';
-        status.style.background='#2a0a0a'; status.style.color='#ef4444'; status.style.display='block';
+        alert('Checkout error. Please try again.');
+        if (btn) { btn.textContent = 'Secure Checkout →'; btn.disabled = false; }
     }
 }
 
-async function loadTxHistory(userId) {
-    const c = document.getElementById('tx-history-area');
-    if (!c) return;
-    c.innerHTML = '<p style="color:#888;font-size:12px;text-align:center;padding:16px">Loading...</p>';
-    try {
-        const r = await af('/api/admin-api?action=get-transactions&userId=' + encodeURIComponent(userId));
-        const txs = await r.json();
-        if (!Array.isArray(txs) || !txs.length) {
-            c.innerHTML='<p style="color:#555;font-size:12px;text-align:center;padding:16px">No transactions yet</p>'; return;
-        }
-        const SHOW=4; let showAll=false;
-        function render() {
-            const vis = showAll ? txs : txs.slice(0,SHOW);
-            let out = '<p style="font-size:10px;font-weight:800;text-transform:uppercase;color:#888;margin-bottom:10px">Transaction History</p>';
-            out += '<div style="border:1px solid #222;border-radius:10px;overflow:hidden">';
-            vis.forEach((tx,i) => {
-                const isDebit = tx.type==='debit';
-                const amt = parseFloat(tx.amount).toFixed(2);
-                const date = new Date(tx.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-                const time = new Date(tx.createdAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
-                out += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:' + (i<vis.length-1?'1px solid #1a1a1a':'none') + '">';
-                out += '<div><p style="font-size:12px;font-weight:700;color:#fafafa;margin:0 0 2px">' + (tx.paymentMethod||'Direct Deposit') + '</p>';
-                if (tx.note) out += '<p style="font-size:10px;color:#666;margin:0 0 2px">' + tx.note + '</p>';
-                out += '<p style="font-size:10px;color:#555;margin:0">' + date + ' at ' + time + '</p></div>';
-                out += '<span style="font-size:15px;font-weight:800;color:' + (isDebit?'#ef4444':'#22c55e') + '">' + (isDebit?'−':'+') + '$' + amt + '</span></div>';
-            });
-            out += '</div>';
-            if (txs.length > SHOW) {
-                out += '<button onclick="_txToggle()" style="width:100%;margin-top:8px;padding:10px;background:#1a1a1a;border:1px solid #222;border-radius:8px;font-size:11px;font-weight:700;color:#ff6100;cursor:pointer">' + (showAll?'Hide':'Show All +' + (txs.length-SHOW) + ' transactions') + '</button>';
-            }
-            c.innerHTML = out;
-            window._txToggle = function(){ showAll=!showAll; render(); };
-        }
-        render();
-    } catch(e) {
-        c.innerHTML='<p style="color:#ef4444;font-size:12px;text-align:center;padding:16px">Error loading</p>';
+async function showStripeModal(clientSecret) {
+    const modal = document.getElementById('stripeModal');
+    modal.style.display = 'flex';
+    const container = document.getElementById('stripeContainer');
+    container.innerHTML = '<div style="text-align:center;padding:40px"><div style="width:32px;height:32px;border:3px solid #ff6100;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:auto"></div></div>';
+
+    if (!window.Stripe) {
+        const script = document.createElement('script');
+        script.src = 'https://js.stripe.com/v3/';
+        script.onload = async () => {
+            const r2 = await fetch('/api/get-config').then(r => r.json()).catch(() => ({}));
+            const stripe = Stripe(r2.publishableKey || '');
+            const checkout = await stripe.initEmbeddedCheckout({ clientSecret });
+            container.innerHTML = '';
+            checkout.mount('#stripeContainer');
+        };
+        document.head.appendChild(script);
     }
 }
 
-async function loadUsers() {
-    var el = document.getElementById('c-users');
-    el.innerHTML = '<p class="text-[9px] uppercase animate-pulse text-gray-400">Loading users...</p>';
-    try {
-        var r = await af('/api/admin-api?action=users');
-        var data = await r.json();
-        if (data.error) { el.innerHTML = '<p class="text-red-500 text-[9px]">Error: ' + data.error + '</p>'; return; }
-        allUsersCache = Array.isArray(data) ? data : [];
-        renderUsersList();
-    } catch (e) { el.innerHTML = '<p class="text-red-500 text-[9px]">Failed to load users: ' + e.message + '</p>'; }
+function closeStripeModal() {
+    document.getElementById('stripeModal').style.display = 'none';
 }
 
-var allUsersCache = [];
-var pinnedUsers = JSON.parse(sessionStorage.getItem('pinnedUsers') || '[]');
-var userSearchQuery = '';
-
-function renderUsersList() {
-    var el = document.getElementById('c-users');
-    var users = allUsersCache.slice();
-    users.sort(function(a, b) {
-        return (pinnedUsers.includes(a.uniqueID)?0:1) - (pinnedUsers.includes(b.uniqueID)?0:1);
-    });
-    if (userSearchQuery) {
-        var q = userSearchQuery.toLowerCase();
-        users = users.filter(function(u) {
-            return ((u.uniqueID||'')+(u.email||'')+(u.phone||'')+(u.fullName||'')).toLowerCase().includes(q);
-        });
+// Make cart float open drawer
+document.addEventListener('DOMContentLoaded', () => {
+    const cartFloat = document.getElementById('cart-float');
+    if (cartFloat) {
+        cartFloat.onclick = function() { openCartDrawer(); };
     }
-    var out = [];
-    out.push('<div class="flex justify-between items-center mb-4">');
-    out.push('<h2 class="text-lg font-black uppercase">All Users (' + allUsersCache.length + ')</h2></div>');
-    out.push('<input type="text" placeholder="Search name, email, phone or ID..." oninput="userSearchQuery=this.value;renderUsersList()" class="w-full border-2 border-black p-3 text-sm outline-none mb-4" value="' + userSearchQuery.replace(/"/g,'&quot;') + '">');
-    out.push('<div class="space-y-3">');
-
-    users.forEach(function(u) {
-        var uid = u.uniqueID;
-        var isPinned = pinnedUsers.includes(uid);
-        var pinBorder = isPinned ? 'border-yellow-400 bg-yellow-50' : 'border-transparent hover:border-black';
-
-        out.push('<div class="card border-2 ' + pinBorder + ' transition-all" data-uid="' + uid + '">');
-        // Header row
-        out.push('<div class="flex items-start gap-2">');
-        // Clickable expand area
-        out.push('<div class="cursor-pointer flex-1" onclick="var d=document.getElementById(\'u-' + uid + '\');if(d)d.classList.toggle(\'hidden\')">');
-        out.push('<p class="text-[11px] font-black uppercase">' + (isPinned ? '&#128204; ' : '') + (u.fullName||'N/A') + '</p>');
-        out.push('<p class="text-[9px] text-gray-400">' + (u.email||'') + '</p>');
-        out.push('<p class="text-[8px] font-800 text-blue-400 mt-1">ID: ' + uid + '</p>');
-        out.push('</div>');
-        // Right side buttons
-        out.push('<div class="flex-shrink-0 flex items-start gap-1 mt-0.5">');
-        var refBal = parseFloat(u.referralBalance||0).toFixed(2);
-        out.push('<div class="text-right mr-1">' +
-            '<p class="text-[9px] font-800 uppercase text-purple-500">' + (u.referralCode||'') + '</p>' +
-            '<p class="text-[8px] text-gray-400">' + (u.totalOrders||0) + ' orders</p>' +
-            '<p class="text-[8px] font-800" style="color:#ff6100">$' + refBal + ' bal</p>' +
-            '</div>');
-        // Open Dashboard button (NEW - item 1)
-        out.push('<button onclick="adminOpenUserDashboard(\'' + uid + '\')" class="bg-blue-600 text-white text-[7px] font-800 uppercase px-2 py-1 hover:bg-blue-700 transition-all whitespace-nowrap" title="View user dashboard">Open</button>');
-        // Three-dot menu
-        out.push('<div class="relative">');
-        out.push('<button onclick="toggleUserMenu(event,\'' + uid + '\')" class="w-7 h-7 flex flex-col items-center justify-center gap-0.5 hover:bg-gray-100 rounded">');
-        out.push('<span class="w-1 h-1 bg-gray-600 rounded-full"></span><span class="w-1 h-1 bg-gray-600 rounded-full"></span><span class="w-1 h-1 bg-gray-600 rounded-full"></span>');
-        out.push('</button>');
-        out.push('<div id="umenu-' + uid + '" class="hidden absolute right-0 top-8 bg-white border-2 border-black shadow-lg z-10 min-w-[150px]">');
-        out.push('<button onclick="togglePin(\'' + uid + '\')" class="w-full text-left px-4 py-2.5 text-[9px] font-800 uppercase hover:bg-black hover:text-white">' + (isPinned ? '📌 Unpin from Top' : '📌 Pin to Top') + '</button>');
-        out.push('<button onclick="adminOpenUserDashboard(\'' + uid + '\')" class="w-full text-left px-4 py-2.5 text-[9px] font-800 uppercase hover:bg-black hover:text-white">🔗 Open Dashboard</button>');
-        out.push('</div></div>');
-        out.push('</div></div>');
-
-        // Expanded details
-        out.push('<div id="u-' + uid + '" class="hidden mt-4 pt-4 border-t">');
-        // Info grid
-        out.push('<div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">');
-        out.push('<div><p class="text-[8px] uppercase text-gray-400">User ID</p><p class="text-[9px] font-800 break-all">' + uid + '</p></div>');
-        out.push('<div><p class="text-[8px] uppercase text-gray-400">Phone</p><p class="text-[9px] font-800">' + (u.phone||'N/A') + '</p></div>');
-        out.push('<div><p class="text-[8px] uppercase text-gray-400">Joined</p><p class="text-[9px] font-800">' + (u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A') + '</p></div>');
-        out.push('<div><p class="text-[8px] uppercase text-gray-400">Referred By</p><p class="text-[9px] font-800">' + (u.referredBy||'Direct') + '</p></div>');
-        out.push('<div><p class="text-[8px] uppercase text-gray-400">Referral Code</p><p class="text-[9px] font-800">' + (u.referralCode||'N/A') + '</p></div>');
-        out.push('<div><p class="text-[8px] uppercase text-gray-400">Users Referred</p><p class="text-[9px] font-800">' + (u.referredUsers||0) + '</p></div>');
-        out.push('</div>');
-
-        // Stats grid
-        out.push('<div class="grid grid-cols-2 gap-4 mb-4">');
-        out.push('<div class="bg-gray-50 p-3"><p class="text-[9px] font-800 uppercase mb-2">Orders</p>');
-        out.push('<div class="space-y-1">');
-        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">Total</span><span class="text-[9px] font-800">' + (u.totalOrders||0) + '</span></div>');
-        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">Today</span><span class="text-[9px] font-800">' + (u.ordersToday||0) + '</span></div>');
-        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">Rev Today</span><span class="text-[9px] font-800">$' + ((u.revenueToday||0)/100).toFixed(2) + '</span></div>');
-        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">This Week</span><span class="text-[9px] font-800">' + (u.ordersWeek||0) + '</span></div>');
-        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">Rev Week</span><span class="text-[9px] font-800">$' + ((u.revenueWeek||0)/100).toFixed(2) + '</span></div>');
-        out.push('</div></div>');
-
-        out.push('<div class="bg-gray-50 p-3"><p class="text-[9px] font-800 uppercase mb-2">Referral Stats</p>');
-        out.push('<div class="flex gap-1 mb-2">');
-        out.push('<input type="date" id="ref-from-' + uid + '" class="flex-1 border p-1 text-[10px] outline-none">');
-        out.push('<input type="date" id="ref-to-' + uid + '" class="flex-1 border p-1 text-[10px] outline-none">');
-        out.push('<button onclick="loadReferralStats(\'' + uid + '\')" class="bg-black text-white px-2 py-1 text-[7px] font-800 uppercase">Go</button>'); out.push('<button onclick="showTransactionPanel(\'' + uid + '\', \'' + (u.fullName||u.email||uid).replace(/'/g,'') + '\')" style="padding:4px 8px;background:#0a2a1a;color:#22c55e;border:1px solid #22c55e;border-radius:4px;font-size:7px;font-weight:800;cursor:pointer;text-transform:uppercase">Transactions</button>';
-        out.push('</div>');
-        out.push('<div id="ref-stats-' + uid + '">');
-        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">Users Referred</span><span class="text-[9px] font-800">' + (u.referredUsers||0) + '</span></div>');
-        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">Rev This Week</span><span class="text-[9px] font-800">$' + ((u.referralRevenueWeek||0)/100).toFixed(2) + '</span></div>');
-        out.push('</div></div></div>');
-
-        // Edit fields
-        out.push('<div class="border-t pt-3"><p class="text-[9px] font-800 uppercase text-gray-400 mb-2">Edit User Details</p>');
-        out.push('<div class="space-y-2">');
-        var fnSafe = (u.fullName||'').replace(/"/g,'&quot;');
-        out.push('<div class="flex gap-2"><input id="edit-fullName-' + uid + '" type="text" value="' + fnSafe + '" placeholder="Full name" class="flex-1 border p-2 text-sm outline-none focus:border-black"><button onclick="updateUser(\'' + uid + '\',\'fullName\')" class="bg-black text-white px-3 py-2 text-[8px] font-800 uppercase whitespace-nowrap">Save</button></div>');
-        out.push('<div class="flex gap-2"><input id="edit-email-' + uid + '" type="email" value="' + (u.email||'') + '" placeholder="Email" class="flex-1 border p-2 text-sm outline-none focus:border-black"><button onclick="updateUser(\'' + uid + '\',\'email\')" class="bg-black text-white px-3 py-2 text-[8px] font-800 uppercase whitespace-nowrap">Save</button></div>');
-        out.push('<div class="flex gap-2"><input id="edit-phone-' + uid + '" type="tel" value="' + (u.phone||'') + '" placeholder="Phone (+15551234567)" class="flex-1 border p-2 text-sm outline-none focus:border-black"><button onclick="updateUser(\'' + uid + '\',\'phone\')" class="bg-black text-white px-3 py-2 text-[8px] font-800 uppercase whitespace-nowrap">Save</button></div>');
-        out.push('<div class="flex gap-2"><input id="edit-password-' + uid + '" type="password" placeholder="New password" class="flex-1 border p-2 text-sm outline-none focus:border-black"><button onclick="updateUser(\'' + uid + '\',\'password\')" class="bg-red-600 text-white px-3 py-2 text-[8px] font-800 uppercase whitespace-nowrap">Set Password</button></div>');
-        out.push(
-            '<div style="background:#fff3ed;border:1.5px solid #ffd9bc;border-radius:10px;padding:14px;margin-top:10px">' +
-            '<p style="font-size:9px;font-weight:800;text-transform:uppercase;color:#ff6100;letter-spacing:.08em;margin:0 0 10px">💰 5% Referral Balance</p>' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">' +
-            '<div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;padding:10px;text-align:center">' +
-            '<p style="font-size:8px;color:#aaa;text-transform:uppercase;font-weight:700;margin:0 0 4px">Total Referrals</p>' +
-            '<p style="font-size:24px;font-weight:900;color:#1a1a1a;margin:0">' + (u.referralCount||0) + '</p>' +
-            '<p style="font-size:8px;color:#aaa;margin:2px 0 0">people used their code</p>' +
-            '</div>' +
-            '<div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;padding:10px;text-align:center">' +
-            '<p style="font-size:8px;color:#aaa;text-transform:uppercase;font-weight:700;margin:0 0 4px">Current Balance</p>' +
-            '<p style="font-size:24px;font-weight:900;color:#ff6100;margin:0">$' + parseFloat(u.referralBalance||0).toFixed(2) + '</p>' +
-            '<p style="font-size:8px;color:#aaa;margin:2px 0 0">earned from 5% commission</p>' +
-            '</div>' +
-            '</div>' +
-            '<div style="display:flex;gap:8px;align-items:center">' +
-            '<input id="edit-referralBalance-' + uid + '" type="number" step="0.01" min="0" placeholder="New balance (e.g. 0.00 to reset)" style="flex:1;border:1.5px solid #ffd9bc;border-radius:8px;padding:10px 12px;font-size:13px;outline:none;background:#fff">' +
-            '<button onclick="updateUser(\'' + uid + '\',\'referralBalance\')" style="background:#ff6100;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:9px;font-weight:800;text-transform:uppercase;cursor:pointer;white-space:nowrap">Update</button>' +
-            '</div>' +
-            '<p style="font-size:9px;color:#888;margin:6px 0 0">Set to <strong>0.00</strong> after user withdraws. Changes are saved immediately.</p>' +
-            '</div>'
-        );
-        out.push('<p id="edit-msg-' + uid + '" class="text-[9px] font-800 uppercase hidden"></p>');
-        out.push('</div></div>');
-        out.push('</div></div>');
-    });
-    out.push('</div>');
-    el.innerHTML = out.join('');
-}
-function toggleUserMenu(e, uid) {
-    e.stopPropagation();
-    // Close all other menus
-    document.querySelectorAll('[id^="umenu-"]').forEach(function(m) { m.classList.add('hidden'); });
-    var menu = document.getElementById('umenu-' + uid);
-    if (menu) menu.classList.toggle('hidden');
-    // Close on outside click
-    setTimeout(function() {
-        document.addEventListener('click', function closer() {
-            document.querySelectorAll('[id^="umenu-"]').forEach(function(m) { m.classList.add('hidden'); });
-            document.removeEventListener('click', closer);
-        });
-    }, 10);
-}
-
-function togglePin(uid) {
-    var idx = pinnedUsers.indexOf(uid);
-    if (idx > -1) pinnedUsers.splice(idx, 1);
-    else pinnedUsers.push(uid);
-    sessionStorage.setItem('pinnedUsers', JSON.stringify(pinnedUsers));
-    renderUsersList();
-}
-
-async function loadReferralStats(uid) {
-    var fromEl = document.getElementById('ref-from-' + uid);
-    var toEl = document.getElementById('ref-to-' + uid);
-    var from = fromEl ? fromEl.value : '';
-    var to = toEl ? toEl.value : '';
-    var el = document.getElementById('ref-stats-' + uid);
-    if (!el) return;
-    el.innerHTML = '<p class="text-[8px] text-gray-400 animate-pulse">Loading...</p>';
-
-    // Get the referral code for this user from the cached data
-    var user = allUsersCache.find(function(u) { return u.uniqueID === uid; });
-    var refCode = user ? (user.referralCode || '') : '';
-
-    if (!refCode) {
-        el.innerHTML = '<p class="text-[8px] text-gray-400">No referral code assigned to this user.</p>';
-        return;
-    }
-
-    try {
-        // Fetch all orders and filter by users referred by this code
-        var r = await af('/api/admin-api?action=referral-stats&refCode=' + encodeURIComponent(refCode) + (from ? '&dateFrom=' + from : '') + (to ? '&dateTo=' + to : ''));
-        var d = await r.json();
-        el.innerHTML =
-            '<div class="flex justify-between mb-1"><span class="text-[8px] text-gray-400">Ref Code</span><span class="text-[9px] font-800 text-purple-500">' + refCode + '</span></div>' +
-            '<div class="flex justify-between mb-1"><span class="text-[8px] text-gray-400">Users Referred</span><span class="text-[9px] font-800">' + (d.referredUsers||0) + '</span></div>' +
-            '<div class="flex justify-between mb-1"><span class="text-[8px] text-gray-400">Orders by Referrals</span><span class="text-[9px] font-800">' + (d.referralOrders||0) + '</span></div>' +
-            '<div class="flex justify-between"><span class="text-[8px] text-gray-400">Revenue from Referrals</span><span class="text-[9px] font-800 text-green-600">$' + ((d.referralRevenue||0)/100).toFixed(2) + '</span></div>';
-    } catch(e) { el.innerHTML = '<p class="text-[9px] text-red-500">Failed to load stats</p>'; }
-}
-function toggleUser(id) {
-    var el = document.getElementById(id);
-    if (el) el.classList.toggle('hidden');
-}
-
-function loadFulfill() {
-    var el = document.getElementById('c-fulfill');
-    el.innerHTML =
-        '<h2 class="text-lg font-black uppercase mb-6">Fulfill Order</h2>' +
-        '<div class="card max-w-lg"><div class="space-y-4">' +
-        '<div><label class="text-[9px] font-800 uppercase block mb-1">User ID</label><input id="f-userId" type="text" placeholder="User uniqueID" class="w-full border-2 p-3 text-sm outline-none focus:border-black"></div>' +
-        '<div><label class="text-[9px] font-800 uppercase block mb-1">Order ID (MongoDB)</label><input id="f-orderId" type="text" placeholder="MongoDB _id" class="w-full border-2 p-3 text-sm outline-none focus:border-black"></div>' +
-        '<div class="border-t pt-4"><p class="text-[9px] font-800 uppercase mb-3 text-green-600">Option 1 — Ship Order</p>' +
-        '<div class="space-y-3">' +
-        '<div><label class="text-[9px] font-800 uppercase block mb-1">Tracking Number</label><input id="f-tracking" type="text" placeholder="e.g. LW123456789CN" class="w-full border-2 p-3 text-sm outline-none focus:border-black"></div>' +
-        '<div><label class="text-[9px] font-800 uppercase block mb-1">Tracking Link (optional)</label><input id="f-trackingLink" type="text" placeholder="https://..." class="w-full border-2 p-3 text-sm outline-none focus:border-black"></div>' +
-        '<button onclick="fulfill(\'ship\')" class="w-full bg-black text-white py-3 text-[10px] font-800 uppercase tracking-widest hover:bg-green-700 transition-all">Mark as Shipped and Notify Customer</button>' +
-        '</div></div>' +
-        '<div class="border-t pt-4"><p class="text-[9px] font-800 uppercase mb-3 text-red-500">Option 2 — Decline Order</p>' +
-        '<div class="space-y-3">' +
-        '<div><label class="text-[9px] font-800 uppercase block mb-1">Reason for Decline</label><textarea id="f-reason" placeholder="e.g. Product out of stock." class="w-full border-2 p-3 text-sm outline-none focus:border-black h-20 resize-none"></textarea></div>' +
-        '<button onclick="fulfill(\'decline\')" class="w-full bg-red-500 text-white py-3 text-[10px] font-800 uppercase tracking-widest hover:bg-red-700 transition-all">Decline and Notify Customer</button>' +
-        '</div></div>' +
-        '<p id="f-msg" class="text-[10px] text-center font-800 uppercase hidden"></p>' +
-        '</div></div>';
-}
-
-async function fulfill(action) {
-    var userId = document.getElementById('f-userId').value.trim();
-    var orderId = document.getElementById('f-orderId').value.trim();
-    var tracking = document.getElementById('f-tracking') ? document.getElementById('f-tracking').value.trim() : '';
-    var trackingLink = document.getElementById('f-trackingLink') ? document.getElementById('f-trackingLink').value.trim() : '';
-    var reason = document.getElementById('f-reason') ? document.getElementById('f-reason').value.trim() : '';
-    var msg = document.getElementById('f-msg');
-
-    if (!userId || !orderId) { msg.textContent = 'User ID and Order ID required'; msg.className = 'text-[10px] text-center font-800 uppercase text-red-500'; msg.classList.remove('hidden'); return; }
-    if (action === 'ship' && !tracking) { msg.textContent = 'Tracking number required'; msg.className = 'text-[10px] text-center font-800 uppercase text-red-500'; msg.classList.remove('hidden'); return; }
-    if (action === 'decline' && !reason) { msg.textContent = 'Decline reason required'; msg.className = 'text-[10px] text-center font-800 uppercase text-red-500'; msg.classList.remove('hidden'); return; }
-
-    try {
-        var r = await af('/api/admin-api?action=fulfill', {
-            method: 'POST',
-            body: JSON.stringify({ userId: userId, orderId: orderId, action: action, trackingNumber: tracking, trackingLink: trackingLink, declineReason: reason })
-        });
-        var d = await r.json();
-        if (d.success) {
-            msg.textContent = action === 'ship' ? 'Order shipped! Customer notified.' : 'Order declined. Customer notified.';
-            msg.className = 'text-[10px] text-center font-800 uppercase text-green-600';
-            msg.classList.remove('hidden');
-            document.getElementById('f-userId').value = '';
-            document.getElementById('f-orderId').value = '';
-            if (document.getElementById('f-tracking')) document.getElementById('f-tracking').value = '';
-            if (document.getElementById('f-reason')) document.getElementById('f-reason').value = '';
-        } else {
-            msg.textContent = d.error || 'Failed';
-            msg.className = 'text-[10px] text-center font-800 uppercase text-red-500';
-            msg.classList.remove('hidden');
-        }
-    } catch (e) {
-        msg.textContent = 'Network error';
-        msg.className = 'text-[10px] text-center font-800 uppercase text-red-500';
-        msg.classList.remove('hidden');
-    }
-}
-
-async function updateUser(userId, field) {
-    var inputEl = document.getElementById('edit-' + field + '-' + userId);
-    var msgEl = document.getElementById('edit-msg-' + userId);
-    if (!inputEl || !inputEl.value.trim()) {
-        msgEl.textContent = 'Please enter a value.';
-        msgEl.style.color = '#ef4444';
-        msgEl.classList.remove('hidden');
-        return;
-    }
-    var body = { userId: userId };
-    if (field === 'referralBalance') {
-        var bal = parseFloat(inputEl.value);
-        if (isNaN(bal) || bal < 0) { alert('Enter a valid balance (0 or more)'); return; }
-        body.referralBalance = bal;
-    } else {
-        body[field] = inputEl.value.trim();
-    }
-    try {
-        var r = await af('/api/admin-api?action=update-user', { method: 'POST', body: JSON.stringify(body) });
-        var d = await r.json();
-        msgEl.textContent = d.success ? (field.charAt(0).toUpperCase() + field.slice(1) + ' updated successfully!') : (d.error || 'Failed');
-        msgEl.style.color = d.success ? '#22c55e' : '#ef4444';
-        if (d.success) inputEl.value = '';
-    } catch(e) { msgEl.textContent = 'Network error'; msgEl.style.color = '#ef4444'; }
-    msgEl.classList.remove('hidden');
-    setTimeout(function() { msgEl.classList.add('hidden'); }, 3000);
-}
-
-
-function fillFulfillForm(orderId, userId) {
-    showTab('fulfill');
-    setTimeout(function() {
-        var oid = document.getElementById('f-orderId');
-        var uid = document.getElementById('f-userId');
-        if (oid) oid.value = orderId;
-        if (uid) uid.value = userId;
-    }, 100);
-}
-
-
-function adminOpenUserDashboard(userId) {
-    // Write the user session into localStorage BEFORE opening the tab
-    // Dashboard gatekeeper reads localStorage on load — this guarantees it works
-    var adminToken = sessionStorage.getItem('adminToken');
-    var impersonateData = {
-        token: 'admin-view-' + adminToken,
-        id: userId,
-        expiry: Date.now() + 60 * 60 * 1000, // 1 hour
-        isAdminView: true
-    };
-    // Backup current admin session
-    var adminSession = sessionStorage.getItem('adminToken');
-    // Write user session to localStorage so new tab picks it up instantly
-    localStorage.setItem('foundry_session', JSON.stringify(impersonateData));
-    // Open dashboard in new tab
-    window.open('/dashboard', '_blank');
-    // Immediately restore the current page's admin session awareness
-    // (localStorage is shared across tabs — we restore after a tick)
-    setTimeout(function() {
-        // The new tab has already read localStorage. We keep it as-is
-        // Admin panel uses sessionStorage for its token, so it stays logged in
-        console.log('Admin opened dashboard for user:', userId);
-    }, 100);
-}
-
+});
 </script>
-    <script>
+
+<style>
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+</style>
+
+<script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
 }
