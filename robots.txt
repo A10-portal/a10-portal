@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /signup
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /api/
+Disallow: /success
+
+Sitemap: https://www.mova99.com/sitemap.xml
