@@ -386,6 +386,8 @@ input:focus, select:focus, textarea:focus { outline: none; }
 //  STATE
 // ══════════════════════════════════════════════════
 let cart = JSON.parse(localStorage.getItem('mova_cart') || '[]');
+// Product registry — keyed by pid, so onclick only needs the pid (no fragile string escaping)
+const PRODUCT_REGISTRY = {};
 let session = JSON.parse(localStorage.getItem('foundry_session') || 'null');
 let currentView = 'market';
 let productPage = 1;
@@ -591,23 +593,25 @@ function renderSkeletons(n) {
 }
 
 function appendProductCard(grid, p) {
+  // Store product in registry — onclick only passes pid, avoiding all quote/escape bugs
+  PRODUCT_REGISTRY[p.pid] = p;
+
   const fire = Math.random() < 0.72;
   const fakeOld = fire ? (parseFloat(p.sellPrice) * (1.25 + Math.random()*.4)).toFixed(2) : null;
   const pct = fire ? Math.floor(15 + Math.random()*38) : 0;
-  const name = (p.productNameEn || p.productName || '').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
-  const safeName = esc(p.productNameEn || p.productName || '');
-  const safeImg = esc(p.productImage || '');
-  const safePid = esc(p.pid);
   const inCart = cart.some(i => i.pid === p.pid || i.pid.startsWith(p.pid+'-'));
+  const pid = p.pid;
 
   const div = document.createElement('div');
   div.className = 'pcard fade-in';
+  // Use data attributes + addEventListener instead of inline onclick strings
+  div.dataset.pid = pid;
   div.innerHTML = `
-    <div class="pcard-img" onclick="openProduct('${safePid}','${safeName}','${esc(p.sellPrice)}','${safeImg}')">
+    <div class="pcard-img pcard-open" data-pid="${pid}">
       ${fire ? '<div class="hot-tag">🔥 HOT</div>' : ''}
-      <img src="${imgUrl(p.productImage)}" alt="${name}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.opacity='.2'">
+      <img src="${imgUrl(p.productImage)}" alt="" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.opacity='.2'">
     </div>
-    <div class="pcard-body">
+    <div class="pcard-body pcard-open" data-pid="${pid}">
       <div class="pcard-name">${p.productNameEn || p.productName}</div>
       <div class="flex items-center gap-2" style="flex-wrap:wrap">
         <span class="pcard-price">$${p.sellPrice}</span>
@@ -616,13 +620,23 @@ function appendProductCard(grid, p) {
       </div>
     </div>
     <div class="pcard-footer">
-      <button class="add-btn ${inCart?'added':''}" data-pid="${safePid}"
-        onclick="event.stopPropagation();openProduct('${safePid}','${safeName}','${esc(p.sellPrice)}','${safeImg}')">
+      <button class="add-btn ${inCart?'added':''} pcard-open" data-pid="${pid}">
         ${inCart ? '✓ In Cart' : '🛒 Add to Cart'}
       </button>
     </div>`;
   grid.appendChild(div);
 }
+
+// Single delegated click handler on product grid — handles ALL product taps safely
+document.addEventListener('click', function(e) {
+  const target = e.target.closest('.pcard-open');
+  if (!target) return;
+  e.stopPropagation();
+  const pid = target.dataset.pid;
+  if (!pid || !PRODUCT_REGISTRY[pid]) return;
+  const p = PRODUCT_REGISTRY[pid];
+  openProduct(pid, p.productNameEn||p.productName||'', p.sellPrice, p.productImage||'');
+});
 
 async function loadGreeting() {
   const el = document.getElementById('greet-sub');
@@ -643,11 +657,19 @@ async function loadGreeting() {
 let modalState = {};
 
 async function openProduct(pid, name, price, image) {
+  // Prefer registry data — more reliable than escaped strings in HTML attributes
+  const reg = PRODUCT_REGISTRY[pid];
+  if (reg) {
+    name  = reg.productNameEn || reg.productName || name || '';
+    price = reg.sellPrice || price || '0';
+    image = reg.productImage || image || '';
+  }
+
   const modal = document.getElementById('product-modal');
   const content = document.getElementById('product-modal-content');
   modal.classList.add('open');
   content.innerHTML = '<div class="spinner"></div>';
-  modalState = { pid, name, basePrice: parseFloat(price)||0, image, qty:1, vid:'', color:'', size:'' };
+  modalState = { pid, name: name||'', basePrice: parseFloat(price)||0, image: image||'', qty:1, vid:'', color:'', size:'', fromCart:false };
 
   try {
     const r = await fetch('/api/get-details?pid='+encodeURIComponent(pid));
@@ -656,7 +678,8 @@ async function openProduct(pid, name, price, image) {
     buildProductModal(d, pid, name, price, image);
   } catch(e) {
     content.innerHTML = `<div style="text-align:center;padding:40px">
-      <p style="color:var(--red);font-weight:700">Could not load details</p>
+      <p style="color:var(--red);font-weight:700">Could not load product details</p>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">${e.message}</p>
       <button onclick="closeProductModal()" class="btn-primary mt-4" style="width:auto;padding:10px 24px">Close</button>
     </div>`;
   }
@@ -759,8 +782,8 @@ function buildProductModal(d, pid, name, price, image) {
       ${desc ? `<div style="font-size:11px;color:#555;line-height:1.7;background:var(--bg);border-radius:8px;padding:10px 12px;max-height:100px;overflow-y:auto">${desc}</div>` : ''}
 
       <button id="modal-add-btn" onclick="addFromModal()"
-        style="padding:14px;background:${inCart?'#1a1a1a':'var(--orange)'};color:white;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .15s;text-transform:uppercase;letter-spacing:.06em">
-        ${inCart ? '✓ Added to Cart' : 'Add to Cart 🛒'}
+        style="padding:14px;background:var(--orange);color:white;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .15s;text-transform:uppercase;letter-spacing:.06em">
+        ${inCart ? (modalState.fromCart ? '✏️ Update Cart' : 'Update Cart 🛒') : 'Add to Cart 🛒'}
       </button>
     </div>
     </div>
@@ -791,28 +814,71 @@ function updateModalPrice() {
 }
 
 function addFromModal() {
-  const { pid, name, basePrice, image, qty, vid, color, size } = modalState;
+  const { pid, name, basePrice, image, qty, vid, color, size, fromCart, cartPidOld } = modalState;
   const label = [color,size].filter(Boolean).join(' / ');
-  const displayName = name + (label ? ' — '+label : '') + (qty>1 ? ` (x${qty})` : '');
+  const displayName = name.split(' — ')[0] + (label ? ' — '+label : '') + (qty>1 ? ` (x${qty})` : '');
   const cartPid = pid + (vid ? '-'+vid : '');
   const totalPrice = (basePrice * qty).toFixed(2);
-
-  const existIdx = cart.findIndex(i => i.pid.split('-')[0] === pid);
   const entry = { pid:cartPid, name:displayName, price:totalPrice, image, qty, color, size };
-  if (existIdx > -1) cart[existIdx] = entry;
-  else cart.push(entry);
+
+  if (fromCart) {
+    // Replace the existing cart entry (match by base pid)
+    const oldIdx = cart.findIndex(i => i.pid === cartPidOld || i.pid.split('-')[0] === pid);
+    if (oldIdx > -1) cart[oldIdx] = entry;
+    else cart.push(entry);
+  } else {
+    // Normal add — replace if same base pid already in cart, else push
+    const existIdx = cart.findIndex(i => i.pid.split('-')[0] === pid);
+    if (existIdx > -1) cart[existIdx] = entry;
+    else cart.push(entry);
+  }
 
   localStorage.setItem('mova_cart', JSON.stringify(cart));
   updateCartBadge();
 
   const btn = document.getElementById('modal-add-btn');
-  if (btn) { btn.textContent='✓ Added!'; btn.style.background='var(--green)'; }
-  setTimeout(closeProductModal, 700);
-  // Refresh add buttons in grid
-  document.querySelectorAll(`[data-pid="${pid}"]`).forEach(b=>{ b.textContent='✓ In Cart'; b.classList.add('added'); });
+  if (btn) {
+    btn.textContent = fromCart ? '✓ Updated!' : '✓ Added!';
+    btn.style.background = 'var(--green)';
+    btn.disabled = true;
+  }
+
+  setTimeout(() => {
+    closeProductModal();
+    if (fromCart) {
+      // Reopen cart so user sees the updated item
+      openCart();
+    }
+  }, 600);
+
+  document.querySelectorAll(`.pcard-open[data-pid="${pid}"]`).forEach(b=>{
+    if (b.classList.contains('add-btn')) { b.textContent='✓ In Cart'; b.classList.add('added'); }
+  });
 }
 
-function closeProductModal() { document.getElementById('product-modal').classList.remove('open'); }
+function closeProductModal() {
+  document.getElementById('product-modal').classList.remove('open');
+  modalState.fromCart = false;
+}
+
+// Open product modal in edit-cart mode
+function openProductFromCart(pid) {
+  const cartItem = cart.find(i => i.pid === pid || i.pid.startsWith(pid+'-'));
+  const reg = PRODUCT_REGISTRY[pid];
+  const name  = cartItem?.name?.split(' — ')[0] || (reg ? (reg.productNameEn||reg.productName) : '') || '';
+  const price = cartItem ? (parseFloat(cartItem.price)/(cartItem.qty||1)).toFixed(2) : (reg?.sellPrice||'0');
+  const image = cartItem?.image || reg?.productImage || '';
+  openProduct(pid, name, price, image).then(() => {
+    modalState.fromCart = true;
+    modalState.cartPidOld = pid; // track which cart entry to replace
+    const btn = document.getElementById('modal-add-btn');
+    if (btn) {
+      btn.textContent = '✏️ Update Cart';
+      btn.style.background = 'var(--orange)';
+      btn.disabled = false;
+    }
+  });
+}
 
 // ══════════════════════════════════════════════════
 //  CART
@@ -862,11 +928,18 @@ function renderCart() {
         <input type="checkbox" ${chk?'checked':''} onchange="toggleItem('${safe}',this.checked)" style="width:16px;height:16px;accent-color:var(--orange);cursor:pointer;flex-shrink:0;margin-top:4px">
         <img src="${imgUrl(item.image||'')}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#f8f8f8">
         <div style="flex:1;min-width:0">
-          <p style="font-size:11px;font-weight:700;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:4px">${item.name||''}</p>
+          <p style="font-size:11px;font-weight:700;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:4px">${item.name.split(' — ')[0]||''}</p>
+          ${(item.color||item.size) ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px">
+            ${item.color?`<span style="font-size:9px;font-weight:700;background:var(--orange-pale);color:var(--orange);padding:2px 8px;border-radius:10px">🎨 ${item.color}</span>`:''}
+            ${item.size?`<span style="font-size:9px;font-weight:700;background:#f0f0f0;color:#333;padding:2px 8px;border-radius:6px">📏 ${item.size}</span>`:''}
+          </div>` : ''}
           <p style="font-size:15px;font-weight:800;color:var(--orange)">$${parseFloat(item.price||0).toFixed(2)}</p>
           <p style="font-size:10px;color:var(--muted)">Qty: ${item.qty||1}</p>
         </div>
-        <button onclick="removeFromCart('${safe}')" style="color:var(--red);background:none;border:none;cursor:pointer;font-size:16px;padding:0 2px;flex-shrink:0">✕</button>
+        <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+          <button onclick="removeFromCart('${safe}')" style="color:var(--red);background:none;border:none;cursor:pointer;font-size:16px;padding:0 2px;line-height:1">✕</button>
+          <button onclick="openProductFromCart('${item.pid.split('-')[0]}')" style="font-size:9px;font-weight:700;color:var(--orange);border:1.5px solid var(--orange);background:var(--orange-pale);border-radius:5px;padding:3px 7px;cursor:pointer;font-family:inherit;white-space:nowrap">Edit</button>
+        </div>
       </div>
     </div>`;
   });
