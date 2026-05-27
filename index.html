@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#ff6100">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="/image/logo.png">
+    <meta name="description" content="Shop millions of products at unbeatable prices. Fast 3-8 day delivery across the USA. Secure checkout powered by Stripe.">
+    <meta property="og:title" content="Mova99 — Premium USA Marketplace">
+    <meta property="og:description" content="Shop millions of products across every category. Fast delivery, secure checkout and unbeatable prices across the United States.">
+    <meta property="og:url" content="https://www.mova99.com">
+    <meta property="og:type" content="website">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.mova99.com">
+    <title>Mova99 — Premium USA Marketplace</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TK7Y07K9VH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TK7Y07K9VH');
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root{--orange:#ff6100;--orange-light:#ff8533;--orange-pale:#fff3ed;--text:#1a1a1a;--border:#f0f0f0;--bg:#f5f5f5;--white:#ffffff}
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',-apple-system,sans-serif;background:#fff;color:var(--text);overflow-x:hidden}
+        ::-webkit-scrollbar{width:4px}
+        ::-webkit-scrollbar-thumb{background:var(--orange);border-radius:2px}
+
+        /* NAV */
+        .nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 24px}
+        .nav-inner{max-width:1280px;margin:auto;height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+        .nav-logo{font-size:22px;font-weight:900;font-style:italic;color:var(--orange);text-decoration:none;letter-spacing:-1px}
+        .nav-links{display:flex;align-items:center;gap:8px}
+        .nav-btn{padding:9px 20px;border-radius:24px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .18s}
+        .nav-btn-outline{background:transparent;border:2px solid var(--orange);color:var(--orange)}
+        .nav-btn-solid{background:var(--orange);border:2px solid var(--orange);color:#fff}
+        .nav-btn:hover{opacity:.85;transform:translateY(-1px)}
+        @media(max-width:640px){.nav-links .nav-btn-outline{display:none}}
+
+        /* MARQUEE */
+        .marquee-wrap{background:var(--orange);overflow:hidden;padding:8px 0}
+        .marquee-track{display:flex;animation:marquee 30s linear infinite;white-space:nowrap;gap:0}
+        .marquee-track span{font-size:12px;font-weight:700;color:#fff;padding:0 32px;letter-spacing:.02em}
+        @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+        /* HERO */
+        .hero{background:linear-gradient(135deg,#0a0a0a 0%,#1a0800 50%,#0a0a0a 100%);min-height:520px;display:flex;align-items:center;position:relative;overflow:hidden;padding:60px 24px}
+        .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(255,97,0,.25) 0%,transparent 60%);pointer-events:none}
+        .hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(255,97,0,.15) 0%,transparent 60%);pointer-events:none}
+        .hero-inner{max-width:1280px;margin:auto;width:100%;position:relative;z-index:2}
+        .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,97,0,.15);border:1px solid rgba(255,97,0,.3);border-radius:24px;padding:6px 16px;font-size:11px;font-weight:700;color:#ff8533;text-transform:uppercase;letter-spacing:.08em;margin-bottom:20px}
+        .hero h1{font-size:clamp(36px,5vw,72px);font-weight:900;color:#fff;line-height:1.05;margin-bottom:20px;letter-spacing:-2px}
+        .hero h1 span{color:var(--orange)}
+        .hero p{font-size:clamp(15px,2vw,18px);color:rgba(255,255,255,.65);line-height:1.7;max-width:540px;margin-bottom:32px}
+        .hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+        .hero-btn-primary{background:var(--orange);color:#fff;padding:15px 32px;border-radius:12px;font-size:14px;font-weight:800;text-decoration:none;text-transform:uppercase;letter-spacing:.08em;transition:all .2s;border:none;cursor:pointer}
+        .hero-btn-primary:hover{background:var(--orange-light);transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,97,0,.4)}
+        .hero-btn-secondary{background:transparent;color:#fff;padding:15px 32px;border-radius:12px;font-size:14px;font-weight:800;text-decoration:none;text-transform:uppercase;letter-spacing:.08em;transition:all .2s;border:2px solid rgba(255,255,255,.2)}
+        .hero-btn-secondary:hover{border-color:#fff;transform:translateY(-2px)}
+        .hero-stats{display:flex;gap:32px;margin-top:40px;flex-wrap:wrap}
+        .hero-stat{text-align:left}
+        .hero-stat-num{font-size:28px;font-weight:900;color:#fff}
+        .hero-stat-label{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+        /* SECTIONS */
+        .section{padding:64px 24px}
+        .section-inner{max-width:1280px;margin:auto}
+        .section-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:12px}
+        .section-title{font-size:clamp(22px,3vw,32px);font-weight:900;color:var(--text);letter-spacing:-1px}
+        .section-title span{color:var(--orange)}
+        .section-subtitle{font-size:13px;color:#888;margin-top:6px}
+        .section-link{font-size:13px;font-weight:700;color:var(--orange);text-decoration:none;white-space:nowrap}
+        .section-link:hover{text-decoration:underline}
+
+        /* CATEGORY CHIPS */
+        .cat-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;-ms-overflow-style:none;scrollbar-width:none}
+        .cat-scroll::-webkit-scrollbar{display:none}
+        .cat-chip{display:inline-flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;min-width:80px;text-decoration:none;transition:transform .2s}
+        .cat-chip:hover{transform:translateY(-3px)}
+        .cat-chip-img{width:72px;height:72px;border-radius:50%;background:var(--orange-pale);border:2px solid var(--border);overflow:hidden;display:flex;align-items:center;justify-content:center;transition:border-color .18s}
+        .cat-chip:hover .cat-chip-img{border-color:var(--orange)}
+        .cat-chip-img img{width:100%;height:100%;object-fit:cover}
+        .cat-chip-label{font-size:10px;font-weight:600;color:var(--text);text-align:center;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+        /* PRODUCT GRID */
+        .product-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+        @media(min-width:480px){.product-grid{grid-template-columns:repeat(3,1fr)}}
+        @media(min-width:768px){.product-grid{grid-template-columns:repeat(4,1fr);gap:12px}}
+        @media(min-width:1024px){.product-grid{grid-template-columns:repeat(5,1fr)}}
+        @media(min-width:1280px){.product-grid{grid-template-columns:repeat(6,1fr)}}
+        .product-card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:all .22s;display:flex;flex-direction:column}
+        .product-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.10);transform:translateY(-3px);border-color:var(--orange)}
+        .product-img-wrap{aspect-ratio:1;background:#f8f8f8;overflow:hidden;position:relative}
+        .product-img-wrap img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s,transform .4s}
+        .product-img-wrap img.loaded{opacity:1}
+        .product-card:hover .product-img-wrap img{transform:scale(1.05)}
+        .hot-badge{position:absolute;top:8px;left:8px;background:var(--orange);color:#fff;font-size:9px;font-weight:800;padding:3px 7px;border-radius:4px;z-index:2}
+        .product-info{padding:10px 12px;flex:1;display:flex;flex-direction:column;gap:4px}
+        .product-name{font-size:11px;line-height:14px;height:28px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;color:var(--text)}
+        .product-price{font-size:16px;font-weight:800;color:var(--orange)}
+        .product-old{font-size:11px;color:#bbb;text-decoration:line-through}
+        .add-btn{margin:0 10px 10px;padding:10px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;margin-top:auto}
+        .add-btn:hover{background:var(--orange-light);transform:translateY(-1px)}
+
+        /* SKELETON */
+        .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:12px}
+        @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+        /* FEATURES */
+        .features{background:var(--bg)}
+        .features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+        @media(min-width:640px){.features-grid{grid-template-columns:repeat(4,1fr)}}
+        .feature-card{background:#fff;border-radius:14px;padding:24px 20px;text-align:center;border:1px solid var(--border);transition:all .2s}
+        .feature-card:hover{border-color:var(--orange);transform:translateY(-3px)}
+        .feature-icon{font-size:32px;margin-bottom:12px}
+        .feature-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+        .feature-desc{font-size:11px;color:#888;line-height:1.6}
+
+        /* REFERRAL */
+        .referral-section{background:linear-gradient(135deg,#0a0a0a,#1a0800);padding:64px 24px}
+        .referral-inner{max-width:640px;margin:auto;text-align:center}
+        .referral-inner h2{font-size:clamp(24px,4vw,40px);font-weight:900;color:#fff;margin-bottom:12px;letter-spacing:-1px}
+        .referral-inner h2 span{color:var(--orange)}
+        .referral-inner p{font-size:14px;color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:28px}
+
+        /* FOOTER */
+        .footer{background:#0a0a0a;padding:48px 24px 32px;border-top:1px solid #1a1a1a}
+        .footer-inner{max-width:1280px;margin:auto}
+        .footer-grid{display:grid;grid-template-columns:1fr;gap:32px;margin-bottom:40px}
+        @media(min-width:640px){.footer-grid{grid-template-columns:2fr 1fr 1fr}}
+        .footer-logo{font-size:24px;font-weight:900;font-style:italic;color:#fff;margin-bottom:12px;letter-spacing:-1px}
+        .footer-logo span{color:var(--orange)}
+        .footer-desc{font-size:12px;color:#555;line-height:1.7}
+        .footer-heading{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#888;margin-bottom:16px}
+        .footer-link{display:block;font-size:12px;color:#555;text-decoration:none;margin-bottom:10px;transition:color .15s}
+        .footer-link:hover{color:var(--orange)}
+        .footer-bottom{border-top:1px solid #1a1a1a;padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+        .footer-copy{font-size:11px;color:#333}
+
+        /* CART FLOAT */
+        .cart-float{position:fixed;bottom:24px;right:20px;z-index:500;background:var(--orange);border-radius:50%;width:56px;height:56px;display:none;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(255,97,0,.4);cursor:pointer;transition:transform .2s}
+        .cart-float.visible{display:flex}
+        .cart-float:hover{transform:scale(1.1)}
+
+        /* ANIMATIONS */
+        .fade-up{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+        .fade-up.visible{opacity:1;transform:translateY(0)}
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="/" class="nav-logo">Mova<span style="color:#1a1a1a">99</span></a>
+        <div class="nav-links">
+            <a href="/signup" class="nav-btn nav-btn-outline">Sign Up</a>
+            <a href="/login" class="nav-btn nav-btn-solid">Sign In</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Marquee -->
+<div class="marquee-wrap">
+    <div class="marquee-track" id="marquee-track">
+        <span>🛒 Millions of Products</span>
+        <span>🚚 Fast 3-8 Day USA Delivery</span>
+        <span>🔒 Secure Checkout — Stripe</span>
+        <span>💰 Unbeatable Prices</span>
+        <span>🎁 Earn 5% Referral Rewards</span>
+        <span>🏪 Shop Every Category</span>
+        <span>📦 1-2 Day Processing</span>
+        <span>🛒 Millions of Products</span>
+        <span>🚚 Fast 3-8 Day USA Delivery</span>
+        <span>🔒 Secure Checkout — Stripe</span>
+        <span>💰 Unbeatable Prices</span>
+        <span>🎁 Earn 5% Referral Rewards</span>
+        <span>🏪 Shop Every Category</span>
+        <span>📦 1-2 Day Processing</span>
+    </div>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-badge">🔥 Premium USA Marketplace</div>
+        <h1>Shop <span>Millions</span> of<br>Products Online</h1>
+        <p>Fast delivery across the United States. Unbeatable prices on fashion, electronics, home goods, beauty and everything in between.</p>
+        <div class="hero-btns">
+            <a href="/signup" class="hero-btn-primary">Start Shopping Free →</a>
+            <a href="/login" class="hero-btn-secondary">Sign In</a>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat"><div class="hero-stat-num">1M+</div><div class="hero-stat-label">Products</div></div>
+            <div class="hero-stat"><div class="hero-stat-num">3-8</div><div class="hero-stat-label">Day Delivery</div></div>
+            <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-label">USA Delivery</div></div>
+            <div class="hero-stat"><div class="hero-stat-num">5%</div><div class="hero-stat-label">Referral Earn</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories -->
+<section class="section fade-up">
+    <div class="section-inner">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Shop by <span>Category</span></h2>
+                <p class="section-subtitle">Browse millions of products across every category</p>
+            </div>
+            <a href="/dashboard" class="section-link">View All →</a>
+        </div>
+        <div class="cat-scroll" id="cat-scroll"></div>
+    </div>
+</section>
+
+<!-- Trending Products -->
+<section class="section fade-up" style="background:var(--bg);padding-top:48px;padding-bottom:48px">
+    <div class="section-inner">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Trending <span>Products</span></h2>
+                <p class="section-subtitle">Real products — add to cart and checkout instantly</p>
+            </div>
+            <a href="/dashboard" class="section-link">Shop All →</a>
+        </div>
+        <div class="product-grid" id="product-grid">
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+        </div>
+        <div style="text-align:center;margin-top:32px">
+            <a href="/signup" style="display:inline-block;padding:14px 36px;background:var(--orange);color:#fff;border-radius:12px;font-size:13px;font-weight:800;text-decoration:none;text-transform:uppercase;letter-spacing:.08em;transition:all .2s" onmouseover="this.style.background='#ff8533'" onmouseout="this.style.background='#ff6100'">View All Products →</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="section features fade-up">
+    <div class="section-inner">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">Why <span>Mova99</span>?</h2>
+                <p class="section-subtitle">Everything you need in one place</p>
+            </div>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon">🛒</div><div class="feature-title">Millions of Products</div><div class="feature-desc">Every category covered — fashion, electronics, home goods, beauty and more</div></div>
+            <div class="feature-card"><div class="feature-icon">🚚</div><div class="feature-title">Fast USA Delivery</div><div class="feature-desc">3-8 business day delivery across the entire United States</div></div>
+            <div class="feature-card"><div class="feature-icon">🔒</div><div class="feature-title">Secure Checkout</div><div class="feature-desc">Powered by Stripe — the most trusted payment platform in the world</div></div>
+            <div class="feature-card"><div class="feature-icon">💰</div><div class="feature-title">Best Prices</div><div class="feature-desc">Unbeatable prices on millions of products updated daily</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- More Products Row 2 -->
+<section class="section fade-up" style="padding-top:48px;padding-bottom:48px">
+    <div class="section-inner">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">New <span>Arrivals</span></h2>
+                <p class="section-subtitle">Fresh products added daily</p>
+            </div>
+            <a href="/signup" class="section-link">Shop Now →</a>
+        </div>
+        <div class="product-grid" id="product-grid-2">
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Referral Section -->
+<section class="referral-section fade-up">
+    <div class="referral-inner">
+        <div style="font-size:48px;margin-bottom:16px">🎁</div>
+        <h2>Earn With <span>Mova99</span></h2>
+        <p>Share your unique referral code and earn <strong style="color:var(--orange)">5% on every order</strong> your friends place — on both products and food orders. No limit on how much you can earn.</p>
+        <a href="/signup" class="hero-btn-primary" style="display:inline-block;text-decoration:none">Sign Up Free & Start Earning →</a>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-grid">
+            <div>
+                <div class="footer-logo">Mova<span>99</span></div>
+                <p class="footer-desc">Your premium online marketplace. Shop millions of products across every category with fast USA delivery and unbeatable prices.</p>
+                <p style="font-size:11px;color:#333;margin-top:12px">support@mova99.com</p>
+            </div>
+            <div>
+                <p class="footer-heading">Shop</p>
+                <a href="/signup" class="footer-link">Create Account</a>
+                <a href="/login" class="footer-link">Sign In</a>
+                <a href="/dashboard" class="footer-link">Marketplace</a>
+            </div>
+            <div>
+                <p class="footer-heading">Legal</p>
+                <a href="/docs/16_privacy_policy.pdf" class="footer-link" target="_blank">Privacy Policy</a>
+                <a href="/docs/15_terms_of_service.pdf" class="footer-link" target="_blank">Terms of Service</a>
+                <a href="/docs/06_return_refund_policy.pdf" class="footer-link" target="_blank">Returns & Refunds</a>
+                <a href="/docs/08_shipping_info.pdf" class="footer-link" target="_blank">Shipping Info</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p class="footer-copy">© 2026 Mova99 LLC · Premium USA Marketplace · www.mova99.com</p>
+            <p style="font-size:11px;color:#333">Powered by Stripe · Secure Payments</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Floating Cart -->
+<div class="cart-float" id="cart-float" onclick="window.location.href='/dashboard'">
+    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+    </svg>
+    <span id="cart-badge" style="position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:9px;font-weight:900;border-radius:50%;width:18px;height:18px;display:none;align-items:center;justify-content:center">0</span>
+</div>
+
+<script>
+const CATEGORIES = [
+    {name:"Kids' Shoes",slug:"kids-shoes",kw:"kids shoes"},
+    {name:"Women's Clothing",slug:"womens-clothing",kw:"women dress"},
+    {name:"Beauty & Health",slug:"beauty-health",kw:"beauty makeup"},
+    {name:"Electronics",slug:"electronics",kw:"electronics"},
+    {name:"Men's Clothing",slug:"mens-clothing",kw:"men shirt"},
+    {name:"Home & Kitchen",slug:"home-kitchen",kw:"home kitchen"},
+    {name:"Bags & Luggage",slug:"bags-luggage",kw:"bags handbag"},
+    {name:"Sports & Outdoors",slug:"sports-outdoors",kw:"sports fitness"},
+    {name:"Toys & Games",slug:"toys-games",kw:"toys games"},
+    {name:"Cell Phones",slug:"cell-phones",kw:"phone accessories"},
+    {name:"Jewelry",slug:"jewelry-accessories",kw:"jewelry accessories"},
+    {name:"Pet Supplies",slug:"pet-supplies",kw:"pet supplies"},
+];
+
+let cart = JSON.parse(localStorage.getItem('mova_cart')) || [];
+
+function imgUrl(url) {
+    if (!url || url.startsWith('data:') || url.startsWith('blob:')) return url || '';
+    return '/api/get-orders?img=' + encodeURIComponent(url);
+}
+
+function updateCartBadge() {
+    const count = cart.length;
+    const badge = document.getElementById('cart-badge');
+    const float = document.getElementById('cart-float');
+    if (badge) { badge.textContent = count > 99 ? '99+' : count; badge.style.display = count > 0 ? 'flex' : 'none'; }
+    if (float) float.classList.toggle('visible', count > 0);
+}
+
+function addToCart(pid, name, price, image, btn) {
+    if (!cart.find(i => i.pid === pid)) {
+        cart.push({ pid, name, price, image, qty: 1 });
+        localStorage.setItem('mova_cart', JSON.stringify(cart));
+        updateCartBadge();
+    }
+    if (btn) {
+        btn.style.background = '#22c55e';
+        btn.innerHTML = '<span>✓</span><span>Added!</span>';
+        setTimeout(() => {
+            btn.style.background = '#ff6100';
+            btn.innerHTML = '<span>🛒</span><span>Add to Cart</span>';
+        }, 1000);
+    }
+}
+
+// Load category chips with real product images
+async function loadCategories() {
+    const scroll = document.getElementById('cat-scroll');
+    if (!scroll) return;
+    for (const cat of CATEGORIES) {
+        const chip = document.createElement('a');
+        chip.href = '/' + cat.slug;
+        chip.className = 'cat-chip';
+        chip.innerHTML = '<div class="cat-chip-img"><div class="skeleton" style="width:100%;height:100%;border-radius:50%"></div></div><span class="cat-chip-label">' + cat.name + '</span>';
+        scroll.appendChild(chip);
+
+        // Fetch real image
+        (async (c, el) => {
+            try {
+                const r = await fetch('/api/get-products?keyword=' + encodeURIComponent(c.kw) + '&pageSize=1');
+                const d = await r.json();
+                const products = Array.isArray(d) ? d : (d.products || []);
+                if (products[0]?.productImage) {
+                    const imgDiv = el.querySelector('.cat-chip-img');
+                    if (imgDiv) imgDiv.innerHTML = '<img src="' + imgUrl(products[0].productImage) + '" alt="' + c.name + '" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.style.opacity=0.3">';
+                }
+            } catch(e) {}
+        })(cat, chip);
+    }
+}
+
+// Load products grid
+async function loadProductGrid(gridId, page) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    try {
+        const r = await fetch('/api/get-products?pageSize=12&page=' + (page || Math.floor(Math.random()*30)+1));
+        const d = await r.json();
+        const products = Array.isArray(d) ? d : (d.products || []);
+        if (!products.length) return;
+
+        grid.innerHTML = '';
+        products.slice(0, 12).forEach(p => {
+            const showFire = Math.random() < 0.75;
+            const fakeOld = showFire ? (parseFloat(p.sellPrice) * (1.3 + Math.random() * 0.4)).toFixed(2) : null;
+            const pName = (p.productNameEn || p.productName || '').replace(/'/g, '').replace(/"/g, '');
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = '<div class="product-img-wrap">' +
+                (showFire ? '<div class="hot-badge">🔥 HOT</div>' : '') +
+                '<img src="' + imgUrl(p.productImage) + '" alt="' + pName + '" loading="lazy" onload="this.classList.add(\'loaded\')" onerror="this.style.opacity=0.3">' +
+                '</div>' +
+                '<div class="product-info">' +
+                '<p class="product-name">' + (p.productNameEn || p.productName) + '</p>' +
+                '<div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">' +
+                '<span class="product-price">$' + p.sellPrice + '</span>' +
+                (fakeOld ? '<span class="product-old">$' + fakeOld + '</span>' : '') +
+                (showFire ? '<span style="font-size:9px;font-weight:800;color:var(--orange);background:var(--orange-pale);padding:2px 5px;border-radius:3px">' + Math.floor(15+Math.random()*40) + '% OFF</span>' : '') +
+                '</div></div>' +
+                '<button class="add-btn" onclick="addToCart(\'' + p.pid + '\',\'' + pName + '\',\'' + p.sellPrice + '\',\'' + p.productImage + '\',this)">' +
+                '<span>🛒</span><span>Add to Cart</span></button>';
+            grid.appendChild(card);
+        });
+    } catch(e) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><p style="color:#888;font-size:14px">Sign in to browse all products</p><a href="/signup" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#ff6100;color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Get Started Free</a></div>';
+    }
+}
+
+// Intersection observer for fade up animations
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Init
+window.addEventListener('DOMContentLoaded', () => {
+    cart = JSON.parse(localStorage.getItem('mova_cart')) || [];
+    updateCartBadge();
+    loadCategories();
+    loadProductGrid('product-grid', Math.floor(Math.random()*20)+1);
+    loadProductGrid('product-grid-2', Math.floor(Math.random()*40)+21);
+});
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
+</body>
+</html>

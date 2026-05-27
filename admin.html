@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff6100">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mova99 Admin</title>
+<style>.ip-hidden{opacity:0;pointer-events:none}.ip-visible{opacity:1;transition:opacity .2s ease}</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.classList.add('ip-hidden');
+});
+(async function() {
+    async function show() {
+        await document.fonts.ready;
+        var body = document.body;
+        if (body) { body.classList.remove('ip-hidden'); body.classList.add('ip-visible'); }
+        else { document.addEventListener('DOMContentLoaded', function(){ document.body.classList.remove('ip-hidden'); document.body.classList.add('ip-visible'); }); }
+    }
+    try {
+        var r = await fetch('/api/admin-api?action=check-ip');
+        var d = await r.json();
+        if (d.allowed) {
+            show();
+        } else {
+            window.location.replace('/');
+        }
+    } catch(e) {
+        show(); // allow if check fails (ADMIN_ALLOWED_IP blank)
+    }
+})();
+</script>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+body { font-family: 'Inter', sans-serif; background: #f5f5f5; }
+.tab-btn { padding: 16px 24px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; border-bottom: 2px solid transparent; }
+.tab-btn.active { border-bottom: 2px solid black; }
+.card { background: white; border: 1px solid #e5e7eb; padding: 24px; border-radius: 2px; }
+.stat-card { background: white; border: 2px solid black; padding: 24px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div id="login-screen" class="flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 w-full max-w-sm border-2 border-black">
+        <h1 class="text-xl font-black uppercase mb-2 text-center">MOVA99</h1>
+        <p class="text-[9px] uppercase text-gray-400 text-center mb-4">Admin Panel</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+            <button onclick="setAdminType('product')" id="btn-product-admin" style="padding:10px;background:#ff6100;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer">Product Admin</button>
+            <button onclick="setAdminType('food')" id="btn-food-admin" style="padding:10px;background:#1a1a1a;color:#555;border:1px solid #333;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer">Food Admin</button>
+        </div>
+        <p id="admin-type-label" style="font-size:10px;color:#666;text-align:center;margin-bottom:12px;text-transform:uppercase;letter-spacing:.06em">Signing in as: Product Admin</p>
+        <input id="pass" type="password" placeholder="Admin Password" class="w-full border-2 p-3 text-sm mb-4 outline-none focus:border-black">
+        <button onclick="login()" class="w-full bg-black text-white py-3 text-[10px] font-black uppercase tracking-widest hover:bg-gray-800">Access Panel</button>
+        <p id="login-err" class="text-red-500 text-[10px] text-center mt-3 hidden">Access denied</p>
+    </div>
+</div>
+
+<div id="panel" class="hidden">
+    <header class="bg-black text-white px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <h1 class="text-sm font-black uppercase tracking-widest">MOVA99 Admin</h1>
+        <button onclick="logout()" class="text-[9px] font-800 uppercase border border-white px-4 py-2 hover:bg-white hover:text-black transition-all">Logout</button>
+    </header>
+    <div class="flex border-b bg-white px-4 sticky top-14 z-40">
+        <button class="tab-btn active" id="t-home" onclick="showTab('home')">Home</button>
+        <button class="tab-btn" id="t-orders" onclick="showTab('orders')">Orders</button>
+        <button class="tab-btn" id="t-users" onclick="showTab('users')">Users</button>
+        <button class="tab-btn" id="t-fulfill" onclick="showTab('fulfill')">Fulfill</button>
+        <button class="tab-btn" id="t-push" onclick="showTab('push')">Push</button>
+    </div>
+    <div class="p-6 max-w-6xl mx-auto">
+        <div id="c-home"></div>
+        <div id="c-orders" class="hidden"></div>
+        <div id="c-users" class="hidden"></div>
+        <div id="c-fulfill" class="hidden"></div>
+    </div>
+</div>
+
+<script>
+window._adminType = 'product';
+function setAdminType(type) {
+    window._adminType = type;
+    const pb = document.getElementById('btn-product-admin');
+    const fb = document.getElementById('btn-food-admin');
+    const lb = document.getElementById('admin-type-label');
+    if (type === 'product') {
+        if (pb) { pb.style.background='#ff6100'; pb.style.color='#fff'; }
+        if (fb) { fb.style.background='#1a1a1a'; fb.style.color='#555'; }
+        if (lb) lb.textContent = 'Signing in as: Product Admin';
+    } else {
+        if (pb) { pb.style.background='#1a1a1a'; pb.style.color='#555'; }
+        if (fb) { fb.style.background='#ff6100'; fb.style.color='#fff'; }
+        if (lb) lb.textContent = 'Signing in as: Food Admin';
+    }
+}
+let token = sessionStorage.getItem('adminToken');
+if (token) {
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('panel').classList.remove('hidden');
+    loadHome();
+}
+
+async function login() {
+    const pass = document.getElementById('pass').value;
+    try {
+        const r = await fetch('/api/admin-api?action=auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pass, adminType: window._adminType || 'product' })
+        });
+        const d = await r.json();
+        if (d.token) {
+            token = d.token;
+            sessionStorage.setItem('adminToken', token);
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('panel').classList.remove('hidden');
+            loadHome();
+        } else {
+            document.getElementById('login-err').classList.remove('hidden');
+        }
+    } catch (e) {
+        document.getElementById('login-err').classList.remove('hidden');
+    }
+}
+
+function logout() { sessionStorage.clear(); window.location.reload(); }
+
+function af(url, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers || {}, { 'x-admin-token': token, 'Content-Type': 'application/json' });
+    return fetch(url, opts);
+}
+
+function showTab(t) {
+    ['home','orders','users','fulfill'].forEach(function(x) {
+        document.getElementById('c-' + x).classList.add('hidden');
+        document.getElementById('t-' + x).classList.remove('active');
+    });
+    document.getElementById('c-' + t).classList.remove('hidden');
+    document.getElementById('t-' + t).classList.add('active');
+    if (t === 'home') loadHome();
+    if (t === 'orders') loadOrders();
+    if (t === 'users') loadUsers();
+    if (t === 'push') showPushNotificationPanel();
+    if (t === 'fulfill') loadFulfill();
+}
+
+function applyDateFilter() {
+    var df = document.getElementById('dateFrom').value;
+    var dt = document.getElementById('dateTo').value;
+    loadHome(df, dt);
+}
+
+async function loadHome(dateFrom, dateTo) {
+    var el = document.getElementById('c-home');
+    el.innerHTML = '<p class="text-[9px] uppercase animate-pulse text-gray-400">Loading...</p>';
+    try {
+        var url = '/api/admin-api?action=stats';
+        if (dateFrom) url += '&dateFrom=' + dateFrom;
+        if (dateTo) url += '&dateTo=' + dateTo;
+        var r = await af(url);
+        var d = await r.json();
+
+        var customHtml = '';
+        if (dateFrom || dateTo) {
+            customHtml = '<div class="mt-4 pt-4 border-t space-y-2">' +
+                '<h4 class="text-[9px] font-800 uppercase text-gray-400 mb-2">Custom Range Results</h4>' +
+                '<div class="flex justify-between"><span class="text-[9px] text-gray-400">Orders</span><span class="font-800">' + (d.customOrders||0) + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-[9px] text-gray-400">Revenue</span><span class="font-800">$' + ((d.customRevenue||0)/100).toFixed(2) + '</span></div>' +
+                '<div class="flex justify-between"><span class="text-[9px] text-gray-400">New Users</span><span class="font-800">' + (d.customUsers||0) + '</span></div>' +
+                '</div>';
+        }
+
+        el.innerHTML =
+            '<h2 class="text-lg font-black uppercase mb-6">Dashboard Overview</h2>' +
+            '<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">' +
+            '<div class="stat-card"><p class="text-4xl font-black">' + (d.totalUsers||0) + '</p><p class="text-[9px] uppercase text-gray-400 mt-2">Total Users</p></div>' +
+            '<div class="stat-card"><p class="text-4xl font-black">' + (d.totalOrders||0) + '</p><p class="text-[9px] uppercase text-gray-400 mt-2">Total Orders</p></div>' +
+            '<div class="stat-card"><p class="text-4xl font-black">' + (d.pendingOrders||0) + '</p><p class="text-[9px] uppercase text-gray-400 mt-2">Pending</p></div>' +
+            '<div class="stat-card"><p class="text-4xl font-black">$' + ((d.totalRevenue||0)/100).toFixed(0) + '</p><p class="text-[9px] uppercase text-gray-400 mt-2">Total Revenue</p></div>' +
+            '</div>' +
+            '<div class="card mb-6">' +
+            '<h3 class="text-[10px] font-black uppercase mb-4">Filter by Date Range</h3>' +
+            '<div class="flex gap-3 flex-wrap items-end">' +
+            '<div><label class="text-[8px] uppercase text-gray-400 block mb-1">From</label><input type="date" id="dateFrom" value="' + (dateFrom||'') + '" class="border p-2 text-sm outline-none focus:border-black"></div>' +
+            '<div><label class="text-[8px] uppercase text-gray-400 block mb-1">To</label><input type="date" id="dateTo" value="' + (dateTo||'') + '" class="border p-2 text-sm outline-none focus:border-black"></div>' +
+            '<button onclick="applyDateFilter()" class="bg-black text-white px-6 py-2 text-[9px] font-800 uppercase">Apply</button>' +
+            '<button onclick="loadHome()" class="border border-black px-6 py-2 text-[9px] font-800 uppercase">Clear</button>' +
+            '</div>' + customHtml + '</div>' +
+            '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">' +
+            '<div class="card"><h3 class="text-[10px] font-black uppercase mb-4">Today</h3><div class="space-y-3">' +
+            '<div class="flex justify-between"><span class="text-[9px] uppercase text-gray-400">Orders</span><span class="text-[10px] font-800">' + (d.ordersToday||0) + '</span></div>' +
+            '<div class="flex justify-between"><span class="text-[9px] uppercase text-gray-400">Revenue</span><span class="text-[10px] font-800">$' + ((d.revenueToday||0)/100).toFixed(2) + '</span></div>' +
+            '<div class="flex justify-between"><span class="text-[9px] uppercase text-gray-400">New Users</span><span class="text-[10px] font-800">' + (d.newUsersToday||0) + '</span></div>' +
+            '</div></div>' +
+            '<div class="card"><h3 class="text-[10px] font-black uppercase mb-4">This Week</h3><div class="space-y-3">' +
+            '<div class="flex justify-between"><span class="text-[9px] uppercase text-gray-400">Orders</span><span class="text-[10px] font-800">' + (d.ordersWeek||0) + '</span></div>' +
+            '<div class="flex justify-between"><span class="text-[9px] uppercase text-gray-400">Revenue</span><span class="text-[10px] font-800">$' + ((d.revenueWeek||0)/100).toFixed(2) + '</span></div>' +
+            '<div class="flex justify-between"><span class="text-[9px] uppercase text-gray-400">New Users</span><span class="text-[10px] font-800">' + (d.newUsersWeek||0) + '</span></div>' +
+            '</div></div></div>';
+    } catch (e) { el.innerHTML = '<p class="text-red-500 text-[9px]">Failed to load stats</p>'; }
+}
+
+var adminOrdersCache = [];
+var adminOrderTab = 'pending';
+
+async function loadOrders() {
+    var el = document.getElementById('c-orders');
+    el.innerHTML = '<p class="text-[9px] uppercase animate-pulse text-gray-400">Loading orders...</p>';
+    try {
+        var r = await af('/api/admin-api?action=orders');
+        adminOrdersCache = await r.json();
+        renderAdminOrders();
+    } catch (e) { el.innerHTML = '<p class="text-red-500 text-[9px]">Failed to load orders</p>'; }
+}
+
+function renderAdminOrders() {
+    var el = document.getElementById('c-orders');
+    var all = adminOrdersCache;
+
+    // Pending = not yet fulfilled (no cjOrderId, not shipped/delivered/declined/cancelled)
+    var pending = all.filter(function(o) {
+        return !o.cjOrderId && o.status !== 'shipped' && o.status !== 'delivered' && o.status !== 'declined' && o.status !== 'cancelled';
+    });
+    // Processing = CJ order placed or marked shipped (in transit)
+    var processing = all.filter(function(o) {
+        return o.cjOrderId || o.status === 'shipped';
+    });
+    // Delivered = confirmed delivered
+    var delivered = all.filter(function(o) {
+        return o.status === 'delivered';
+    });
+
+    var tabMap = { pending: pending, processing: processing, delivered: delivered, all: all };
+    var filtered = tabMap[adminOrderTab] || all;
+
+    var tabBtn = function(id, label, count, color) {
+        var active = adminOrderTab === id;
+        return '<button onclick="adminOrderTab=&quot;' + id + '&quot;;renderAdminOrders()" class="px-4 py-2 text-[9px] font-800 uppercase transition-all ' +
+            (active ? 'bg-black text-white' : 'border-2 border-black text-black hover:bg-black hover:text-white') + '">' +
+            label + ' <span class="' + (active ? 'text-white' : color) + '">(' + count + ')</span></button>';
+    };
+
+    var out = [];
+    out.push('<h2 class="text-lg font-black uppercase mb-4">Orders (' + all.length + ')</h2>');
+    out.push('<div class="flex flex-wrap gap-2 mb-6">');
+    out.push(tabBtn('pending', 'Pending', pending.length, 'text-yellow-500'));
+    out.push(tabBtn('processing', 'Processing', processing.length, 'text-blue-500'));
+    out.push(tabBtn('delivered', 'Delivered', delivered.length, 'text-green-600'));
+    out.push(tabBtn('all', 'All', all.length, 'text-gray-500'));
+    out.push('</div>');
+
+    if (!filtered.length) {
+        out.push('<p class="text-[9px] uppercase text-gray-400 text-center py-8">No orders in this category</p>');
+        el.innerHTML = out.join('');
+        return;
+    }
+
+    var statusColor = {
+        payment_received: 'text-yellow-500', processing: 'text-blue-500',
+        shipped: 'text-green-600', delivered: 'text-green-800',
+        declined: 'text-red-500', cancelled: 'text-red-400',
+        expired: 'text-gray-400', payment_failed: 'text-red-400'
+    };
+
+    out.push('<div class="space-y-4">');
+    filtered.forEach(function(o) {
+        var sc = statusColor[o.status] || 'text-gray-400';
+        var statusLabel = (o.status||'').replace(/_/g,' ');
+        out.push('<div class="card border-2 ' + (adminOrderTab === 'pending' ? 'border-yellow-200' : 'border-transparent') + '">');
+        // Header
+        out.push('<div class="flex justify-between items-start mb-3">');
+        out.push('<div><p class="text-[9px] uppercase text-gray-400">Order ID</p><p class="text-[9px] font-800 font-mono break-all">' + o._id + '</p></div>');
+        out.push('<span class="text-[9px] font-800 uppercase ' + sc + '">' + statusLabel + '</span>');
+        out.push('</div>');
+        // Details grid
+        out.push('<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">');
+        out.push('<div><p class="text-[8px] uppercase text-gray-400">Customer</p><p class="text-[9px] font-800">' + (o.customerName || o.shippingName||'N/A') + '</p></div>');
+        out.push('<div><p class="text-[8px] uppercase text-gray-400">Email</p><p class="text-[9px]">' + (o.customerEmail||'—') + '</p></div>');
+        out.push('<div><p class="text-[8px] uppercase text-gray-400">Total</p><p class="text-[9px] font-800">$' + ((o.amountTotal||0)/100).toFixed(2) + '</p></div>');
+        var _od=new Date(o.createdAt); out.push('<div><p class="text-[8px] uppercase text-gray-400">Date & Time</p><p class="text-[9px]">' + _od.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' ' + _od.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}) + '</p></div>');
+        out.push('</div>');
+        // Address
+        if (o.shippingAddress) {
+            out.push('<div class="mb-3 text-[9px] text-gray-500">📍 ' + (o.shippingAddress.line1||'') + ', ' + (o.shippingAddress.city||'') + ', ' + (o.shippingAddress.state||'') + ' ' + (o.shippingAddress.postal_code||'') + '</div>');
+        }
+        // Items with images
+        if (o.items && o.items.length) {
+            out.push('<div class="border-t pt-3 space-y-2">');
+            o.items.forEach(function(item) {
+                out.push('<div class="flex items-center gap-2">');
+                if (item.image) out.push('<img src="' + item.image + '" class="w-10 h-10 object-cover border flex-shrink-0">');
+                out.push('<div class="flex-1 min-w-0">');
+                out.push('<p class="text-[8px] font-800 uppercase truncate">' + (item.name||item.pid||'') + '</p>');
+                if (item.variant) out.push('<p class="text-[7px] text-blue-500">' + item.variant + '</p>');
+                out.push('<p class="text-[7px] text-gray-400">Qty: ' + (item.qty||1) + ' · SKU: ' + (item.sku||'—') + '</p>');
+                out.push('</div>');
+                out.push('<a href="https://www.mova99.com/dashboard/' + (item.pid||'').split('-')[0] + '" target="_blank" class="text-[7px] text-blue-500 underline flex-shrink-0">CJ</a>');
+                out.push('</div>');
+            });
+            out.push('</div>');
+        }
+        // Tracking
+        if (o.trackingNumber) {
+            out.push('<div class="mt-2 pt-2 border-t"><p class="text-[8px] uppercase text-gray-400">Tracking: <span class="text-black font-800">' + o.trackingNumber + '</span></p></div>');
+        }
+        // Decline reason
+        if (o.declineReason) {
+            out.push('<div class="mt-2 pt-2 border-t"><p class="text-[8px] text-red-500">Declined: ' + o.declineReason + '</p></div>');
+        }
+        // Stripe link + Fill button
+        out.push('<div class="mt-3 pt-3 border-t flex gap-2">');
+        out.push('<button onclick="fillFulfillForm(&quot;' + o._id + '&quot;,&quot;' + (o.userId||'') + '&quot;)" class="flex-1 text-[8px] font-800 uppercase border-2 border-black py-2 hover:bg-black hover:text-white transition-all">Fill Fulfill Form</button>');
+        if (o.paymentIntentId) {
+            out.push('<a href="https://dashboard.stripe.com/payments/' + o.paymentIntentId + '" target="_blank" class="text-[8px] font-800 uppercase border-2 border-blue-500 text-blue-500 py-2 px-3 hover:bg-blue-500 hover:text-white transition-all">Stripe</a>');
+        }
+        out.push('</div>');
+        out.push('</div>');
+    });
+    out.push('</div>');
+    el.innerHTML = out.join('');
+}
+
+// ── PUSH NOTIFICATIONS ──────────────────────────────
+async function showPushNotificationPanel() {
+    const main = document.getElementById('main');
+    main.innerHTML = '<div style="max-width:560px;margin:0 auto"><h2 style="font-size:16px;font-weight:900;color:#fafafa;margin:0 0 20px">Send Push Notification</h2>' +
+        '<div style="background:#111;border:1px solid #222;border-radius:12px;padding:24px">' +
+        '<div style="margin-bottom:16px"><label style="font-size:10px;font-weight:800;text-transform:uppercase;color:#888;display:block;margin-bottom:6px">Title / Subject</label>' +
+        '<input id="push-title" type="text" placeholder="e.g. New deals just dropped 🔥" style="width:100%;padding:12px;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#fff;font-size:13px;outline:none"></div>' +
+        '<div style="margin-bottom:16px"><label style="font-size:10px;font-weight:800;text-transform:uppercase;color:#888;display:block;margin-bottom:6px">Message Body</label>' +
+        '<textarea id="push-body" placeholder="Write your message..." style="width:100%;padding:12px;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#fff;font-size:13px;outline:none;min-height:90px;resize:vertical"></textarea></div>' +
+        '<div style="margin-bottom:20px"><label style="font-size:10px;font-weight:800;text-transform:uppercase;color:#888;display:block;margin-bottom:6px">Landing Page</label>' +
+        '<select id="push-landing" style="width:100%;padding:12px;background:#1a1a1a;border:1px solid #333;border-radius:8px;color:#fff;font-size:13px;outline:none">' +
+        '<option value="/dashboard">Marketplace</option>' +
+        '<option value="/dashboard#cart">Cart</option>' +
+        '<option value="/dashboard#orders">Orders</option>' +
+        '<option value="/dashboard#support">Contact Us</option>' +
+        '</select></div>' +
+        '<p id="push-status" style="display:none;font-size:12px;font-weight:700;padding:10px;border-radius:8px;margin-bottom:12px"></p>' +
+        '<button onclick="sendPushNotification()" style="width:100%;padding:14px;background:#ff6100;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.06em">Send to All Users 🔔</button>' +
+        '</div></div>';
+}
+
+async function sendPushNotification() {
+    const title = document.getElementById('push-title').value.trim();
+    const body = document.getElementById('push-body').value.trim();
+    const landingPage = document.getElementById('push-landing').value;
+    const status = document.getElementById('push-status');
+    if (!title || !body) {
+        status.textContent = 'Please fill in title and message.';
+        status.style.background = '#2a1a1a'; status.style.color = '#ef4444';
+        status.style.display = 'block'; return;
+    }
+    const btn = document.querySelector('[onclick="sendPushNotification()"]');
+    if (btn) { btn.textContent = 'Sending...'; btn.disabled = true; }
+    try {
+        const r = await af('/api/push-notification?action=send', {
+            method: 'POST',
+            body: JSON.stringify({ title, body, landingPage })
+        });
+        const d = await r.json();
+        if (d.success) {
+            status.textContent = 'Sent to ' + (d.sent || 0) + ' devices!';
+            status.style.background = '#0a2a1a'; status.style.color = '#22c55e';
+            document.getElementById('push-title').value = '';
+            document.getElementById('push-body').value = '';
+        } else {
+            status.textContent = d.error || 'Failed to send';
+            status.style.background = '#2a1a1a'; status.style.color = '#ef4444';
+        }
+        status.style.display = 'block';
+    } catch(e) {
+        status.textContent = 'Connection error';
+        status.style.background = '#2a1a1a'; status.style.color = '#ef4444';
+        status.style.display = 'block';
+    }
+    if (btn) { btn.textContent = 'Send to All Users 🔔'; btn.disabled = false; }
+}
+
+// ── TRANSACTIONS ──────────────────────────────────────
+async function showTransactionPanel(userId, userName) {
+    const main = document.getElementById('main');
+    main.innerHTML = '<div style="max-width:600px;margin:0 auto">' +
+        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">' +
+        '<button onclick="loadUsers()" style="padding:8px 16px;background:#1a1a1a;color:#888;border:1px solid #333;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">Back</button>' +
+        '<h2 style="font-size:16px;font-weight:900;color:#fafafa;margin:0">Transactions — ' + (userName || userId) + '</h2></div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">' +
+        '<button onclick="openTxForm('' + userId + '','credit')" style="padding:12px;background:#0a2a1a;color:#22c55e;border:1px solid #22c55e;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer">+ Credit (Add)</button>' +
+        '<button onclick="openTxForm('' + userId + '','debit')" style="padding:12px;background:#2a0a0a;color:#ef4444;border:1px solid #ef4444;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer">− Debit (Remove)</button></div>' +
+        '<div id="tx-form-area" style="display:none;background:#111;border:1px solid #222;border-radius:10px;padding:18px;margin-bottom:16px"></div>' +
+        '<div id="tx-history-area"></div></div>';
+    loadTxHistory(userId);
+}
+
+function openTxForm(userId, type) {
+    const c = document.getElementById('tx-form-area');
+    const isCredit = type === 'credit';
+    c.style.display = 'block';
+    c.innerHTML = '<h3 style="font-size:12px;font-weight:800;color:' + (isCredit ? '#22c55e' : '#ef4444') + ';margin:0 0 14px">' + (isCredit ? '+ Add Credit' : '− Add Debit') + '</h3>' +
+        '<div style="margin-bottom:10px"><label style="font-size:10px;color:#888;display:block;margin-bottom:4px">Amount ($)</label>' +
+        '<input id="tx-amount" type="number" placeholder="0.00" min="0.01" step="0.01" style="width:100%;padding:10px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#fff;font-size:13px;outline:none"></div>' +
+        '<div style="margin-bottom:10px"><label style="font-size:10px;color:#888;display:block;margin-bottom:4px">Payment Method</label>' +
+        '<select id="tx-method" style="width:100%;padding:10px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#fff;font-size:13px;outline:none">' +
+        '<option value="Direct Deposit">Direct Deposit</option><option value="Check">Check</option></select></div>' +
+        '<div style="margin-bottom:14px"><label style="font-size:10px;color:#888;display:block;margin-bottom:4px">Note (optional)</label>' +
+        '<input id="tx-note" type="text" placeholder="Referral withdrawal..." style="width:100%;padding:10px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#fff;font-size:13px;outline:none"></div>' +
+        '<p id="tx-form-status" style="display:none;font-size:11px;padding:8px;border-radius:6px;margin-bottom:10px"></p>' +
+        '<div style="display:flex;gap:8px">' +
+        '<button onclick="submitTx('' + userId + '','' + type + '')" style="flex:1;padding:12px;background:' + (isCredit ? '#22c55e' : '#ef4444') + ';color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer">Confirm ' + (isCredit ? 'Credit' : 'Debit') + '</button>' +
+        '<button onclick="document.getElementById('tx-form-area').style.display='none'" style="padding:12px 14px;background:#1a1a1a;color:#888;border:1px solid #333;border-radius:8px;font-size:12px;cursor:pointer">Cancel</button></div>';
+}
+
+async function submitTx(userId, type) {
+    const amount = document.getElementById('tx-amount').value;
+    const paymentMethod = document.getElementById('tx-method').value;
+    const note = document.getElementById('tx-note').value;
+    const status = document.getElementById('tx-form-status');
+    if (!amount || parseFloat(amount) <= 0) {
+        status.textContent = 'Enter a valid amount.';
+        status.style.background='#2a0a0a'; status.style.color='#ef4444'; status.style.display='block'; return;
+    }
+    try {
+        const r = await af('/api/admin-api?action=add-transaction', {
+            method:'POST', body:JSON.stringify({ userId, amount:parseFloat(amount), type, paymentMethod, note })
+        });
+        const d = await r.json();
+        if (d.success) {
+            status.textContent = (type==='credit'?'+':'-') + '$' + parseFloat(amount).toFixed(2) + ' applied!';
+            status.style.background = type==='credit'?'#0a2a1a':'#2a0a0a';
+            status.style.color = type==='credit'?'#22c55e':'#ef4444';
+            status.style.display='block';
+            setTimeout(() => { document.getElementById('tx-form-area').style.display='none'; loadTxHistory(userId); }, 1400);
+        } else {
+            status.textContent = d.error || 'Failed.';
+            status.style.background='#2a0a0a'; status.style.color='#ef4444'; status.style.display='block';
+        }
+    } catch(e) {
+        status.textContent='Connection error.';
+        status.style.background='#2a0a0a'; status.style.color='#ef4444'; status.style.display='block';
+    }
+}
+
+async function loadTxHistory(userId) {
+    const c = document.getElementById('tx-history-area');
+    if (!c) return;
+    c.innerHTML = '<p style="color:#888;font-size:12px;text-align:center;padding:16px">Loading...</p>';
+    try {
+        const r = await af('/api/admin-api?action=get-transactions&userId=' + encodeURIComponent(userId));
+        const txs = await r.json();
+        if (!Array.isArray(txs) || !txs.length) {
+            c.innerHTML='<p style="color:#555;font-size:12px;text-align:center;padding:16px">No transactions yet</p>'; return;
+        }
+        const SHOW=4; let showAll=false;
+        function render() {
+            const vis = showAll ? txs : txs.slice(0,SHOW);
+            let out = '<p style="font-size:10px;font-weight:800;text-transform:uppercase;color:#888;margin-bottom:10px">Transaction History</p>';
+            out += '<div style="border:1px solid #222;border-radius:10px;overflow:hidden">';
+            vis.forEach((tx,i) => {
+                const isDebit = tx.type==='debit';
+                const amt = parseFloat(tx.amount).toFixed(2);
+                const date = new Date(tx.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+                const time = new Date(tx.createdAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+                out += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:' + (i<vis.length-1?'1px solid #1a1a1a':'none') + '">';
+                out += '<div><p style="font-size:12px;font-weight:700;color:#fafafa;margin:0 0 2px">' + (tx.paymentMethod||'Direct Deposit') + '</p>';
+                if (tx.note) out += '<p style="font-size:10px;color:#666;margin:0 0 2px">' + tx.note + '</p>';
+                out += '<p style="font-size:10px;color:#555;margin:0">' + date + ' at ' + time + '</p></div>';
+                out += '<span style="font-size:15px;font-weight:800;color:' + (isDebit?'#ef4444':'#22c55e') + '">' + (isDebit?'−':'+') + '$' + amt + '</span></div>';
+            });
+            out += '</div>';
+            if (txs.length > SHOW) {
+                out += '<button onclick="_txToggle()" style="width:100%;margin-top:8px;padding:10px;background:#1a1a1a;border:1px solid #222;border-radius:8px;font-size:11px;font-weight:700;color:#ff6100;cursor:pointer">' + (showAll?'Hide':'Show All +' + (txs.length-SHOW) + ' transactions') + '</button>';
+            }
+            c.innerHTML = out;
+            window._txToggle = function(){ showAll=!showAll; render(); };
+        }
+        render();
+    } catch(e) {
+        c.innerHTML='<p style="color:#ef4444;font-size:12px;text-align:center;padding:16px">Error loading</p>';
+    }
+}
+
+async function loadUsers() {
+    var el = document.getElementById('c-users');
+    el.innerHTML = '<p class="text-[9px] uppercase animate-pulse text-gray-400">Loading users...</p>';
+    try {
+        var r = await af('/api/admin-api?action=users');
+        var data = await r.json();
+        if (data.error) { el.innerHTML = '<p class="text-red-500 text-[9px]">Error: ' + data.error + '</p>'; return; }
+        allUsersCache = Array.isArray(data) ? data : [];
+        renderUsersList();
+    } catch (e) { el.innerHTML = '<p class="text-red-500 text-[9px]">Failed to load users: ' + e.message + '</p>'; }
+}
+
+var allUsersCache = [];
+var pinnedUsers = JSON.parse(sessionStorage.getItem('pinnedUsers') || '[]');
+var userSearchQuery = '';
+
+function renderUsersList() {
+    var el = document.getElementById('c-users');
+    var users = allUsersCache.slice();
+    users.sort(function(a, b) {
+        return (pinnedUsers.includes(a.uniqueID)?0:1) - (pinnedUsers.includes(b.uniqueID)?0:1);
+    });
+    if (userSearchQuery) {
+        var q = userSearchQuery.toLowerCase();
+        users = users.filter(function(u) {
+            return ((u.uniqueID||'')+(u.email||'')+(u.phone||'')+(u.fullName||'')).toLowerCase().includes(q);
+        });
+    }
+    var out = [];
+    out.push('<div class="flex justify-between items-center mb-4">');
+    out.push('<h2 class="text-lg font-black uppercase">All Users (' + allUsersCache.length + ')</h2></div>');
+    out.push('<input type="text" placeholder="Search name, email, phone or ID..." oninput="userSearchQuery=this.value;renderUsersList()" class="w-full border-2 border-black p-3 text-sm outline-none mb-4" value="' + userSearchQuery.replace(/"/g,'&quot;') + '">');
+    out.push('<div class="space-y-3">');
+
+    users.forEach(function(u) {
+        var uid = u.uniqueID;
+        var isPinned = pinnedUsers.includes(uid);
+        var pinBorder = isPinned ? 'border-yellow-400 bg-yellow-50' : 'border-transparent hover:border-black';
+
+        out.push('<div class="card border-2 ' + pinBorder + ' transition-all" data-uid="' + uid + '">');
+        // Header row
+        out.push('<div class="flex items-start gap-2">');
+        // Clickable expand area
+        out.push('<div class="cursor-pointer flex-1" onclick="var d=document.getElementById(\'u-' + uid + '\');if(d)d.classList.toggle(\'hidden\')">');
+        out.push('<p class="text-[11px] font-black uppercase">' + (isPinned ? '&#128204; ' : '') + (u.fullName||'N/A') + '</p>');
+        out.push('<p class="text-[9px] text-gray-400">' + (u.email||'') + '</p>');
+        out.push('<p class="text-[8px] font-800 text-blue-400 mt-1">ID: ' + uid + '</p>');
+        out.push('</div>');
+        // Right side buttons
+        out.push('<div class="flex-shrink-0 flex items-start gap-1 mt-0.5">');
+        var refBal = parseFloat(u.referralBalance||0).toFixed(2);
+        out.push('<div class="text-right mr-1">' +
+            '<p class="text-[9px] font-800 uppercase text-purple-500">' + (u.referralCode||'') + '</p>' +
+            '<p class="text-[8px] text-gray-400">' + (u.totalOrders||0) + ' orders</p>' +
+            '<p class="text-[8px] font-800" style="color:#ff6100">$' + refBal + ' bal</p>' +
+            '</div>');
+        // Open Dashboard button (NEW - item 1)
+        out.push('<button onclick="adminOpenUserDashboard(\'' + uid + '\')" class="bg-blue-600 text-white text-[7px] font-800 uppercase px-2 py-1 hover:bg-blue-700 transition-all whitespace-nowrap" title="View user dashboard">Open</button>');
+        // Three-dot menu
+        out.push('<div class="relative">');
+        out.push('<button onclick="toggleUserMenu(event,\'' + uid + '\')" class="w-7 h-7 flex flex-col items-center justify-center gap-0.5 hover:bg-gray-100 rounded">');
+        out.push('<span class="w-1 h-1 bg-gray-600 rounded-full"></span><span class="w-1 h-1 bg-gray-600 rounded-full"></span><span class="w-1 h-1 bg-gray-600 rounded-full"></span>');
+        out.push('</button>');
+        out.push('<div id="umenu-' + uid + '" class="hidden absolute right-0 top-8 bg-white border-2 border-black shadow-lg z-10 min-w-[150px]">');
+        out.push('<button onclick="togglePin(\'' + uid + '\')" class="w-full text-left px-4 py-2.5 text-[9px] font-800 uppercase hover:bg-black hover:text-white">' + (isPinned ? '📌 Unpin from Top' : '📌 Pin to Top') + '</button>');
+        out.push('<button onclick="adminOpenUserDashboard(\'' + uid + '\')" class="w-full text-left px-4 py-2.5 text-[9px] font-800 uppercase hover:bg-black hover:text-white">🔗 Open Dashboard</button>');
+        out.push('</div></div>');
+        out.push('</div></div>');
+
+        // Expanded details
+        out.push('<div id="u-' + uid + '" class="hidden mt-4 pt-4 border-t">');
+        // Info grid
+        out.push('<div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">');
+        out.push('<div><p class="text-[8px] uppercase text-gray-400">User ID</p><p class="text-[9px] font-800 break-all">' + uid + '</p></div>');
+        out.push('<div><p class="text-[8px] uppercase text-gray-400">Phone</p><p class="text-[9px] font-800">' + (u.phone||'N/A') + '</p></div>');
+        out.push('<div><p class="text-[8px] uppercase text-gray-400">Joined</p><p class="text-[9px] font-800">' + (u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A') + '</p></div>');
+        out.push('<div><p class="text-[8px] uppercase text-gray-400">Referred By</p><p class="text-[9px] font-800">' + (u.referredBy||'Direct') + '</p></div>');
+        out.push('<div><p class="text-[8px] uppercase text-gray-400">Referral Code</p><p class="text-[9px] font-800">' + (u.referralCode||'N/A') + '</p></div>');
+        out.push('<div><p class="text-[8px] uppercase text-gray-400">Users Referred</p><p class="text-[9px] font-800">' + (u.referredUsers||0) + '</p></div>');
+        out.push('</div>');
+
+        // Stats grid
+        out.push('<div class="grid grid-cols-2 gap-4 mb-4">');
+        out.push('<div class="bg-gray-50 p-3"><p class="text-[9px] font-800 uppercase mb-2">Orders</p>');
+        out.push('<div class="space-y-1">');
+        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">Total</span><span class="text-[9px] font-800">' + (u.totalOrders||0) + '</span></div>');
+        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">Today</span><span class="text-[9px] font-800">' + (u.ordersToday||0) + '</span></div>');
+        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">Rev Today</span><span class="text-[9px] font-800">$' + ((u.revenueToday||0)/100).toFixed(2) + '</span></div>');
+        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">This Week</span><span class="text-[9px] font-800">' + (u.ordersWeek||0) + '</span></div>');
+        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">Rev Week</span><span class="text-[9px] font-800">$' + ((u.revenueWeek||0)/100).toFixed(2) + '</span></div>');
+        out.push('</div></div>');
+
+        out.push('<div class="bg-gray-50 p-3"><p class="text-[9px] font-800 uppercase mb-2">Referral Stats</p>');
+        out.push('<div class="flex gap-1 mb-2">');
+        out.push('<input type="date" id="ref-from-' + uid + '" class="flex-1 border p-1 text-[10px] outline-none">');
+        out.push('<input type="date" id="ref-to-' + uid + '" class="flex-1 border p-1 text-[10px] outline-none">');
+        out.push('<button onclick="loadReferralStats(\'' + uid + '\')" class="bg-black text-white px-2 py-1 text-[7px] font-800 uppercase">Go</button>'); out.push('<button onclick="showTransactionPanel(\'' + uid + '\', \'' + (u.fullName||u.email||uid).replace(/'/g,'') + '\')" style="padding:4px 8px;background:#0a2a1a;color:#22c55e;border:1px solid #22c55e;border-radius:4px;font-size:7px;font-weight:800;cursor:pointer;text-transform:uppercase">Transactions</button>';
+        out.push('</div>');
+        out.push('<div id="ref-stats-' + uid + '">');
+        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">Users Referred</span><span class="text-[9px] font-800">' + (u.referredUsers||0) + '</span></div>');
+        out.push('<div class="flex justify-between"><span class="text-[8px] text-gray-400">Rev This Week</span><span class="text-[9px] font-800">$' + ((u.referralRevenueWeek||0)/100).toFixed(2) + '</span></div>');
+        out.push('</div></div></div>');
+
+        // Edit fields
+        out.push('<div class="border-t pt-3"><p class="text-[9px] font-800 uppercase text-gray-400 mb-2">Edit User Details</p>');
+        out.push('<div class="space-y-2">');
+        var fnSafe = (u.fullName||'').replace(/"/g,'&quot;');
+        out.push('<div class="flex gap-2"><input id="edit-fullName-' + uid + '" type="text" value="' + fnSafe + '" placeholder="Full name" class="flex-1 border p-2 text-sm outline-none focus:border-black"><button onclick="updateUser(\'' + uid + '\',\'fullName\')" class="bg-black text-white px-3 py-2 text-[8px] font-800 uppercase whitespace-nowrap">Save</button></div>');
+        out.push('<div class="flex gap-2"><input id="edit-email-' + uid + '" type="email" value="' + (u.email||'') + '" placeholder="Email" class="flex-1 border p-2 text-sm outline-none focus:border-black"><button onclick="updateUser(\'' + uid + '\',\'email\')" class="bg-black text-white px-3 py-2 text-[8px] font-800 uppercase whitespace-nowrap">Save</button></div>');
+        out.push('<div class="flex gap-2"><input id="edit-phone-' + uid + '" type="tel" value="' + (u.phone||'') + '" placeholder="Phone (+15551234567)" class="flex-1 border p-2 text-sm outline-none focus:border-black"><button onclick="updateUser(\'' + uid + '\',\'phone\')" class="bg-black text-white px-3 py-2 text-[8px] font-800 uppercase whitespace-nowrap">Save</button></div>');
+        out.push('<div class="flex gap-2"><input id="edit-password-' + uid + '" type="password" placeholder="New password" class="flex-1 border p-2 text-sm outline-none focus:border-black"><button onclick="updateUser(\'' + uid + '\',\'password\')" class="bg-red-600 text-white px-3 py-2 text-[8px] font-800 uppercase whitespace-nowrap">Set Password</button></div>');
+        out.push(
+            '<div style="background:#fff3ed;border:1.5px solid #ffd9bc;border-radius:10px;padding:14px;margin-top:10px">' +
+            '<p style="font-size:9px;font-weight:800;text-transform:uppercase;color:#ff6100;letter-spacing:.08em;margin:0 0 10px">💰 5% Referral Balance</p>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">' +
+            '<div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;padding:10px;text-align:center">' +
+            '<p style="font-size:8px;color:#aaa;text-transform:uppercase;font-weight:700;margin:0 0 4px">Total Referrals</p>' +
+            '<p style="font-size:24px;font-weight:900;color:#1a1a1a;margin:0">' + (u.referralCount||0) + '</p>' +
+            '<p style="font-size:8px;color:#aaa;margin:2px 0 0">people used their code</p>' +
+            '</div>' +
+            '<div style="background:#fff;border:1px solid #f0f0f0;border-radius:8px;padding:10px;text-align:center">' +
+            '<p style="font-size:8px;color:#aaa;text-transform:uppercase;font-weight:700;margin:0 0 4px">Current Balance</p>' +
+            '<p style="font-size:24px;font-weight:900;color:#ff6100;margin:0">$' + parseFloat(u.referralBalance||0).toFixed(2) + '</p>' +
+            '<p style="font-size:8px;color:#aaa;margin:2px 0 0">earned from 5% commission</p>' +
+            '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:8px;align-items:center">' +
+            '<input id="edit-referralBalance-' + uid + '" type="number" step="0.01" min="0" placeholder="New balance (e.g. 0.00 to reset)" style="flex:1;border:1.5px solid #ffd9bc;border-radius:8px;padding:10px 12px;font-size:13px;outline:none;background:#fff">' +
+            '<button onclick="updateUser(\'' + uid + '\',\'referralBalance\')" style="background:#ff6100;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:9px;font-weight:800;text-transform:uppercase;cursor:pointer;white-space:nowrap">Update</button>' +
+            '</div>' +
+            '<p style="font-size:9px;color:#888;margin:6px 0 0">Set to <strong>0.00</strong> after user withdraws. Changes are saved immediately.</p>' +
+            '</div>'
+        );
+        out.push('<p id="edit-msg-' + uid + '" class="text-[9px] font-800 uppercase hidden"></p>');
+        out.push('</div></div>');
+        out.push('</div></div>');
+    });
+    out.push('</div>');
+    el.innerHTML = out.join('');
+}
+function toggleUserMenu(e, uid) {
+    e.stopPropagation();
+    // Close all other menus
+    document.querySelectorAll('[id^="umenu-"]').forEach(function(m) { m.classList.add('hidden'); });
+    var menu = document.getElementById('umenu-' + uid);
+    if (menu) menu.classList.toggle('hidden');
+    // Close on outside click
+    setTimeout(function() {
+        document.addEventListener('click', function closer() {
+            document.querySelectorAll('[id^="umenu-"]').forEach(function(m) { m.classList.add('hidden'); });
+            document.removeEventListener('click', closer);
+        });
+    }, 10);
+}
+
+function togglePin(uid) {
+    var idx = pinnedUsers.indexOf(uid);
+    if (idx > -1) pinnedUsers.splice(idx, 1);
+    else pinnedUsers.push(uid);
+    sessionStorage.setItem('pinnedUsers', JSON.stringify(pinnedUsers));
+    renderUsersList();
+}
+
+async function loadReferralStats(uid) {
+    var fromEl = document.getElementById('ref-from-' + uid);
+    var toEl = document.getElementById('ref-to-' + uid);
+    var from = fromEl ? fromEl.value : '';
+    var to = toEl ? toEl.value : '';
+    var el = document.getElementById('ref-stats-' + uid);
+    if (!el) return;
+    el.innerHTML = '<p class="text-[8px] text-gray-400 animate-pulse">Loading...</p>';
+
+    // Get the referral code for this user from the cached data
+    var user = allUsersCache.find(function(u) { return u.uniqueID === uid; });
+    var refCode = user ? (user.referralCode || '') : '';
+
+    if (!refCode) {
+        el.innerHTML = '<p class="text-[8px] text-gray-400">No referral code assigned to this user.</p>';
+        return;
+    }
+
+    try {
+        // Fetch all orders and filter by users referred by this code
+        var r = await af('/api/admin-api?action=referral-stats&refCode=' + encodeURIComponent(refCode) + (from ? '&dateFrom=' + from : '') + (to ? '&dateTo=' + to : ''));
+        var d = await r.json();
+        el.innerHTML =
+            '<div class="flex justify-between mb-1"><span class="text-[8px] text-gray-400">Ref Code</span><span class="text-[9px] font-800 text-purple-500">' + refCode + '</span></div>' +
+            '<div class="flex justify-between mb-1"><span class="text-[8px] text-gray-400">Users Referred</span><span class="text-[9px] font-800">' + (d.referredUsers||0) + '</span></div>' +
+            '<div class="flex justify-between mb-1"><span class="text-[8px] text-gray-400">Orders by Referrals</span><span class="text-[9px] font-800">' + (d.referralOrders||0) + '</span></div>' +
+            '<div class="flex justify-between"><span class="text-[8px] text-gray-400">Revenue from Referrals</span><span class="text-[9px] font-800 text-green-600">$' + ((d.referralRevenue||0)/100).toFixed(2) + '</span></div>';
+    } catch(e) { el.innerHTML = '<p class="text-[9px] text-red-500">Failed to load stats</p>'; }
+}
+function toggleUser(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.toggle('hidden');
+}
+
+function loadFulfill() {
+    var el = document.getElementById('c-fulfill');
+    el.innerHTML =
+        '<h2 class="text-lg font-black uppercase mb-6">Fulfill Order</h2>' +
+        '<div class="card max-w-lg"><div class="space-y-4">' +
+        '<div><label class="text-[9px] font-800 uppercase block mb-1">User ID</label><input id="f-userId" type="text" placeholder="User uniqueID" class="w-full border-2 p-3 text-sm outline-none focus:border-black"></div>' +
+        '<div><label class="text-[9px] font-800 uppercase block mb-1">Order ID (MongoDB)</label><input id="f-orderId" type="text" placeholder="MongoDB _id" class="w-full border-2 p-3 text-sm outline-none focus:border-black"></div>' +
+        '<div class="border-t pt-4"><p class="text-[9px] font-800 uppercase mb-3 text-green-600">Option 1 — Ship Order</p>' +
+        '<div class="space-y-3">' +
+        '<div><label class="text-[9px] font-800 uppercase block mb-1">Tracking Number</label><input id="f-tracking" type="text" placeholder="e.g. LW123456789CN" class="w-full border-2 p-3 text-sm outline-none focus:border-black"></div>' +
+        '<div><label class="text-[9px] font-800 uppercase block mb-1">Tracking Link (optional)</label><input id="f-trackingLink" type="text" placeholder="https://..." class="w-full border-2 p-3 text-sm outline-none focus:border-black"></div>' +
+        '<button onclick="fulfill(\'ship\')" class="w-full bg-black text-white py-3 text-[10px] font-800 uppercase tracking-widest hover:bg-green-700 transition-all">Mark as Shipped and Notify Customer</button>' +
+        '</div></div>' +
+        '<div class="border-t pt-4"><p class="text-[9px] font-800 uppercase mb-3 text-red-500">Option 2 — Decline Order</p>' +
+        '<div class="space-y-3">' +
+        '<div><label class="text-[9px] font-800 uppercase block mb-1">Reason for Decline</label><textarea id="f-reason" placeholder="e.g. Product out of stock." class="w-full border-2 p-3 text-sm outline-none focus:border-black h-20 resize-none"></textarea></div>' +
+        '<button onclick="fulfill(\'decline\')" class="w-full bg-red-500 text-white py-3 text-[10px] font-800 uppercase tracking-widest hover:bg-red-700 transition-all">Decline and Notify Customer</button>' +
+        '</div></div>' +
+        '<p id="f-msg" class="text-[10px] text-center font-800 uppercase hidden"></p>' +
+        '</div></div>';
+}
+
+async function fulfill(action) {
+    var userId = document.getElementById('f-userId').value.trim();
+    var orderId = document.getElementById('f-orderId').value.trim();
+    var tracking = document.getElementById('f-tracking') ? document.getElementById('f-tracking').value.trim() : '';
+    var trackingLink = document.getElementById('f-trackingLink') ? document.getElementById('f-trackingLink').value.trim() : '';
+    var reason = document.getElementById('f-reason') ? document.getElementById('f-reason').value.trim() : '';
+    var msg = document.getElementById('f-msg');
+
+    if (!userId || !orderId) { msg.textContent = 'User ID and Order ID required'; msg.className = 'text-[10px] text-center font-800 uppercase text-red-500'; msg.classList.remove('hidden'); return; }
+    if (action === 'ship' && !tracking) { msg.textContent = 'Tracking number required'; msg.className = 'text-[10px] text-center font-800 uppercase text-red-500'; msg.classList.remove('hidden'); return; }
+    if (action === 'decline' && !reason) { msg.textContent = 'Decline reason required'; msg.className = 'text-[10px] text-center font-800 uppercase text-red-500'; msg.classList.remove('hidden'); return; }
+
+    try {
+        var r = await af('/api/admin-api?action=fulfill', {
+            method: 'POST',
+            body: JSON.stringify({ userId: userId, orderId: orderId, action: action, trackingNumber: tracking, trackingLink: trackingLink, declineReason: reason })
+        });
+        var d = await r.json();
+        if (d.success) {
+            msg.textContent = action === 'ship' ? 'Order shipped! Customer notified.' : 'Order declined. Customer notified.';
+            msg.className = 'text-[10px] text-center font-800 uppercase text-green-600';
+            msg.classList.remove('hidden');
+            document.getElementById('f-userId').value = '';
+            document.getElementById('f-orderId').value = '';
+            if (document.getElementById('f-tracking')) document.getElementById('f-tracking').value = '';
+            if (document.getElementById('f-reason')) document.getElementById('f-reason').value = '';
+        } else {
+            msg.textContent = d.error || 'Failed';
+            msg.className = 'text-[10px] text-center font-800 uppercase text-red-500';
+            msg.classList.remove('hidden');
+        }
+    } catch (e) {
+        msg.textContent = 'Network error';
+        msg.className = 'text-[10px] text-center font-800 uppercase text-red-500';
+        msg.classList.remove('hidden');
+    }
+}
+
+async function updateUser(userId, field) {
+    var inputEl = document.getElementById('edit-' + field + '-' + userId);
+    var msgEl = document.getElementById('edit-msg-' + userId);
+    if (!inputEl || !inputEl.value.trim()) {
+        msgEl.textContent = 'Please enter a value.';
+        msgEl.style.color = '#ef4444';
+        msgEl.classList.remove('hidden');
+        return;
+    }
+    var body = { userId: userId };
+    if (field === 'referralBalance') {
+        var bal = parseFloat(inputEl.value);
+        if (isNaN(bal) || bal < 0) { alert('Enter a valid balance (0 or more)'); return; }
+        body.referralBalance = bal;
+    } else {
+        body[field] = inputEl.value.trim();
+    }
+    try {
+        var r = await af('/api/admin-api?action=update-user', { method: 'POST', body: JSON.stringify(body) });
+        var d = await r.json();
+        msgEl.textContent = d.success ? (field.charAt(0).toUpperCase() + field.slice(1) + ' updated successfully!') : (d.error || 'Failed');
+        msgEl.style.color = d.success ? '#22c55e' : '#ef4444';
+        if (d.success) inputEl.value = '';
+    } catch(e) { msgEl.textContent = 'Network error'; msgEl.style.color = '#ef4444'; }
+    msgEl.classList.remove('hidden');
+    setTimeout(function() { msgEl.classList.add('hidden'); }, 3000);
+}
+
+
+function fillFulfillForm(orderId, userId) {
+    showTab('fulfill');
+    setTimeout(function() {
+        var oid = document.getElementById('f-orderId');
+        var uid = document.getElementById('f-userId');
+        if (oid) oid.value = orderId;
+        if (uid) uid.value = userId;
+    }, 100);
+}
+
+
+function adminOpenUserDashboard(userId) {
+    // Write the user session into localStorage BEFORE opening the tab
+    // Dashboard gatekeeper reads localStorage on load — this guarantees it works
+    var adminToken = sessionStorage.getItem('adminToken');
+    var impersonateData = {
+        token: 'admin-view-' + adminToken,
+        id: userId,
+        expiry: Date.now() + 60 * 60 * 1000, // 1 hour
+        isAdminView: true
+    };
+    // Backup current admin session
+    var adminSession = sessionStorage.getItem('adminToken');
+    // Write user session to localStorage so new tab picks it up instantly
+    localStorage.setItem('foundry_session', JSON.stringify(impersonateData));
+    // Open dashboard in new tab
+    window.open('/dashboard', '_blank');
+    // Immediately restore the current page's admin session awareness
+    // (localStorage is shared across tabs — we restore after a tick)
+    setTimeout(function() {
+        // The new tab has already read localStorage. We keep it as-is
+        // Admin panel uses sessionStorage for its token, so it stays logged in
+        console.log('Admin opened dashboard for user:', userId);
+    }, 100);
+}
+
+</script>
+    <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
+</body>
+</html>
