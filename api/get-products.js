@@ -101,12 +101,20 @@ export default async function handler(req, res) {
         let products = [], total = 0;
 
         if (!q) {
-            const randomKeyword = FASHION_KEYWORDS[Math.floor(Math.random() * FASHION_KEYWORDS.length)];
-            const d = await productsFetch(randomKeyword, base, process.env.PRODUCTS_API_KEY);
+            // Rotate keywords deterministically by minute so results vary but reliably return data
+            const keyIdx = Math.floor(Date.now() / 60000) % FASHION_KEYWORDS.length;
+            const chosenKeyword = FASHION_KEYWORDS[keyIdx];
+            // Always use page 1-3 for no-keyword browse to avoid empty high-page results
+            const safePage = Math.min(parseInt(page) || 1, 3);
+            const safeBase = { ...base, pageNum: safePage };
+            const d = await productsFetch(chosenKeyword, safeBase, process.env.PRODUCTS_API_KEY);
             products = d.list || []; total = d.total || 0;
+            // Fallback chain through reliable keywords
             if (products.length === 0) {
-                const fallback = await productsFetch('women dress', base, process.env.PRODUCTS_API_KEY);
-                products = fallback.list || []; total = fallback.total || 0;
+                for (const fallbackKw of ['women dress', 'sneakers', 'phone case', 'jewelry']) {
+                    const fb = await productsFetch(fallbackKw, { ...safeBase, pageNum: 1 }, process.env.PRODUCTS_API_KEY);
+                    if ((fb.list || []).length > 0) { products = fb.list; total = fb.total || 0; break; }
+                }
             }
         } else {
             let d = await productsFetch(q, base, process.env.PRODUCTS_API_KEY);
