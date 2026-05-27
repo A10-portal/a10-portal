@@ -2,16 +2,25 @@
 <html lang="en">
 <head>
     <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff6100">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#ff6100">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TK7Y07K9VH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TK7Y07K9VH');
+    </script>
+    <link rel="icon" type="image/png" href="/image/logo.png">
     <!-- GATEKEEPER: Runs before anything else loads. Kicks out unauthenticated users instantly. -->
     <script>
         if (!localStorage.getItem('foundry_session')) {
             window.location.replace('/login');
         }
     </script>
-<link rel="icon" type="image/png" href="/image/logo.png">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Marketplace | Mova99</title>
@@ -109,7 +118,7 @@
         /* ── Main content ────────────────────────────────── */
         .main-content {
             margin-left: 220px;
-            padding: 32px 28px;
+            padding: 16px 20px;
             transition: margin 0.3s ease;
             min-height: 100vh;
         }
@@ -123,8 +132,7 @@
             .sidebar.active { transform: translateX(0); }
             .main-content {
                 margin-left: 0;
-                padding-top: 90px !important;
-                padding-bottom: 88px !important;
+                padding-top: 72px !important;
                 padding-left: 12px;
                 padding-right: 12px;
             }
@@ -468,11 +476,22 @@
             width: 16px; height: 16px;
             display: flex; align-items: center; justify-content: center;
         }
+        @media (max-width: 1024px) {
+            .sidebar { display: none !important; }
+            .main-content {
+                margin-left: 0 !important;
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+                width: 100% !important;
+                padding-top: 72px !important;
+            }
+        }
+
         @media (display-mode: standalone) {
             .bottom-nav { display: flex !important; }
             .mobile-header { display: none !important; }
             .main-content {
-                padding-bottom: 88px !important;
+                padding-bottom: 80px !important;
                 padding-top: 16px !important;
                 margin-left: 0 !important;
                 width: 100% !important;
@@ -527,23 +546,51 @@
             const btn = document.querySelector('[onclick="startCheckout()"]');
             if (btn) { btn.textContent = 'Processing...'; btn.disabled = true; }
 
+            // Only checkout checked items
+            const checkedPids = Object.keys(window._cartChecked || {}).filter(pid => window._cartChecked[pid] !== false);
+            const itemsToCheckout = cart.filter(i => checkedPids.includes(i.pid));
+            if (itemsToCheckout.length === 0) {
+                alert('Please select at least one item to checkout.');
+                if (btn) { btn.textContent = 'Secure Checkout →'; btn.disabled = false; }
+                return;
+            }
+
             try {
                 const response = await fetch('/api/create-checkout', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cart, userId: session.id || '' })
+                    body: JSON.stringify({ cart, userId: session.id || '', checkedItems: checkedPids })
                 });
                 const data = await response.json();
-                if (data.url) {
-                    window.location.href = data.url;
+                if (data.clientSecret) {
+                    showEmbeddedCheckout(data.clientSecret);
                 } else {
                     alert('Checkout failed: ' + (data.error || 'Please try again.'));
-                    if (btn) { btn.textContent = 'Checkout'; btn.disabled = false; }
+                    if (btn) { btn.textContent = 'Secure Checkout →'; btn.disabled = false; }
                 }
             } catch (e) {
                 alert('Checkout error. Please check your connection and try again.');
-                if (btn) { btn.textContent = 'Checkout'; btn.disabled = false; }
+                if (btn) { btn.textContent = 'Secure Checkout →'; btn.disabled = false; }
             }
+        }
+
+        function showEmbeddedCheckout(clientSecret) {
+            // Show embedded Stripe checkout modal — no redirect
+            const modal = document.getElementById('stripeCheckoutModal');
+            modal.classList.remove('hidden');
+            modal.innerHTML = '<div style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:16px">' +
+                '<div style="background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative">' +
+                '<button onclick="document.getElementById('stripeCheckoutModal').classList.add('hidden')" style="position:absolute;top:12px;right:12px;z-index:10;background:#f0f0f0;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>' +
+                '<div id="stripe-checkout-container" style="padding:24px"></div>' +
+                '</div></div>';
+            const script = document.createElement('script');
+            script.src = 'https://js.stripe.com/v3/';
+            script.onload = async function() {
+                const stripe = Stripe(window._stripeKey || '');
+                const checkout = await stripe.initEmbeddedCheckout({ clientSecret });
+                checkout.mount('#stripe-checkout-container');
+            };
+            document.head.appendChild(script);
         }
 
         function triggerLogout() {
@@ -571,7 +618,7 @@
 
         // Unified search: reads keyword + all filter inputs at once
         function executeGlobalSearch() {
-            const keyword = document.getElementById('productSearch').value;
+            const keyword = document.getElementById('productSearch')?.value || '';
             loadMovaProducts(keyword, true);
         }
 
@@ -653,6 +700,23 @@
             showCartView();
         }
 
+        // Cart helper functions — must be outside showCartView
+        window._cartChecked = window._cartChecked || {};
+
+        function getCheckedItems() {
+            return cart.filter(i => window._cartChecked[i.pid] !== false);
+        }
+
+        function toggleCartItem(pid) {
+            window._cartChecked[pid] = !window._cartChecked[pid];
+            showCartView();
+        }
+
+        function toggleSelectAll(checked) {
+            cart.forEach(i => window._cartChecked[i.pid] = checked);
+            showCartView();
+        }
+
         function showCartView() {
             const main = document.querySelector('.main-content');
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -670,17 +734,32 @@
             }
 
             const markup = price => parseFloat(price).toFixed(2);
-            let cartHtml = '<h1 class="text-[10px] font-800 uppercase mb-8">Your Cart (' + cart.length + ' items)</h1><div class="space-y-3">';
+
+            // Initialize all items as checked
+            if (!window._cartChecked) window._cartChecked = {};
+            cart.forEach(i => {
+                if (window._cartChecked[i.pid] === undefined) window._cartChecked[i.pid] = true;
+            });
+
+            const allChecked = cart.every(i => window._cartChecked[i.pid] !== false);
+            let cartHtml = '<h1 class="text-[10px] font-800 uppercase mb-4">Your Cart (' + cart.length + ' items)</h1>';
+            cartHtml += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px;background:#fff;border-radius:10px;border:1px solid #f0f0f0">';
+            cartHtml += '<input type="checkbox" id="select-all-cb" ' + (allChecked ? 'checked' : '') + ' onchange="toggleSelectAll(this.checked)" style="width:18px;height:18px;accent-color:#ff6100;cursor:pointer">';
+            cartHtml += '<label for="select-all-cb" style="font-size:12px;font-weight:700;color:#1a1a1a;cursor:pointer">Select All (' + cart.length + ' items)</label>';
+            cartHtml += '</div>';
+            cartHtml += '<div class="space-y-3">';
 
             cart.forEach(item => {
+                const isChecked = window._cartChecked[item.pid] !== false;
                 const displayPrice = markup(item.price);
                 const qty = item.qty || 1;
                 const basePid = item.pid.split('-')[0];
                 const baseName = (item.name || '').split(' - ')[0].replace(/'/g, '');
                 const unitCj = (parseFloat(item.price) / qty).toFixed(2);
                 const safePid = item.pid.replace(/'/g,'');
-                cartHtml += '<div id="cart-item-' + safePid + '" style="border:1px solid #f0f0f0;border-radius:12px;padding:14px;background:#fff;margin-bottom:10px">' +
+                cartHtml += '<div id="cart-item-' + safePid + '" style="border:1px solid ' + (isChecked ? '#ff6100' : '#f0f0f0') + ';border-radius:12px;padding:14px;background:' + (isChecked ? '#fff' : '#fafafa') + ';margin-bottom:10px;opacity:' + (isChecked ? '1' : '0.6') + '">' +
                     '<div style="display:flex;align-items:flex-start;gap:10px">' +
+                    '<input type="checkbox" ' + (isChecked ? 'checked' : '') + ' onchange="toggleCartItem('' + item.pid + '')" style="width:18px;height:18px;accent-color:#ff6100;cursor:pointer;flex-shrink:0;margin-top:4px">' +
                     '<img src="' + imgUrl(item.image) + '" style="width:58px;height:58px;object-fit:cover;border-radius:8px;flex-shrink:0">' +
                     '<div style="flex:1;min-width:0">' +
                     '<p style="font-size:11px;font-weight:700;color:#1a1a1a;line-height:1.4;margin:0 0 4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">' + item.name.split(' — ')[0] + '</p>' +
@@ -704,11 +783,16 @@
                     '</div></div>';
             });
 
-            const subtotal = cart.reduce((sum, i) => sum + parseFloat(markup(i.price)), 0);
-            const total = (subtotal + 5.20).toFixed(2);
+            const checkedItems = getCheckedItems();
+            const subtotal = checkedItems.reduce((sum, i) => sum + parseFloat(markup(i.price)), 0);
+            const totalQty = checkedItems.reduce((sum, i) => sum + (i.qty || 1), 0);
+            const shippingGroups = Math.ceil(totalQty / 6) || 1;
+            const shippingFee = (2.41 * shippingGroups).toFixed(2);
+            const total = (subtotal + parseFloat(shippingFee)).toFixed(2);
             cartHtml += '</div><div class="mt-8 pt-6 border-t space-y-2">' +
+                '<div class="flex justify-between"><span class="text-[9px] font-800 uppercase text-gray-400">Selected Items</span><span class="text-[9px] font-800">' + checkedItems.length + ' of ' + cart.length + '</span></div>' +
                 '<div class="flex justify-between"><span class="text-[9px] font-800 uppercase text-gray-400">Subtotal</span><span class="text-[9px] font-800">$' + subtotal.toFixed(2) + '</span></div>' +
-                '<div class="flex justify-between"><span class="text-[9px] font-800 uppercase text-gray-400">Shipping</span><span class="text-[9px] font-800">$5.20</span></div>' +
+                '<div class="flex justify-between"><span class="text-[9px] font-800 uppercase text-gray-400">Shipping' + (shippingGroups > 1 ? ' x' + shippingGroups : '') + '</span><span class="text-[9px] font-800">$' + shippingFee + '</span></div>' +
                 '<div class="flex justify-between border-t-2 border-black pt-3 mt-2"><span class="text-xl font-800">Total</span><span class="text-xl font-800">$' + total + '</span></div></div>' +
                 '<div style="margin-top:20px">' +
                 '<label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:8px">Order Note <span style="color:#bbb;font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>' +
@@ -959,6 +1043,13 @@
                     </div>
                 </section>
 
+                <section class="mb-8">
+                    <h2 class="text-[9px] font-800 uppercase text-gray-400 mb-4 border-b pb-2">Transaction History</h2>
+                    <div id="transaction-list">
+                        <p style="font-size:12px;color:#aaa;text-align:center;padding:20px">Loading transactions...</p>
+                    </div>
+                </section>
+
                 <!-- Sign Out Button -->
                 <div style="padding-top:24px;border-top:1px solid #f0f0f0;margin-top:8px">
                     <button onclick="triggerLogout()" style="width:100%;padding:14px;background:#e05555;color:white;border:none;border-radius:10px;font-size:12px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.08em">Sign Out</button>
@@ -1132,26 +1223,23 @@
                         </button>
                     </div>
                     <div id="filterSection" class="filter-glass p-6 rounded-sm" style="max-height:0;overflow:hidden;opacity:0;transition:all 0.4s cubic-bezier(0.4,0,0.2,1);">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="flex flex-wrap gap-4 items-end">
                             <div>
-                                <label class="text-[8px] font-800 uppercase mb-2 block">Price Bracket ($)</label>
-                                <div class="flex gap-2">
-                                    <input type="number" id="minPrice" placeholder="Min" class="w-full border p-2 text-[10px] outline-none">
-                                    <input type="number" id="maxPrice" placeholder="Max" class="w-full border p-2 text-[10px] outline-none">
-                                </div>
+                                <label class="text-[8px] font-800 uppercase mb-2 block">Min Price ($)</label>
+                                <input type="number" id="minPrice" placeholder="0" min="0" style="border:2px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:14px;outline:none;width:110px">
                             </div>
                             <div>
-                                <label class="text-[8px] font-800 uppercase mb-2 block">Warehouse Location</label>
-                                <select id="countryCode" class="w-full border p-2 text-[10px] outline-none bg-white">
-                                    <option value="">Global (All)</option>
-                                    <option value="US">United States</option>
-                                    <option value="CN">China</option>
-                                    <option value="DE">Germany</option>
-                                </select>
+                                <label class="text-[8px] font-800 uppercase mb-2 block">Max Price ($)</label>
+                                <input type="number" id="maxPrice" placeholder="999" min="0" style="border:2px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:14px;outline:none;width:110px">
                             </div>
-                            <div class="flex items-end">
-                                <button onclick="executeGlobalSearch()" class="search-btn w-full py-2">Apply Parameters</button>
-                            </div>
+                            <select id="countryCode" style="border:2px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:13px;outline:none;background:#fff;cursor:pointer">
+                                <option value="">All Warehouses</option>
+                                <option value="US">🇺🇸 United States</option>
+                                <option value="CN">🇨🇳 China</option>
+                                <option value="DE">🇩🇪 Germany</option>
+                            </select>
+                            <button onclick="executeGlobalSearch()" class="search-btn py-2 px-6">Apply Filter</button>
+                            <button onclick="document.getElementById('minPrice').value='';document.getElementById('maxPrice').value='';executeGlobalSearch()" style="background:none;border:2px solid #ddd;border-radius:8px;padding:10px 16px;font-size:11px;font-weight:700;cursor:pointer;color:#888">Clear</button>
                         </div>
                     </div>
                     <div class="flex flex-col md:flex-row gap-4">
@@ -1458,7 +1546,7 @@
             
             html2 += variantHtml;
             html2 += '<div class="border-t pt-3"><p class="text-[8px] font-800 uppercase text-gray-400 mb-2">Quantity</p><div class="flex items-center gap-3"><button onclick="changeQty(-1)" class="w-8 h-8 border-2 border-black text-lg font-800 hover:bg-black hover:text-white transition-all">-</button><span id="qty-display" class="text-[14px] font-800 w-8 text-center">1</span><button onclick="changeQty(1)" class="w-8 h-8 border-2 border-black text-lg font-800 hover:bg-black hover:text-white transition-all">+</button><span class="text-[8px] font-800 uppercase text-gray-400">price updates automatically</span></div></div>';
-            html2 += '<div class="border-t pt-3 space-y-2"><div class="flex justify-between"><span class="text-[8px] font-800 uppercase text-gray-400">Processing Time</span><span class="text-[9px] font-800 uppercase">1-3 Days</span></div><div class="flex justify-between"><span class="text-[8px] font-800 uppercase text-gray-400">Estimated Delivery</span><span class="text-[9px] font-800 uppercase">6-13 Days</span></div><div class="flex justify-between"><span class="text-[8px] font-800 uppercase text-gray-400">Ship To</span><span class="text-[9px] font-800 uppercase">United States</span></div><div class="flex justify-between"><span class="text-[8px] font-800 uppercase text-gray-400">Shipping Method</span><span class="text-[9px] font-800 uppercase text-green-600">Available</span></div></div>';
+            html2 += '<div class="border-t pt-3 space-y-2"><div class="flex justify-between"><span class="text-[8px] font-800 uppercase text-gray-400">Processing Time</span><span class="text-[9px] font-800 uppercase">1-2 Days</span></div><div class="flex justify-between"><span class="text-[8px] font-800 uppercase text-gray-400">Estimated Delivery</span><span class="text-[9px] font-800 uppercase">3-8 Business Days</span></div><div class="flex justify-between"><span class="text-[8px] font-800 uppercase text-gray-400">Ship To</span><span class="text-[9px] font-800 uppercase">United States</span></div><div class="flex justify-between"><span class="text-[8px] font-800 uppercase text-gray-400">Shipping Method</span><span class="text-[9px] font-800 uppercase text-green-600">Available</span></div></div>';
             if (productAttributes.length > 0) { html2 += '<div class="border-t pt-3"><p class="text-[8px] font-800 uppercase text-gray-400 mb-2">Specifications</p><div class="space-y-1">'; productAttributes.forEach(a => { if(!a.name||!a.value) return; html2 += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f5f5f5"><span style="font-size:11px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.04em">'+a.name+'</span><span style="font-size:12px;font-weight:700;color:#333;text-align:right;max-width:60%">'+a.value+'</span></div>'; }); html2 += '</div></div>'; }
             if (descClean) {
                 const descParagraphs = descClean.split(/[.!?]+/).filter(s => s.trim().length > 10).slice(0, 6);
@@ -1488,11 +1576,12 @@
             if (isLoading) return;
 
             const grid = document.querySelector('.product-grid');
-            const minP = document.getElementById('minPrice')?.value || '';
-            const maxP = document.getElementById('maxPrice')?.value || '';
+            const minP = document.getElementById('minPrice')?.value?.trim() || '';
+            const maxP = document.getElementById('maxPrice')?.value?.trim() || '';
             const warehouse = document.getElementById('countryCode')?.value || '';
 
-            if (isNewSearch || (currentPage === 1 && grid && grid.innerHTML.trim() === "")) {
+            // Read filter values safely — they may not exist if filter panel not open
+        if (isNewSearch || (currentPage === 1 && grid && grid.innerHTML.trim() === "")) {
                 currentPage = keyword ? 1 : (Math.floor(Math.random() * 50) + 1);
                 if (grid) grid.innerHTML = '<div class="col-span-full py-20 text-center" style="color:var(--orange)">' +
                     '<div style="font-size:13px;font-weight:700;margin-bottom:8px">🔍 Searching' + (keyword ? ' for "' + keyword + '"' : '') + '...</div>' +
@@ -1748,6 +1837,132 @@
             }
         }
 
+
+        // ── CATEGORIES VIEW ─────────────────────────────────────────
+        const MOVA_CATEGORIES = [
+            { name: "Kids' Shoes", slug: "kids-shoes", keyword: "kids shoes" },
+            { name: "Women's Lingerie", slug: "womens-lingerie", keyword: "women lingerie" },
+            { name: "Arts & Crafts", slug: "arts-crafts", keyword: "art craft sewing" },
+            { name: "Beauty & Health", slug: "beauty-health", keyword: "beauty makeup" },
+            { name: "Kids' Fashion", slug: "kids-fashion", keyword: "kids clothing" },
+            { name: "Bags & Luggage", slug: "bags-luggage", keyword: "bags luggage handbag" },
+            { name: "Women's Clothing", slug: "womens-clothing", keyword: "women dress" },
+            { name: "Appliances", slug: "appliances", keyword: "home appliances kitchen" },
+            { name: "Women's Shoes", slug: "womens-shoes", keyword: "women shoes boots" },
+            { name: "Jewelry & Accessories", slug: "jewelry-accessories", keyword: "jewelry accessories" },
+            { name: "Home & Kitchen", slug: "home-kitchen", keyword: "home kitchen bedding" },
+            { name: "Pet Supplies", slug: "pet-supplies", keyword: "pet supplies" },
+            { name: "Men's Shoes", slug: "mens-shoes", keyword: "men shoes sneakers" },
+            { name: "Men's Clothing", slug: "mens-clothing", keyword: "men shirt jacket" },
+            { name: "Business & Science", slug: "business-science", keyword: "tools equipment" },
+            { name: "Automotive", slug: "automotive", keyword: "car accessories automotive" },
+            { name: "Office Supplies", slug: "office-supplies", keyword: "office supplies stationery" },
+            { name: "Toys & Games", slug: "toys-games", keyword: "toys games kids" },
+            { name: "Women's Curve", slug: "womens-curve", keyword: "plus size women clothing" },
+            { name: "Smart Home", slug: "smart-home", keyword: "smart home devices" },
+            { name: "Baby & Maternity", slug: "baby-maternity", keyword: "baby care nursery" },
+            { name: "Men's Big & Tall", slug: "mens-big-tall", keyword: "men plus size clothing" },
+            { name: "Cell Phones", slug: "cell-phones", keyword: "phone accessories cell" },
+            { name: "Sports & Outdoors", slug: "sports-outdoors", keyword: "sports fitness activewear" },
+            { name: "Musical Instruments", slug: "musical-instruments", keyword: "musical instruments" },
+            { name: "Patio & Garden", slug: "patio-garden", keyword: "garden outdoor patio" },
+            { name: "Electronics", slug: "electronics", keyword: "electronics headphones computer" },
+            { name: "Tools & Home Improvement", slug: "tools-home-improvement", keyword: "tools hardware" },
+            { name: "Beachwear", slug: "beachwear", keyword: "bikini swimsuit beachwear" },
+            { name: "Health & Household", slug: "health-household", keyword: "health household cleaning" },
+            { name: "Food & Grocery", slug: "food-grocery", keyword: "food grocery snacks" },
+            { name: "Books & Media", slug: "books-media", keyword: "books media" },
+            { name: "Men's Underwear", slug: "mens-underwear", keyword: "men underwear socks" }
+        ];
+
+        async function showCategoriesView() {
+            const main = document.querySelector('.main-content');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.bottom-nav-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('nav-categories').classList.add('active');
+            document.querySelector('.sidebar').classList.remove('active');
+            window.scrollTo({ top: 0, behavior: 'instant' });
+
+            main.innerHTML = '<div class="fade-in"><h1 style="font-size:18px;font-weight:900;color:#1a1a1a;margin:0 0 6px">Shop by Category</h1><p style="font-size:12px;color:#888;margin:0 0 24px">Browse millions of products by category</p><div id="categories-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px"></div></div>';
+
+            const grid = document.getElementById('categories-grid');
+
+            // Load categories with product images
+            for (const cat of MOVA_CATEGORIES) {
+                const card = document.createElement('div');
+                card.style.cssText = 'background:#fff;border-radius:14px;overflow:hidden;cursor:pointer;border:1px solid #f0f0f0;transition:all .2s';
+                card.onmouseover = () => { card.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)'; card.style.borderColor = '#ff6100'; };
+                card.onmouseout = () => { card.style.boxShadow = ''; card.style.borderColor = '#f0f0f0'; };
+                card.onclick = () => { window.location.href = '/' + cat.slug; };
+                card.innerHTML = '<div style="height:100px;background:linear-gradient(135deg,#fff3ed,#fff);display:flex;align-items:center;justify-content:center;overflow:hidden"><div style="width:100%;height:100%;background:#f5f5f5;display:flex;align-items:center;justify-content:center"><div style="width:32px;height:32px;border-radius:50%;background:#ff6100;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg></div></div></div><div style="padding:10px 12px"><p style="font-size:12px;font-weight:700;color:#1a1a1a;margin:0 0 4px">' + cat.name + '</p><p style="font-size:10px;color:#ff6100;font-weight:600;margin:0">Shop Now →</p></div>';
+                grid.appendChild(card);
+
+                // Fetch real product image for category
+                (async (c, el) => {
+                    try {
+                        const r = await fetch('/api/get-products?keyword=' + encodeURIComponent(c.keyword) + '&pageSize=1');
+                        const d = await r.json();
+                        const products = Array.isArray(d) ? d : (d.products || []);
+                        if (products[0]?.productImage) {
+                            const imgDiv = el.querySelector('div > div');
+                            if (imgDiv) imgDiv.innerHTML = '<img src="' + imgUrl(products[0].productImage) + '" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">';
+                        }
+                    } catch(e) {}
+                })(cat, card);
+            }
+        }
+
+        async function loadUserTransactions(userId) {
+            const el = document.getElementById('transaction-list');
+            if (!el) return;
+            try {
+                const r = await fetch('/api/admin-api?action=get-transactions&userId=' + encodeURIComponent(userId), {
+                    headers: { 'x-admin-token': '' }
+                });
+                // For users, fetch from get-user endpoint instead
+                const r2 = await fetch('/api/get-user?action=transactions&id=' + encodeURIComponent(userId));
+                const txData = await r2.json();
+                const txs = Array.isArray(txData) ? txData : [];
+
+                if (txs.length === 0) {
+                    el.innerHTML = '<p style="font-size:12px;color:#aaa;text-align:center;padding:20px">No transactions yet</p>';
+                    return;
+                }
+
+                const SHOW = 4;
+                let showAll = false;
+
+                function renderTx() {
+                    const visible = showAll ? txs : txs.slice(0, SHOW);
+                    let txHtml = '<div style="border:1px solid #f0f0f0;border-radius:10px;overflow:hidden">';
+                    visible.forEach((tx, i) => {
+                        const isDebit = tx.type === 'debit';
+                        const amt = parseFloat(tx.amount).toFixed(2);
+                        const date = new Date(tx.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+                        const time = new Date(tx.createdAt).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', hour12:true });
+                        txHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:' + (i < visible.length-1 ? '1px solid #f0f0f0' : 'none') + '">';
+                        txHtml += '<div><p style="font-size:12px;font-weight:700;color:#1a1a1a;margin:0 0 2px">' + (tx.paymentMethod || 'Direct Deposit') + '</p><p style="font-size:10px;color:#aaa;margin:0">' + date + ' at ' + time + '</p></div>';
+                        txHtml += '<span style="font-size:15px;font-weight:800;color:' + (isDebit ? '#e02020' : '#22c55e') + '">' + (isDebit ? '-' : '+') + '$' + amt + '</span>';
+                        txHtml += '</div>';
+                    });
+                    txHtml += '</div>';
+                    if (txs.length > SHOW) {
+                        if (!showAll) {
+                            txHtml += '<button onclick="document.getElementById('tx-toggle').click()" style="width:100%;margin-top:8px;padding:10px;background:#f9f9f9;border:1px solid #f0f0f0;border-radius:8px;font-size:11px;font-weight:700;color:#ff6100;cursor:pointer">Show All +' + (txs.length - SHOW) + ' transactions</button>';
+                        } else {
+                            txHtml += '<button onclick="document.getElementById('tx-toggle').click()" style="width:100%;margin-top:8px;padding:10px;background:#f9f9f9;border:1px solid #f0f0f0;border-radius:8px;font-size:11px;font-weight:700;color:#888;cursor:pointer">Hide</button>';
+                        }
+                        txHtml += '<span id="tx-toggle" style="display:none" onclick="showAll=!showAll;renderTx()"></span>';
+                    }
+                    el.innerHTML = txHtml;
+                }
+                renderTx();
+            } catch(e) {
+                const el2 = document.getElementById('transaction-list');
+                if (el2) el2.innerHTML = '<p style="font-size:12px;color:#aaa;text-align:center;padding:20px">No transactions yet</p>';
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             updateCartBadge();
             // Time-based greeting with user's first name
@@ -1813,6 +2028,7 @@
         </div>
         <nav class="mt-4" style="flex:1;display:flex;flex-direction:column">
             <div class="nav-item active" id="nav-market" onclick="showMarketplaceView()"><span>Marketplace</span></div>
+            <div class="nav-item" id="nav-categories" onclick="showCategoriesView()"><span>Categories</span></div>
             <div class="nav-item" id="nav-cart" data-nav="cart" onclick="showCartView()"><span>Cart <span id="cart-badge-desktop2" style="background:#ef4444;color:white;font-size:8px;font-weight:900;border-radius:50%;padding:1px 5px;margin-left:4px;display:none">0</span></span></div>
             <div class="nav-item" id="nav-orders" onclick="showOrdersView()"><span>Orders</span></div>
             <div class="nav-item" id="nav-support" onclick="showSupportView()"><span>Contact Us</span></div>
@@ -1830,6 +2046,13 @@
                     <polyline stroke-linecap="round" stroke-linejoin="round" points="9 22 9 12 15 12 15 22"/>
                 </svg>
                 <span>Shop</span>
+            </button>
+            <!-- Categories -->
+            <button class="bottom-nav-btn" id="bnav-categories" onclick="showCategoriesView()">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+                <span>Categories</span>
             </button>
             <!-- Cart -->
             <button class="bottom-nav-btn" id="bnav-cart" onclick="showCartView()">
@@ -1880,28 +2103,18 @@
 
             <!-- Slide-down filter panel -->
             <div id="filterSection" class="filter-glass p-6 rounded-sm">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="flex flex-wrap gap-4 items-end">
                     <div>
-                        <label class="text-[8px] font-800 uppercase mb-2 block">Price Bracket ($)</label>
-                        <div class="flex gap-2">
-                            <input type="number" id="minPrice" placeholder="Min" class="w-full border p-2 text-[10px] outline-none">
-                            <input type="number" id="maxPrice" placeholder="Max" class="w-full border p-2 text-[10px] outline-none">
-                        </div>
+                        <label class="text-[8px] font-800 uppercase mb-2 block">Min Price ($)</label>
+                        <input type="number" id="minPrice" placeholder="0" min="0" style="border:2px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:14px;outline:none;width:110px">
                     </div>
                     <div>
-                        <label class="text-[8px] font-800 uppercase mb-2 block">Warehouse Location</label>
-                        <select id="countryCode" class="w-full border p-2 text-[10px] outline-none bg-white">
-                            <option value="">Global (All)</option>
-                            <option value="US">United States</option>
-                            <option value="CN">China</option>
-                            <option value="DE">Germany</option>
-                        </select>
+                        <label class="text-[8px] font-800 uppercase mb-2 block">Max Price ($)</label>
+                        <input type="number" id="maxPrice" placeholder="999" min="0" style="border:2px solid #e0e0e0;border-radius:8px;padding:10px 14px;font-size:14px;outline:none;width:110px">
                     </div>
-                    <div class="flex items-end">
-                        <button onclick="executeGlobalSearch()" class="search-btn w-full py-2">
-                            Apply Parameters
-                        </button>
-                    </div>
+                    <input type="hidden" id="countryCode" value="">
+                    <button onclick="executeGlobalSearch()" class="search-btn py-2 px-6">Apply Filter</button>
+                    <button onclick="document.getElementById('minPrice').value='';document.getElementById('maxPrice').value='';executeGlobalSearch()" style="background:none;border:2px solid #ddd;border-radius:8px;padding:10px 16px;font-size:11px;font-weight:700;cursor:pointer;color:#888">Clear</button>
                 </div>
             </div>
 
@@ -1968,7 +2181,14 @@ function closeWelcomePopup() {
     if (p) { p.style.opacity='0'; p.style.transition='opacity .3s'; setTimeout(function(){p.style.display='none';},300); }
 }
 </script>
-    <script>
+    <!-- Stripe Embedded Checkout Modal -->
+<div id="stripeCheckoutModal" class="hidden"></div>
+
+<script>
+// Set your Stripe publishable key here
+window._stripeKey = 'pk_live_YOUR_STRIPE_PUBLISHABLE_KEY';
+</script>
+<script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
 }
