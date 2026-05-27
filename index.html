@@ -319,8 +319,8 @@
 let cart = JSON.parse(localStorage.getItem('mova_cart')) || [];
 
 function imgUrl(url) {
-    if (!url || url.startsWith('data:') || url.startsWith('blob:')) return url || '';
-    return '/api/get-orders?img=' + encodeURIComponent(url);
+    // CJ product images are public CDN URLs — no proxy needed
+    return url || '';
 }
 
 function updateCartBadge() {
@@ -381,23 +381,26 @@ async function loadProductGrid(gridId, page) {
             grid.appendChild(card);
         });
     } catch(e) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><p style="color:#888;font-size:14px">Sign in to browse all products</p><a href="/signup" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#ff6100;color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Get Started Free</a></div>';
+        console.error('loadProductGrid error:', e);
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><p style="color:#888;font-size:14px">Could not load products — please refresh</p><a href="/signup" style="display:inline-block;margin-top:12px;padding:12px 24px;background:#ff6100;color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Get Started Free</a></div>';
     }
 }
 
 // Intersection observer for fade up animations
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
-}, { threshold: 0.1 });
+}, { threshold: 0.05, rootMargin: '0px 0px 100px 0px' });
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+// Fallback: force all sections visible after 800ms in case observer doesn't fire (mobile/iframe)
+setTimeout(() => { document.querySelectorAll('.fade-up').forEach(el => el.classList.add('visible')); }, 800);
 
 // Init
 window.addEventListener('DOMContentLoaded', () => {
     cart = JSON.parse(localStorage.getItem('mova_cart')) || [];
     updateCartBadge();
     
-    loadProductGrid('product-grid', Math.floor(Math.random()*20)+1);
-    loadProductGrid('product-grid-2', Math.floor(Math.random()*40)+21);
+    loadProductGrid('product-grid', 1);
+    loadProductGrid('product-grid-2', 2);
 });
 </script>
 <!-- Product Details Modal -->
