@@ -186,6 +186,36 @@ export default async function handler(req, res) {
         }
     }
 
+    // ── save-cart ────────────────────────────────────────
+    if (req.method === 'POST' && action === 'save-cart') {
+        const { userId, cart } = req.body || {};
+        if (!userId || !Array.isArray(cart)) return res.status(400).json({ error: 'Missing fields' });
+        try {
+            const db = await getDb();
+            await db.collection('users').updateOne(
+                { uniqueID: String(userId) },
+                { $set: { savedCart: cart, cartUpdatedAt: new Date() } }
+            );
+            return res.status(200).json({ success: true });
+        } catch(e) {
+            return res.status(500).json({ error: e.message });
+        }
+    }
+
+    // ── load-cart ────────────────────────────────────────
+    if (req.method === 'GET' && action === 'load-cart') {
+        const rawId = req.query.id;
+        if (!rawId) return res.status(400).json({ error: 'Missing id' });
+        const id = decodeURIComponent(String(rawId)).trim();
+        try {
+            const db = await getDb();
+            const user = await db.collection('users').findOne({ uniqueID: id }, { projection: { savedCart: 1 } });
+            return res.status(200).json({ cart: user?.savedCart || [] });
+        } catch(e) {
+            return res.status(500).json({ error: e.message });
+        }
+    }
+
     // Get user transactions
     if (req.method === 'GET' && action === 'transactions') {
         const rawId = req.query.id;
