@@ -394,8 +394,9 @@ const PRODUCT_REGISTRY = {};
 let _cartSaveTimer = null;
 
 function persistCart() {
-  // Always save to localStorage immediately (works offline too)
-  persistCart();
+  // Save to localStorage immediately
+  localStorage.setItem('mova_cart', JSON.stringify(cart));
+  updateCartBadge();
   // Debounce server sync by 800ms
   clearTimeout(_cartSaveTimer);
   _cartSaveTimer = setTimeout(syncCartToServer, 800);
@@ -712,31 +713,41 @@ document.addEventListener('click', function(e) {
   const btn = e.target.closest('.pcard-add');
   if (!btn) return;
   e.stopPropagation();
+  if (btn._adding) return; // prevent double-tap during animation
   const pid = btn.dataset.pid;
   if (!pid || !PRODUCT_REGISTRY[pid]) return;
 
-  // Always add a new entry (allows duplicates for multiple qty taps)
   const p = PRODUCT_REGISTRY[pid];
   const name = p.productNameEn || p.productName || '';
-  // Each tap pushes a fresh entry with unique key (pid + timestamp)
-  const uniquePid = pid + '-' + Date.now();
-  const entry = { pid: uniquePid, name, price: String(p.sellPrice), image: p.productImage||'', qty:1, color:'', size:'' };
+  // Each tap = new cart entry. Store basePid + vid separately so SKU lookup works.
+  const entry = {
+    pid:      pid,           // always the real CJ pid — no timestamp suffix
+    cartKey:  pid + '_' + Date.now(), // unique key used only for cart row identity
+    name,
+    price:    String(p.sellPrice),
+    image:    p.productImage || '',
+    qty:      1,
+    color:    '',
+    size:     '',
+    vid:      ''             // no variant selected on quick-add
+  };
   cart.push(entry);
   persistCart();
-
-  // Fly-dot animation toward cart icon
   flyDot(btn);
 
-  // Button → "✓ Added to Cart!" then flip back to "🛒 Add to Cart" after 2s
+  // Show "✓ Added to Cart!" for 2 seconds then flip back
+  btn._adding = true;
   btn.textContent = '✓ Added to Cart!';
-  btn.style.background = 'var(--green)';
-  btn.disabled = true;
+  btn.style.cssText += ';background:#22c55e !important;color:white !important;';
   clearTimeout(btn._flipTimer);
   btn._flipTimer = setTimeout(() => {
     btn.textContent = '🛒 Add to Cart';
+    btn.style.cssText = btn.style.cssText
+      .replace(/background:[^;]+!important;/g, '')
+      .replace(/color:[^;]+!important;/g, '');
     btn.style.background = 'var(--orange)';
-    btn.disabled = false;
-    btn.classList.remove('added');
+    btn.style.color = 'white';
+    btn._adding = false;
   }, 2000);
 });
 
@@ -1028,9 +1039,9 @@ function renderCart() {
 
   // Init checked state
   if (!window._checked) window._checked = {};
-  cart.forEach(i => { if(window._checked[i.pid]===undefined) window._checked[i.pid]=true; });
-  const allChk = cart.every(i=>window._checked[i.pid]!==false);
-  const checked = cart.filter(i=>window._checked[i.pid]!==false);
+  cart.forEach(i => { const k=i.cartKey||i.pid; if(window._checked[k]===undefined) window._checked[k]=true; });
+  const allChk = cart.every(i=>window._checked[i.cartKey||i.pid]!==false);
+  const checked = cart.filter(i=>window._checked[i.cartKey||i.pid]!==false);
   const sub = checked.reduce((s,i)=>s+parseFloat(i.price||0),0);
   const totalQty = checked.reduce((s,i)=>s+(i.qty||1),0);
   const shipGroups = Math.ceil(totalQty/6)||1;
@@ -1043,14 +1054,15 @@ function renderCart() {
   </div>`;
 
   cart.forEach(item => {
-    const chk = window._checked[item.pid]!==false;
-    const safe = item.pid.replace(/['"]/g,'');
+    const key = item.cartKey || item.pid;
+    const safeKey = key.replace(/['"\\]/g, '');
+    const chk = window._checked[key] !== false;
     h += `<div style="border:1.5px solid ${chk?'var(--orange)':'var(--border)'};border-radius:10px;padding:12px;margin-bottom:8px;opacity:${chk?1:.6}">
       <div style="display:flex;gap:10px;align-items:flex-start">
-        <input type="checkbox" ${chk?'checked':''} onchange="toggleItem('${safe}',this.checked)" style="width:16px;height:16px;accent-color:var(--orange);cursor:pointer;flex-shrink:0;margin-top:4px">
+        <input type="checkbox" ${chk?'checked':''} onchange="toggleItem('${safeKey}',this.checked)" style="width:16px;height:16px;accent-color:var(--orange);cursor:pointer;flex-shrink:0;margin-top:4px">
         <img src="${imgUrl(item.image||'')}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#f8f8f8">
         <div style="flex:1;min-width:0">
-          <p style="font-size:11px;font-weight:700;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:4px">${item.name.split(' — ')[0]||''}</p>
+          <p style="font-size:11px;font-weight:700;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:4px">${(item.name||'').split(' — ')[0]}</p>
           ${(item.color||item.size) ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px">
             ${item.color?`<span style="font-size:9px;font-weight:700;background:var(--orange-pale);color:var(--orange);padding:2px 8px;border-radius:10px">🎨 ${item.color}</span>`:''}
             ${item.size?`<span style="font-size:9px;font-weight:700;background:#f0f0f0;color:#333;padding:2px 8px;border-radius:6px">📏 ${item.size}</span>`:''}
@@ -1059,8 +1071,8 @@ function renderCart() {
           <p style="font-size:10px;color:var(--muted)">Qty: ${item.qty||1}</p>
         </div>
         <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
-          <button onclick="removeFromCart('${safe}')" style="color:var(--red);background:none;border:none;cursor:pointer;font-size:16px;padding:0 2px;line-height:1">✕</button>
-          <button onclick="openProductFromCart('${item.pid.split('-')[0]}')" style="font-size:9px;font-weight:700;color:var(--orange);border:1.5px solid var(--orange);background:var(--orange-pale);border-radius:5px;padding:3px 7px;cursor:pointer;font-family:inherit;white-space:nowrap">Edit</button>
+          <button onclick="removeFromCart('${safeKey}')" style="color:var(--red);background:none;border:none;cursor:pointer;font-size:22px;padding:0 4px;line-height:1;font-weight:300">✕</button>
+          <button onclick="openProductFromCart('${item.pid}')" style="font-size:9px;font-weight:700;color:var(--orange);border:1.5px solid var(--orange);background:var(--orange-pale);border-radius:5px;padding:3px 7px;cursor:pointer;font-family:inherit;white-space:nowrap">Edit</button>
         </div>
       </div>
     </div>`;
@@ -1077,29 +1089,46 @@ function renderCart() {
   body.innerHTML = h;
 }
 
-function toggleItem(pid, val) { window._checked = window._checked||{}; window._checked[pid]=val; renderCart(); }
-function toggleAll(val) { cart.forEach(i=>{ window._checked[i.pid]=val; }); renderCart(); }
-function removeFromCart(pid) {
-  cart = cart.filter(i=>i.pid!==pid);
-  delete window._checked?.[pid];
+function toggleItem(key, val) { window._checked = window._checked||{}; window._checked[key]=val; renderCart(); }
+function toggleAll(val) { cart.forEach(i=>{ const k=i.cartKey||i.pid; window._checked[k]=val; }); renderCart(); }
+function removeFromCart(key) {
+  // key is cartKey if present, otherwise pid
+  cart = cart.filter(i => (i.cartKey || i.pid) !== key);
+  delete (window._checked || {})[key];
   persistCart();
   renderCart();
-  document.querySelectorAll(`[data-pid="${pid.split('-')[0]}"]`).forEach(b=>{ b.textContent='🛒 Add to Cart'; b.classList.remove('added'); });
 }
 
 async function startCheckout() {
   if (!session?.id) { closeCart(); window.location.href='/login'; return; }
-  const checkedPids = Object.keys(window._checked||{}).filter(p=>window._checked[p]!==false);
-  const items = cart.filter(i=>checkedPids.includes(i.pid));
-  if (!items.length) { alert('Select at least one item.'); return; }
 
-  const btn = document.querySelector('#cart-body button[onclick="startCheckout()"]');
+  // Get checked cart rows using cartKey
+  const checkedKeys = Object.keys(window._checked||{}).filter(k=>window._checked[k]!==false);
+  const checkedItems = cart.filter(i=>checkedKeys.includes(i.cartKey||i.pid));
+  if (!checkedItems.length) { alert('Select at least one item.'); return; }
+
+  // Group items by pid+vid so duplicates of same product become qty > 1
+  const grouped = [];
+  checkedItems.forEach(item => {
+    const groupId = item.pid + '|' + (item.vid||'') + '|' + (item.color||'') + '|' + (item.size||'');
+    const existing = grouped.find(g => g._groupId === groupId);
+    if (existing) {
+      existing.qty += (item.qty || 1);
+      existing.price = (parseFloat(existing.price) + parseFloat(item.price || 0)).toFixed(2);
+    } else {
+      grouped.push({ ...item, qty: item.qty || 1, _groupId: groupId });
+    }
+  });
+  // Clean up internal field before sending
+  grouped.forEach(i => delete i._groupId);
+
+  const btn = document.querySelector('#cart-body .btn-primary');
   if (btn) { btn.textContent='Processing...'; btn.disabled=true; }
 
   try {
     const r = await fetch('/api/create-checkout', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ cart, userId:session.id, checkedItems:checkedPids })
+      body: JSON.stringify({ cart: grouped, userId: session.id, checkedItems: grouped.map(i=>i.pid) })
     });
     const d = await r.json();
     if (d.clientSecret) showStripeCheckout(d.clientSecret);
