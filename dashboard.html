@@ -700,6 +700,23 @@
             showCartView();
         }
 
+        // Cart helper functions — must be outside showCartView
+        window._cartChecked = window._cartChecked || {};
+
+        function getCheckedItems() {
+            return cart.filter(i => window._cartChecked[i.pid] !== false);
+        }
+
+        function toggleCartItem(pid) {
+            window._cartChecked[pid] = !window._cartChecked[pid];
+            showCartView();
+        }
+
+        function toggleSelectAll(checked) {
+            cart.forEach(i => window._cartChecked[i.pid] = checked);
+            showCartView();
+        }
+
         function showCartView() {
             const main = document.querySelector('.main-content');
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -723,20 +740,6 @@
             cart.forEach(i => {
                 if (window._cartChecked[i.pid] === undefined) window._cartChecked[i.pid] = true;
             });
-
-            function getCheckedItems() {
-                return cart.filter(i => window._cartChecked[i.pid] !== false);
-            }
-
-            function toggleCartItem(pid) {
-                window._cartChecked[pid] = !window._cartChecked[pid];
-                showCartView();
-            }
-
-            function toggleSelectAll(checked) {
-                cart.forEach(i => window._cartChecked[i.pid] = checked);
-                showCartView();
-            }
 
             const allChecked = cart.every(i => window._cartChecked[i.pid] !== false);
             let cartHtml = '<h1 class="text-[10px] font-800 uppercase mb-4">Your Cart (' + cart.length + ' items)</h1>';
