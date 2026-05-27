@@ -715,27 +715,29 @@ document.addEventListener('click', function(e) {
   const pid = btn.dataset.pid;
   if (!pid || !PRODUCT_REGISTRY[pid]) return;
 
-  if (btn.classList.contains('added')) {
-    // Already in cart — open modal so user can edit variant
-    const p = PRODUCT_REGISTRY[pid];
-    openProduct(pid, p.productNameEn||p.productName||'', p.sellPrice, p.productImage||'');
-    return;
-  }
-
-  // Quick-add with base price, no variant selection
+  // Always add a new entry (allows duplicates for multiple qty taps)
   const p = PRODUCT_REGISTRY[pid];
   const name = p.productNameEn || p.productName || '';
-  const entry = { pid, name, price: String(p.sellPrice), image: p.productImage||'', qty:1, color:'', size:'' };
-  const existIdx = cart.findIndex(i => i.pid === pid || i.pid.split('-')[0] === pid);
-  if (existIdx === -1) cart.push(entry);
-
+  // Each tap pushes a fresh entry with unique key (pid + timestamp)
+  const uniquePid = pid + '-' + Date.now();
+  const entry = { pid: uniquePid, name, price: String(p.sellPrice), image: p.productImage||'', qty:1, color:'', size:'' };
+  cart.push(entry);
   persistCart();
 
-  // Visual feedback on button
-  btn.textContent = '✓ In Cart';
-  btn.classList.add('added');
   // Fly-dot animation toward cart icon
   flyDot(btn);
+
+  // Button → "✓ Added to Cart!" then flip back to "🛒 Add to Cart" after 2s
+  btn.textContent = '✓ Added to Cart!';
+  btn.style.background = 'var(--green)';
+  btn.disabled = true;
+  clearTimeout(btn._flipTimer);
+  btn._flipTimer = setTimeout(() => {
+    btn.textContent = '🛒 Add to Cart';
+    btn.style.background = 'var(--orange)';
+    btn.disabled = false;
+    btn.classList.remove('added');
+  }, 2000);
 });
 
 // Small flying dot animation to give tactile feedback
