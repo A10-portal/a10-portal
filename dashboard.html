@@ -388,6 +388,57 @@ input:focus, select:focus, textarea:focus { outline: none; }
 let cart = JSON.parse(localStorage.getItem('mova_cart') || '[]');
 // Product registry — keyed by pid, so onclick only needs the pid (no fragile string escaping)
 const PRODUCT_REGISTRY = {};
+
+// ── CART SYNC ──────────────────────────────────────────────────
+// Debounce timer so rapid add/remove doesn't spam the server
+let _cartSaveTimer = null;
+
+function persistCart() {
+  // Always save to localStorage immediately (works offline too)
+  persistCart();
+  // Debounce server sync by 800ms
+  clearTimeout(_cartSaveTimer);
+  _cartSaveTimer = setTimeout(syncCartToServer, 800);
+}
+
+async function syncCartToServer() {
+  if (!session?.id) return;
+  try {
+    await fetch('/api/get-user?action=save-cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: session.id, cart })
+    });
+  } catch(e) { /* silent — localStorage is the fallback */ }
+}
+
+async function loadCartFromServer() {
+  if (!session?.id) return;
+  try {
+    const r = await fetch('/api/get-user?action=load-cart&id=' + encodeURIComponent(session.id));
+    const d = await r.json();
+    const serverCart = Array.isArray(d.cart) ? d.cart : [];
+    if (!serverCart.length) return; // nothing saved server-side yet
+
+    const local = JSON.parse(localStorage.getItem('mova_cart') || '[]');
+
+    if (!local.length) {
+      // No local cart — use server cart entirely
+      cart = serverCart;
+    } else {
+      // Merge: server items win for same pid, keep local-only items too
+      const merged = [...serverCart];
+      local.forEach(localItem => {
+        const basePid = localItem.pid.split('-')[0];
+        const alreadyIn = merged.some(s => s.pid === localItem.pid || s.pid.split('-')[0] === basePid);
+        if (!alreadyIn) merged.push(localItem);
+      });
+      cart = merged;
+    }
+
+    persistCart();
+  } catch(e) { /* keep local cart on error */ }
+}
 let session = JSON.parse(localStorage.getItem('foundry_session') || 'null');
 let currentView = 'market';
 let productPage = 1;
@@ -833,8 +884,7 @@ function addFromModal() {
     else cart.push(entry);
   }
 
-  localStorage.setItem('mova_cart', JSON.stringify(cart));
-  updateCartBadge();
+  persistCart();
 
   const btn = document.getElementById('modal-add-btn');
   if (btn) {
@@ -960,8 +1010,7 @@ function toggleAll(val) { cart.forEach(i=>{ window._checked[i.pid]=val; }); rend
 function removeFromCart(pid) {
   cart = cart.filter(i=>i.pid!==pid);
   delete window._checked?.[pid];
-  localStorage.setItem('mova_cart',JSON.stringify(cart));
-  updateCartBadge();
+  persistCart();
   renderCart();
   document.querySelectorAll(`[data-pid="${pid.split('-')[0]}"]`).forEach(b=>{ b.textContent='🛒 Add to Cart'; b.classList.remove('added'); });
 }
@@ -1427,6 +1476,8 @@ async function loadTransactions() {
 // ══════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge();
+  // Load server cart on every page load — merges with any local items
+  loadCartFromServer();
   setActiveNav('market');
   renderMarket();
 
