@@ -1582,10 +1582,10 @@
             const warehouse = document.getElementById('countryCode')?.value || '';
 
             // Read filter values safely — they may not exist if filter panel not open
-        if (isNewSearch || (currentPage === 1 && grid && grid.innerHTML.trim() === "")) {
-                currentPage = 1; // Always start page 1 — API rotates keywords for variety
+        if (isNewSearch || currentPage === 1) {
+                currentPage = 1;
                 if (grid) grid.innerHTML = '<div class="col-span-full py-20 text-center" style="color:var(--orange)">' +
-                    '<div style="font-size:13px;font-weight:700;margin-bottom:8px">🔍 Searching' + (keyword ? ' for "' + keyword + '"' : '') + '...</div>' +
+                    '<div style="font-size:13px;font-weight:700;margin-bottom:8px">🔍 Loading' + (keyword ? ' results for "' + keyword + '"' : ' products') + '...</div>' +
                     '<div style="font-size:11px;color:#888">This may take a few seconds</div></div>';
             }
 
@@ -2144,16 +2144,7 @@
             </div>
         </header>
 
-        <div class="product-grid" id="product-grid-main">
-            <!-- Skeleton loaders show instantly before API responds -->
-            <div style="border-radius:12px;overflow:hidden;background:#fff;border:1px solid #f0f0f0"><div style="aspect-ratio:1;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite"></div><div style="padding:10px"><div style="height:11px;background:#f0f0f0;border-radius:4px;margin-bottom:6px;animation:shimmer 1.5s infinite"></div><div style="height:16px;background:#f0f0f0;border-radius:4px;width:60%;animation:shimmer 1.5s infinite"></div></div></div>
-            <div style="border-radius:12px;overflow:hidden;background:#fff;border:1px solid #f0f0f0"><div style="aspect-ratio:1;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite"></div><div style="padding:10px"><div style="height:11px;background:#f0f0f0;border-radius:4px;margin-bottom:6px;animation:shimmer 1.5s infinite"></div><div style="height:16px;background:#f0f0f0;border-radius:4px;width:60%;animation:shimmer 1.5s infinite"></div></div></div>
-            <div style="border-radius:12px;overflow:hidden;background:#fff;border:1px solid #f0f0f0"><div style="aspect-ratio:1;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite"></div><div style="padding:10px"><div style="height:11px;background:#f0f0f0;border-radius:4px;margin-bottom:6px;animation:shimmer 1.5s infinite"></div><div style="height:16px;background:#f0f0f0;border-radius:4px;width:60%;animation:shimmer 1.5s infinite"></div></div></div>
-            <div style="border-radius:12px;overflow:hidden;background:#fff;border:1px solid #f0f0f0"><div style="aspect-ratio:1;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite"></div><div style="padding:10px"><div style="height:11px;background:#f0f0f0;border-radius:4px;margin-bottom:6px;animation:shimmer 1.5s infinite"></div><div style="height:16px;background:#f0f0f0;border-radius:4px;width:60%;animation:shimmer 1.5s infinite"></div></div></div>
-            <div style="border-radius:12px;overflow:hidden;background:#fff;border:1px solid #f0f0f0"><div style="aspect-ratio:1;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite"></div><div style="padding:10px"><div style="height:11px;background:#f0f0f0;border-radius:4px;margin-bottom:6px;animation:shimmer 1.5s infinite"></div><div style="height:16px;background:#f0f0f0;border-radius:4px;width:60%;animation:shimmer 1.5s infinite"></div></div></div>
-            <div style="border-radius:12px;overflow:hidden;background:#fff;border:1px solid #f0f0f0"><div style="aspect-ratio:1;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite"></div><div style="padding:10px"><div style="height:11px;background:#f0f0f0;border-radius:4px;margin-bottom:6px;animation:shimmer 1.5s infinite"></div><div style="height:16px;background:#f0f0f0;border-radius:4px;width:60%;animation:shimmer 1.5s infinite"></div></div></div>
-            <div style="border-radius:12px;overflow:hidden;background:#fff;border:1px solid #f0f0f0"><div style="aspect-ratio:1;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite"></div><div style="padding:10px"><div style="height:11px;background:#f0f0f0;border-radius:4px;margin-bottom:6px;animation:shimmer 1.5s infinite"></div><div style="height:16px;background:#f0f0f0;border-radius:4px;width:60%;animation:shimmer 1.5s infinite"></div></div></div>
-            <div style="border-radius:12px;overflow:hidden;background:#fff;border:1px solid #f0f0f0"><div style="aspect-ratio:1;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite"></div><div style="padding:10px"><div style="height:11px;background:#f0f0f0;border-radius:4px;margin-bottom:6px;animation:shimmer 1.5s infinite"></div><div style="height:16px;background:#f0f0f0;border-radius:4px;width:60%;animation:shimmer 1.5s infinite"></div></div></div>
+        <div class="product-grid">
         </div>
     </main>
 
