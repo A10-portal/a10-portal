@@ -1963,6 +1963,11 @@
             }
         }
 
+        function closeWelcomePopup() {
+            var p = document.getElementById('welcomePopup');
+            if (p) { p.style.opacity='0'; p.style.transition='opacity .3s'; setTimeout(function(){p.style.display='none';},300); }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             updateCartBadge();
             // Time-based greeting with user's first name
