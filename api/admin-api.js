@@ -9,31 +9,26 @@ export const config = { api: { bodyParser: true } };
 function verifyToken(req) {
     const token = req.headers['x-admin-token'];
     if (!token) return false;
-    try { return Buffer.from(token, 'base64').toString('utf8').startsWith(process.env.ADMIN_PASSWORD); }
+    try {
+        const decoded = Buffer.from(token, 'base64').toString('utf8');
+        return decoded.startsWith(process.env.ADMIN_PASSWORD) ||
+               (process.env.ADMIN_PASSWORD2 && decoded.startsWith(process.env.ADMIN_PASSWORD2));
+    }
     catch (e) { return false; }
 }
 
 async function handleAuth(req, res) {
-    const { password, adminType } = req.body || {};
-    const isFood = adminType === 'food';
-    const correctPass = isFood
-        ? process.env.ADMIN_PASSWORD2
-        : process.env.ADMIN_PASSWORD;
-    if (password && password === correctPass) {
-        const token = Buffer.from(password + ':' + adminType).toString('base64');
-        return res.status(200).json({ success: true, token, adminType: adminType || 'product' });
-    }
-    // Fall through to original logic below
-    const _orig_password = password;
-    const _orig_adminType = adminType;
-    void(_orig_password); void(_orig_adminType);
     const clientIP = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || '';
     const allowedIP = process.env.ADMIN_ALLOWED_IP || '';
     if (allowedIP && clientIP !== allowedIP) return res.status(403).json({ error: 'Access denied' });
-    const { password } = req.body || {};
-    if (!password || password !== process.env.ADMIN_PASSWORD) return res.status(401).json({ error: 'Invalid password' });
-    const token = Buffer.from(process.env.ADMIN_PASSWORD + ':' + Date.now()).toString('base64');
-    return res.status(200).json({ token });
+    const { password, adminType } = req.body || {};
+    const isFood = adminType === 'food';
+    const correctPass = isFood
+        ? (process.env.ADMIN_PASSWORD2 || process.env.ADMIN_PASSWORD)
+        : process.env.ADMIN_PASSWORD;
+    if (!password || password !== correctPass) return res.status(401).json({ error: 'Invalid password' });
+    const token = Buffer.from(password + ':' + Date.now()).toString('base64');
+    return res.status(200).json({ success: true, token, adminType: adminType || 'product' });
 }
 
 async function handleStats(req, res) {
