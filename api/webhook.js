@@ -73,8 +73,9 @@ export default async function handler(req, res) {
         const firstName = realName.split(' ')[0];
 
         const enrichedItems = await Promise.all(cartItems.map(async (item) => {
-            const basePid = (item.pid || '').split('-')[0];
-            const vidPart = item.pid && item.pid.includes('-') ? item.pid.split('-').slice(1).join('-') : '';
+            // pid is always the real CJ product id now (no timestamp suffix)
+            const basePid = (item.pid || '').split('|')[0]; // safety split for any legacy data
+            const vid = item.vid || ''; // variant id stored directly on item
 
             const rawName = (item.name || '');
             let productName, variantName;
@@ -94,34 +95,59 @@ export default async function handler(req, res) {
             const sizeLabel  = item.size  || '';
             const variantDisplay = [colorLabel, sizeLabel].filter(Boolean).join(' / ') || variantName;
 
-            let productSku = '', variantSku = '', productImage = item.image || '';
+            let productSku = '', variantSku = '', variantSkuLabel = '', productImage = item.image || '';
 
             try {
+                // Fetch all variants for this product from CJ to get SKUs
                 const vr = await axios.get('https://developers.cjdropshipping.com/api2.0/v1/product/variant/query', {
                     headers: { 'CJ-Access-Token': process.env.PRODUCTS_API_KEY },
-                    params: { pid: basePid }
+                    params: { pid: basePid },
+                    timeout: 8000
                 });
                 const variants = vr.data?.data || [];
+
                 if (variants.length > 0) {
+                    // Product-level SKU from first variant
                     productSku = variants[0].productSku || variants[0].sku || '';
-                    if (vidPart) {
-                        const matched = variants.find(v => v.vid === vidPart);
-                        if (matched) {
-                            variantSku = matched.variantSku || '';
-                            variantName = variantName || matched.variantNameEn || matched.variantName || '';
-                            if (matched.variantImage) productImage = matched.variantImage;
-                        }
+
+                    // Match by vid first (most precise), then by color+size
+                    let matched = null;
+                    if (vid) {
+                        matched = variants.find(v => v.vid === vid);
+                    }
+                    if (!matched && (colorLabel || sizeLabel)) {
+                        matched = variants.find(v => {
+                            const vc = (v.color || '').toLowerCase().trim();
+                            const vs = (v.size  || '').toLowerCase().trim();
+                            const wantC = colorLabel.toLowerCase().trim();
+                            const wantS = sizeLabel.toLowerCase().trim();
+                            const colorMatch = !wantC || vc === wantC;
+                            const sizeMatch  = !wantS || vs === wantS;
+                            return colorMatch && sizeMatch;
+                        });
+                    }
+                    if (!matched) matched = variants[0]; // fallback to first
+
+                    if (matched) {
+                        // Variant-level SKU — this is what you use to order from CJ
+                        variantSku      = matched.variantSku || matched.sku || '';
+                        variantSkuLabel = matched.variantNameEn || matched.variantName || variantDisplay;
+                        if (!variantName && matched.variantNameEn) variantName = matched.variantNameEn;
+                        if (matched.variantImage) productImage = matched.variantImage;
                     }
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.error('[webhook] CJ SKU lookup failed for', basePid, e.message);
+            }
 
             const qty = item.qty || 1;
             const displayPrice = parseFloat(item.price || 0).toFixed(2);
 
             return {
-                pid: item.pid, name: productName, sku: productSku, variantSku,
+                pid: basePid, vid, name: productName,
+                productSku, variantSku, variantSkuLabel,
                 variant: variantDisplay || variantName || '',
-                image: productImage, color: item.color || '', size: item.size || '',
+                image: productImage, color: colorLabel, size: sizeLabel,
                 price: item.price, qty, displayPrice
             };
         }));
@@ -189,8 +215,8 @@ export default async function handler(req, res) {
                 <td style="padding:12px;border-bottom:1px solid #222;vertical-align:top">
                     <div style="font-size:13px;font-weight:700;color:#fafafa;margin-bottom:4px">${i.name}</div>
                     ${i.variant ? `<div style="font-size:12px;color:#c9a84c;margin-bottom:3px">🎨 ${i.variant}</div>` : ''}
-                    ${i.sku ? `<div style="font-size:11px;color:#aaa;margin-top:3px">SKU: <span style="font-family:monospace;color:#fff">${i.sku}</span></div>` : ''}
-                    ${i.variantSku ? `<div style="font-size:11px;color:#aaa">Variant SKU: <span style="font-family:monospace;color:#fff">${i.variantSku}</span></div>` : ''}
+                    ${i.productSku ? `<div style="font-size:11px;color:#aaa;margin-top:3px">Product SKU: <span style="font-family:monospace;color:#fff">${i.productSku}</span></div>` : ''}
+                    ${i.variantSku ? `<div style="font-size:12px;color:#c9a84c;margin-top:4px;font-weight:700">✦ Variant SKU (ORDER THIS): <span style="font-family:monospace;color:#fff;background:#1a1a1a;padding:2px 6px;border-radius:3px">${i.variantSku}</span>${i.variantSkuLabel ? ` <span style="color:#888;font-size:10px">(${i.variantSkuLabel})</span>` : ''}</div>` : '<div style="font-size:11px;color:#888;margin-top:3px">⚠️ Variant SKU not found — check CJ manually</div>'}
                     <a href="https://www.mova99.com/dashboard" style="font-size:11px;color:#4da6ff;margin-top:4px;display:inline-block">View Order →</a>
                 </td>
                 <td style="padding:12px;border-bottom:1px solid #222;text-align:center;color:#fafafa;vertical-align:top;font-size:14px;font-weight:700">${i.qty}</td>
