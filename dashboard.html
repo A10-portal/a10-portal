@@ -604,8 +604,8 @@
         let cart = JSON.parse(localStorage.getItem('mova_cart')) || [];
 
     function imgUrl(url) {
-        if (!url || url.startsWith('data:') || url.startsWith('blob:')) return url || '';
-        return '/api/get-orders?img=' + encodeURIComponent(url);
+        // CJ product images are public CDN URLs — no proxy needed
+        return url || '';
     }
 
         function toggleMenu() {
@@ -1591,8 +1591,17 @@
             isLoading = true;
             try {
                 const url = '/api/get-products?page=' + currentPage + '&keyword=' + encodeURIComponent(keyword) + '&minPrice=' + minP + '&maxPrice=' + maxP + '&countryCode=' + warehouse + '&_t=' + Date.now();
-                const response = await fetch(url);
+                let response;
+                try { response = await fetch(url); } catch(netErr) {
+                    if (grid) grid.innerHTML = '<div class="col-span-full py-20 text-center"><p style="font-size:14px;font-weight:700;color:#e02020">⚠️ Network error — check your connection</p><button onclick="loadMovaProducts()" style="margin-top:12px;padding:10px 24px;background:#ff6100;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Retry</button></div>';
+                    isLoading = false; return;
+                }
                 const responseData = await response.json();
+                if (!response.ok || responseData.error) {
+                    const errMsg = responseData.error || ('HTTP ' + response.status);
+                    if (grid) grid.innerHTML = '<div class="col-span-full py-20 text-center"><p style="font-size:14px;font-weight:700;color:#e02020">⚠️ ' + errMsg + '</p><p style="font-size:12px;color:#aaa;margin-top:8px">Check Vercel env vars: PRODUCTS_API_KEY and MONGODB_URI</p><button onclick="loadMovaProducts()" style="margin-top:12px;padding:10px 24px;background:#ff6100;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Retry</button></div>';
+                    isLoading = false; return;
+                }
                 let products = Array.isArray(responseData) ? responseData : (responseData.products || []);
 
                 // API handles all filtering server-side
@@ -1645,7 +1654,10 @@
                         </div>`;
                 });
                 currentPage++;
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error('loadMovaProducts error:', e);
+                if (grid) grid.innerHTML = '<div class="col-span-full py-20 text-center"><p style="font-size:14px;font-weight:700;color:#e02020">⚠️ ' + (e.message || 'Unexpected error') + '</p><button onclick="loadMovaProducts()" style="margin-top:12px;padding:10px 24px;background:#ff6100;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Retry</button></div>';
+            }
             finally { isLoading = false; }
         }
 
@@ -2190,8 +2202,14 @@ function closeWelcomePopup() {
 <div id="stripeCheckoutModal" class="hidden"></div>
 
 <script>
-// Set your Stripe publishable key here
-window._stripeKey = 'pk_live_YOUR_STRIPE_PUBLISHABLE_KEY';
+// Load Stripe publishable key from server (never hardcode in client HTML)
+(async () => {
+    try {
+        const r = await fetch('/api/get-config');
+        const d = await r.json();
+        window._stripeKey = d.publishableKey || '';
+    } catch(e) { console.warn('Could not load Stripe key:', e.message); }
+})();
 </script>
 <script>
 if ('serviceWorker' in navigator) {
