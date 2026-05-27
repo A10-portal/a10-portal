@@ -446,6 +446,22 @@ let productLoading = false;
 let productKeyword = '';
 let stripeKey = '';
 
+// Keywords to cycle through — each refresh picks a different one
+const BROWSE_KEYWORDS = [
+  'women dress','sneakers','phone case','jewelry accessories',
+  'men shirt','home kitchen','beauty makeup','kids clothing',
+  'handbag','sports fitness','watch','sunglasses',
+  'bedding set','pet supplies','bluetooth earphones','car accessories',
+  'women hoodie','men jacket','sandals','backpack'
+];
+// Seed changes every 3 minutes so same session gets variety but it's stable during scroll
+function getBrowseSeed() {
+  return Math.floor(Date.now() / (3 * 60 * 1000));
+}
+function getBrowseKeyword() {
+  return BROWSE_KEYWORDS[getBrowseSeed() % BROWSE_KEYWORDS.length];
+}
+
 // Inactivity logout — 5 minutes
 let idleTimer;
 function resetIdle() { clearTimeout(idleTimer); idleTimer = setTimeout(logout, 5*60*1000); }
@@ -606,7 +622,9 @@ async function loadProducts(fresh) {
   const wh  = document.getElementById('f-wh')?.value  || '';
 
   try {
-    const url = `/api/get-products?page=${productPage}&pageSize=20&keyword=${encodeURIComponent(productKeyword)}&minPrice=${min}&maxPrice=${max}&countryCode=${wh}&_t=${Date.now()}`;
+    // When browsing (no search term) use a time-rotated keyword so each refresh shows fresh products
+    const browseKw = productKeyword || getBrowseKeyword();
+    const url = `/api/get-products?page=${productPage}&pageSize=20&keyword=${encodeURIComponent(browseKw)}&minPrice=${min}&maxPrice=${max}&countryCode=${wh}&_t=${Date.now()}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
@@ -671,14 +689,14 @@ function appendProductCard(grid, p) {
       </div>
     </div>
     <div class="pcard-footer">
-      <button class="add-btn ${inCart?'added':''} pcard-open" data-pid="${pid}">
+      <button class="add-btn ${inCart?'added':''} pcard-add" data-pid="${pid}">
         ${inCart ? '✓ In Cart' : '🛒 Add to Cart'}
       </button>
     </div>`;
   grid.appendChild(div);
 }
 
-// Single delegated click handler on product grid — handles ALL product taps safely
+// Delegated handler: tap image/name → open product detail modal
 document.addEventListener('click', function(e) {
   const target = e.target.closest('.pcard-open');
   if (!target) return;
@@ -688,6 +706,58 @@ document.addEventListener('click', function(e) {
   const p = PRODUCT_REGISTRY[pid];
   openProduct(pid, p.productNameEn||p.productName||'', p.sellPrice, p.productImage||'');
 });
+
+// Delegated handler: tap Add to Cart button → quick-add directly, no modal
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.pcard-add');
+  if (!btn) return;
+  e.stopPropagation();
+  const pid = btn.dataset.pid;
+  if (!pid || !PRODUCT_REGISTRY[pid]) return;
+
+  if (btn.classList.contains('added')) {
+    // Already in cart — open modal so user can edit variant
+    const p = PRODUCT_REGISTRY[pid];
+    openProduct(pid, p.productNameEn||p.productName||'', p.sellPrice, p.productImage||'');
+    return;
+  }
+
+  // Quick-add with base price, no variant selection
+  const p = PRODUCT_REGISTRY[pid];
+  const name = p.productNameEn || p.productName || '';
+  const entry = { pid, name, price: String(p.sellPrice), image: p.productImage||'', qty:1, color:'', size:'' };
+  const existIdx = cart.findIndex(i => i.pid === pid || i.pid.split('-')[0] === pid);
+  if (existIdx === -1) cart.push(entry);
+
+  persistCart();
+
+  // Visual feedback on button
+  btn.textContent = '✓ In Cart';
+  btn.classList.add('added');
+  // Fly-dot animation toward cart icon
+  flyDot(btn);
+});
+
+// Small flying dot animation to give tactile feedback
+function flyDot(fromEl) {
+  const cart = document.querySelector('.cart-btn');
+  if (!cart) return;
+  const from = fromEl.getBoundingClientRect();
+  const to   = cart.getBoundingClientRect();
+  const dot  = document.createElement('div');
+  dot.style.cssText = `position:fixed;width:12px;height:12px;background:var(--orange);border-radius:50%;pointer-events:none;z-index:9999;transition:none;left:${from.left+from.width/2-6}px;top:${from.top+from.height/2-6}px`;
+  document.body.appendChild(dot);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      dot.style.transition = 'all .5s cubic-bezier(.25,.46,.45,.94)';
+      dot.style.left = (to.left + to.width/2 - 6) + 'px';
+      dot.style.top  = (to.top  + to.height/2 - 6) + 'px';
+      dot.style.opacity = '0';
+      dot.style.transform = 'scale(0.2)';
+    });
+  });
+  setTimeout(() => dot.remove(), 550);
+}
 
 async function loadGreeting() {
   const el = document.getElementById('greet-sub');
