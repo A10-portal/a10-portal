@@ -204,20 +204,6 @@
     </div>
 </section>
 
-<!-- Categories -->
-<section class="section fade-up">
-    <div class="section-inner">
-        <div class="section-header">
-            <div>
-                <h2 class="section-title">Shop by <span>Category</span></h2>
-                <p class="section-subtitle">Browse millions of products across every category</p>
-            </div>
-            <a href="/dashboard" class="section-link">View All →</a>
-        </div>
-        <div class="cat-scroll" id="cat-scroll"></div>
-    </div>
-</section>
-
 <!-- Trending Products -->
 <section class="section fade-up" style="background:var(--bg);padding-top:48px;padding-bottom:48px">
     <div class="section-inner">
@@ -330,21 +316,6 @@
 </div>
 
 <script>
-const CATEGORIES = [
-    {name:"Kids' Shoes",slug:"kids-shoes",kw:"kids shoes"},
-    {name:"Women's Clothing",slug:"womens-clothing",kw:"women dress"},
-    {name:"Beauty & Health",slug:"beauty-health",kw:"beauty makeup"},
-    {name:"Electronics",slug:"electronics",kw:"electronics"},
-    {name:"Men's Clothing",slug:"mens-clothing",kw:"men shirt"},
-    {name:"Home & Kitchen",slug:"home-kitchen",kw:"home kitchen"},
-    {name:"Bags & Luggage",slug:"bags-luggage",kw:"bags handbag"},
-    {name:"Sports & Outdoors",slug:"sports-outdoors",kw:"sports fitness"},
-    {name:"Toys & Games",slug:"toys-games",kw:"toys games"},
-    {name:"Cell Phones",slug:"cell-phones",kw:"phone accessories"},
-    {name:"Jewelry",slug:"jewelry-accessories",kw:"jewelry accessories"},
-    {name:"Pet Supplies",slug:"pet-supplies",kw:"pet supplies"},
-];
-
 let cart = JSON.parse(localStorage.getItem('mova_cart')) || [];
 
 function imgUrl(url) {
@@ -376,32 +347,6 @@ function addToCart(pid, name, price, image, btn) {
     }
 }
 
-// Load category chips with real product images
-async function loadCategories() {
-    const scroll = document.getElementById('cat-scroll');
-    if (!scroll) return;
-    for (const cat of CATEGORIES) {
-        const chip = document.createElement('a');
-        chip.href = '/' + cat.slug;
-        chip.className = 'cat-chip';
-        chip.innerHTML = '<div class="cat-chip-img"><div class="skeleton" style="width:100%;height:100%;border-radius:50%"></div></div><span class="cat-chip-label">' + cat.name + '</span>';
-        scroll.appendChild(chip);
-
-        // Fetch real image
-        (async (c, el) => {
-            try {
-                const r = await fetch('/api/get-products?keyword=' + encodeURIComponent(c.kw) + '&pageSize=1');
-                const d = await r.json();
-                const products = Array.isArray(d) ? d : (d.products || []);
-                if (products[0]?.productImage) {
-                    const imgDiv = el.querySelector('.cat-chip-img');
-                    if (imgDiv) imgDiv.innerHTML = '<img src="' + imgUrl(products[0].productImage) + '" alt="' + c.name + '" loading="lazy" style="width:100%;height:100%;object-fit:cover" onerror="this.style.opacity=0.3">';
-                }
-            } catch(e) {}
-        })(cat, chip);
-    }
-}
-
 // Load products grid
 async function loadProductGrid(gridId, page) {
     const grid = document.getElementById(gridId);
@@ -419,7 +364,8 @@ async function loadProductGrid(gridId, page) {
             const pName = (p.productNameEn || p.productName || '').replace(/'/g, '').replace(/"/g, '');
             const card = document.createElement('div');
             card.className = 'product-card';
-            card.innerHTML = '<div class="product-img-wrap">' +
+            card.style.cursor = 'pointer';
+            card.innerHTML = '<div class="product-img-wrap" onclick="openProductModal('' + p.pid + '','' + pName + '','' + p.sellPrice + '','' + p.productImage + '')">' +
                 (showFire ? '<div class="hot-badge">🔥 HOT</div>' : '') +
                 '<img src="' + imgUrl(p.productImage) + '" alt="' + pName + '" loading="lazy" onload="this.classList.add(\'loaded\')" onerror="this.style.opacity=0.3">' +
                 '</div>' +
@@ -430,8 +376,8 @@ async function loadProductGrid(gridId, page) {
                 (fakeOld ? '<span class="product-old">$' + fakeOld + '</span>' : '') +
                 (showFire ? '<span style="font-size:9px;font-weight:800;color:var(--orange);background:var(--orange-pale);padding:2px 5px;border-radius:3px">' + Math.floor(15+Math.random()*40) + '% OFF</span>' : '') +
                 '</div></div>' +
-                '<button class="add-btn" onclick="addToCart(\'' + p.pid + '\',\'' + pName + '\',\'' + p.sellPrice + '\',\'' + p.productImage + '\',this)">' +
-                '<span>🛒</span><span>Add to Cart</span></button>';
+                '<button class="add-btn" onclick="openProductModal(\'' + p.pid + '\',\'' + pName + '\',\'' + p.sellPrice + '\',\'' + p.productImage + '\')">' +
+                '<span>👁</span><span>View Details</span></button>';
             grid.appendChild(card);
         });
     } catch(e) {
@@ -449,11 +395,309 @@ document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 window.addEventListener('DOMContentLoaded', () => {
     cart = JSON.parse(localStorage.getItem('mova_cart')) || [];
     updateCartBadge();
-    loadCategories();
+    
     loadProductGrid('product-grid', Math.floor(Math.random()*20)+1);
     loadProductGrid('product-grid-2', Math.floor(Math.random()*40)+21);
 });
 </script>
+<!-- Product Details Modal -->
+<div id="productModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;padding:16px;overflow-y:auto">
+    <div style="background:#fff;border-radius:16px;width:100%;max-width:500px;margin:auto;position:relative;overflow:hidden">
+        <button onclick="closeProductModal()" style="position:absolute;top:12px;right:12px;z-index:10;background:#f0f0f0;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer">×</button>
+        <div id="productModalContent" style="padding:20px"></div>
+    </div>
+</div>
+
+<!-- Cart Drawer -->
+<div id="cartDrawer" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.5)">
+    <div style="position:absolute;right:0;top:0;bottom:0;width:100%;max-width:420px;background:#fff;overflow-y:auto;padding:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;border-bottom:1px solid #f0f0f0;padding-bottom:16px">
+            <h2 style="font-size:16px;font-weight:900;color:#1a1a1a">Your Cart</h2>
+            <button onclick="closeCartDrawer()" style="background:#f0f0f0;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer">×</button>
+        </div>
+        <div id="cartDrawerItems"></div>
+    </div>
+</div>
+
+<!-- Stripe Embedded Checkout Modal -->
+<div id="stripeModal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;padding:16px">
+    <div style="background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative">
+        <button onclick="closeStripeModal()" style="position:absolute;top:12px;right:12px;z-index:10;background:#f0f0f0;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer">×</button>
+        <div id="stripeContainer" style="padding:24px"></div>
+    </div>
+</div>
+
+<script>
+// ── PRODUCT MODAL ─────────────────────────────────────
+async function openProductModal(pid, name, price, image) {
+    const modal = document.getElementById('productModal');
+    const content = document.getElementById('productModalContent');
+    modal.style.display = 'flex';
+    content.innerHTML = '<div style="text-align:center;padding:40px"><div style="width:32px;height:32px;border:3px solid #ff6100;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:auto"></div><p style="margin-top:12px;font-size:13px;color:#888">Loading...</p></div>';
+
+    try {
+        const r = await fetch('/api/get-details?pid=' + encodeURIComponent(pid));
+        const data = await r.json();
+        const variants = data.variants || [];
+        const gallery = data.productGallery || [];
+        const allImgs = [image, ...gallery, ...variants.map(v=>v.variantImage).filter(Boolean)].filter((v,i,a)=>v&&a.indexOf(v)===i).slice(0,6);
+
+        let varHtml = '';
+        const colorVars = variants.filter(v => v.color && v.color.trim());
+        const sizeVars = variants.filter(v => v.size && v.size.trim());
+
+        if (colorVars.length) {
+            varHtml += '<p style="font-size:11px;font-weight:700;color:#333;margin:12px 0 8px;text-transform:uppercase">Colors</p><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
+            colorVars.slice(0,8).forEach((v,i) => {
+                varHtml += '<button onclick="selectVariant(this,'' + v.vid + '','' + (v.variantSellPrice||price) + '')" style="padding:6px 12px;border:2px solid ' + (i===0?'#ff6100':'#ddd') + ';border-radius:20px;background:' + (i===0?'#fff3ed':'#fff') + ';font-size:11px;font-weight:600;cursor:pointer">' + v.color.trim() + '</button>';
+            });
+            varHtml += '</div>';
+        }
+        if (sizeVars.length) {
+            varHtml += '<p style="font-size:11px;font-weight:700;color:#333;margin:0 0 8px;text-transform:uppercase">Sizes</p><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
+            sizeVars.slice(0,8).forEach((v,i) => {
+                varHtml += '<button onclick="selectVariant(this,'' + v.vid + '','' + (v.variantSellPrice||price) + '')" style="padding:6px 12px;border:2px solid ' + (!colorVars.length&&i===0?'#ff6100':'#ddd') + ';border-radius:8px;background:' + (!colorVars.length&&i===0?'#fff3ed':'#fff') + ';font-size:12px;font-weight:700;cursor:pointer">' + v.size.trim().toUpperCase() + '</button>';
+            });
+            varHtml += '</div>';
+        }
+
+        window._modalState = { pid, name, price: parseFloat(price), image, vid: variants[0]?.vid || '', qty: 1 };
+
+        content.innerHTML =
+            '<div style="aspect-ratio:1;overflow:hidden;border-radius:12px;margin-bottom:12px;background:#f8f8f8">' +
+            '<img id="modal-img" src="' + imgUrl(image) + '" style="width:100%;height:100%;object-fit:cover"></div>' +
+            '<div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto">' +
+            allImgs.map(img => '<img src="' + imgUrl(img) + '" onclick="document.getElementById('modal-img').src=this.src" style="width:48px;height:48px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid #f0f0f0;flex-shrink:0">').join('') +
+            '</div>' +
+            '<h3 style="font-size:14px;font-weight:800;color:#1a1a1a;margin:0 0 8px;line-height:1.4">' + name + '</h3>' +
+            '<p id="modal-price" style="font-size:22px;font-weight:900;color:#ff6100;margin:0 0 12px">$' + parseFloat(price).toFixed(2) + '</p>' +
+            varHtml +
+            '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">' +
+            '<span style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase">Qty</span>' +
+            '<button onclick="changeModalQty(-1)" style="width:28px;height:28px;border:1.5px solid #ddd;border-radius:6px;background:#fff;font-size:16px;cursor:pointer;font-weight:700">−</button>' +
+            '<span id="modal-qty" style="font-size:14px;font-weight:800;min-width:24px;text-align:center">1</span>' +
+            '<button onclick="changeModalQty(1)" style="width:28px;height:28px;border:1.5px solid #ddd;border-radius:6px;background:#fff;font-size:16px;cursor:pointer;font-weight:700">+</button>' +
+            '</div>' +
+            '<div style="background:#f8f8f8;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:#888">' +
+            '<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Processing</span><span style="font-weight:700;color:#1a1a1a">1-2 Days</span></div>' +
+            '<div style="display:flex;justify-content:space-between"><span>Delivery</span><span style="font-weight:700;color:#1a1a1a">3-8 Business Days</span></div>' +
+            '</div>' +
+            '<button onclick="addToCartFromModal()" id="modal-add-btn" style="width:100%;padding:14px;background:#ff6100;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.06em">Add to Cart 🛒</button>';
+
+    } catch(e) {
+        content.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:#888;font-size:13px">Could not load details. Please try again.</p><button onclick="closeProductModal()" style="margin-top:12px;padding:10px 20px;background:#ff6100;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700">Close</button></div>';
+    }
+}
+
+function selectVariant(btn, vid, price) {
+    btn.parentElement.querySelectorAll('button').forEach(b => {
+        b.style.borderColor = '#ddd'; b.style.background = '#fff';
+    });
+    btn.style.borderColor = '#ff6100'; btn.style.background = '#fff3ed';
+    if (window._modalState) {
+        window._modalState.vid = vid;
+        window._modalState.price = parseFloat(price);
+        const priceEl = document.getElementById('modal-price');
+        if (priceEl) priceEl.textContent = '$' + parseFloat(price).toFixed(2);
+    }
+}
+
+function changeModalQty(delta) {
+    if (!window._modalState) return;
+    window._modalState.qty = Math.max(1, (window._modalState.qty || 1) + delta);
+    const el = document.getElementById('modal-qty');
+    if (el) el.textContent = window._modalState.qty;
+    const priceEl = document.getElementById('modal-price');
+    if (priceEl) priceEl.textContent = '$' + (window._modalState.price * window._modalState.qty).toFixed(2);
+}
+
+function addToCartFromModal() {
+    if (!window._modalState) return;
+    const { pid, name, price, image, qty, vid } = window._modalState;
+    const cartPid = pid + (vid ? '-' + vid : '');
+    const totalPrice = (price * qty).toFixed(2);
+    const cartArr = JSON.parse(localStorage.getItem('mova_cart')) || [];
+    const existing = cartArr.findIndex(i => i.pid === cartPid);
+    if (existing > -1) {
+        cartArr[existing].qty = (cartArr[existing].qty || 1) + qty;
+        cartArr[existing].price = ((parseFloat(cartArr[existing].price) / (cartArr[existing].qty - qty)) * cartArr[existing].qty).toFixed(2);
+    } else {
+        cartArr.push({ pid: cartPid, name, price: totalPrice, image, qty });
+    }
+    localStorage.setItem('mova_cart', JSON.stringify(cartArr));
+    cart = cartArr;
+    updateCartBadge();
+    const btn = document.getElementById('modal-add-btn');
+    if (btn) {
+        btn.textContent = '✓ Added to Cart!';
+        btn.style.background = '#22c55e';
+        setTimeout(() => closeProductModal(), 800);
+    }
+}
+
+function closeProductModal() {
+    document.getElementById('productModal').style.display = 'none';
+}
+
+// ── CART DRAWER ───────────────────────────────────────
+function openCartDrawer() {
+    const drawer = document.getElementById('cartDrawer');
+    drawer.style.display = 'block';
+    renderCartDrawer();
+}
+
+function closeCartDrawer() {
+    document.getElementById('cartDrawer').style.display = 'none';
+}
+
+function renderCartDrawer() {
+    const container = document.getElementById('cartDrawerItems');
+    const cartArr = JSON.parse(localStorage.getItem('mova_cart')) || [];
+
+    if (cartArr.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:40px"><p style="font-size:14px;color:#888;margin-bottom:16px">Your cart is empty</p><a href="/signup" style="display:inline-block;padding:12px 24px;background:#ff6100;color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Start Shopping</a></div>';
+        return;
+    }
+
+    // Initialize checked state
+    if (!window._indexChecked) window._indexChecked = {};
+    cartArr.forEach(i => { if (window._indexChecked[i.pid] === undefined) window._indexChecked[i.pid] = true; });
+
+    const allChecked = cartArr.every(i => window._indexChecked[i.pid] !== false);
+    const checkedItems = cartArr.filter(i => window._indexChecked[i.pid] !== false);
+    const subtotal = checkedItems.reduce((sum, i) => sum + parseFloat(i.price || 0), 0);
+    const totalQty = checkedItems.reduce((sum, i) => sum + (i.qty || 1), 0);
+    const shippingGroups = Math.ceil(totalQty / 6) || 1;
+    const shipping = (2.41 * shippingGroups).toFixed(2);
+    const total = (subtotal + parseFloat(shipping)).toFixed(2);
+
+    let html = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:10px;background:#f9f9f9;border-radius:8px">' +
+        '<input type="checkbox" id="idx-select-all" ' + (allChecked ? 'checked' : '') + ' onchange="indexToggleAll(this.checked)" style="width:16px;height:16px;accent-color:#ff6100;cursor:pointer">' +
+        '<label for="idx-select-all" style="font-size:12px;font-weight:700;cursor:pointer">Select All (' + cartArr.length + ' items)</label></div>';
+
+    cartArr.forEach(item => {
+        const isChecked = window._indexChecked[item.pid] !== false;
+        const safePid = item.pid.replace(/'/g, '');
+        html += '<div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid ' + (isChecked ? '#ff6100' : '#f0f0f0') + ';border-radius:10px;margin-bottom:8px;opacity:' + (isChecked ? '1' : '0.6') + ';background:' + (isChecked ? '#fff' : '#fafafa') + '">' +
+            '<input type="checkbox" ' + (isChecked ? 'checked' : '') + ' onchange="indexToggleItem('' + safePid + '',this.checked)" style="width:16px;height:16px;accent-color:#ff6100;cursor:pointer;flex-shrink:0;margin-top:4px">' +
+            '<img src="' + imgUrl(item.image || '') + '" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0">' +
+            '<div style="flex:1;min-width:0">' +
+            '<p style="font-size:11px;font-weight:700;color:#1a1a1a;margin:0 0 4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">' + (item.name || '').split(' — ')[0] + '</p>' +
+            '<p style="font-size:14px;font-weight:800;color:#ff6100;margin:0">$' + parseFloat(item.price || 0).toFixed(2) + '</p>' +
+            '<p style="font-size:10px;color:#aaa;margin:2px 0 0">Qty: ' + (item.qty || 1) + '</p></div>' +
+            '<button onclick="indexRemoveItem('' + safePid + '')" style="font-size:10px;color:#e05555;background:none;border:none;cursor:pointer;padding:4px;flex-shrink:0">✕</button></div>';
+    });
+
+    html += '<div style="border-top:1px solid #f0f0f0;padding-top:16px;margin-top:8px">' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px"><span style="color:#888">Selected (' + checkedItems.length + ' items)</span><span style="font-weight:700">$' + subtotal.toFixed(2) + '</span></div>' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:12px"><span style="color:#888">Shipping' + (shippingGroups > 1 ? ' x' + shippingGroups : '') + '</span><span style="font-weight:700">$' + shipping + '</span></div>' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:16px;font-weight:900"><span>Total</span><span style="color:#ff6100">$' + total + '</span></div>' +
+        '<button onclick="indexCheckout()" style="width:100%;padding:14px;background:#ff6100;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.06em">Secure Checkout →</button>' +
+        '<button onclick="window.location.href='/dashboard'" style="width:100%;margin-top:8px;padding:12px;background:transparent;color:#888;border:1px solid #e0e0e0;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer">Continue Shopping</button></div>';
+
+    container.innerHTML = html;
+}
+
+function indexToggleItem(pid, checked) {
+    if (!window._indexChecked) window._indexChecked = {};
+    window._indexChecked[pid] = checked;
+    renderCartDrawer();
+}
+
+function indexToggleAll(checked) {
+    const cartArr = JSON.parse(localStorage.getItem('mova_cart')) || [];
+    cartArr.forEach(i => { window._indexChecked[i.pid] = checked; });
+    renderCartDrawer();
+}
+
+function indexRemoveItem(pid) {
+    let cartArr = JSON.parse(localStorage.getItem('mova_cart')) || [];
+    cartArr = cartArr.filter(i => i.pid !== pid);
+    localStorage.setItem('mova_cart', JSON.stringify(cartArr));
+    cart = cartArr;
+    delete window._indexChecked[pid];
+    updateCartBadge();
+    renderCartDrawer();
+}
+
+async function indexCheckout() {
+    const cartArr = JSON.parse(localStorage.getItem('mova_cart')) || [];
+    const checkedPids = Object.keys(window._indexChecked || {}).filter(pid => window._indexChecked[pid] !== false);
+    const itemsToCheckout = cartArr.filter(i => checkedPids.includes(i.pid));
+
+    if (itemsToCheckout.length === 0) {
+        alert('Please select at least one item to checkout.');
+        return;
+    }
+
+    // Check if logged in
+    const session = JSON.parse(localStorage.getItem('foundry_session'));
+    if (!session) {
+        // Save cart and redirect to login
+        localStorage.setItem('mova_cart', JSON.stringify(cartArr));
+        window.location.href = '/login';
+        return;
+    }
+
+    const btn = document.querySelector('[onclick="indexCheckout()"]');
+    if (btn) { btn.textContent = 'Processing...'; btn.disabled = true; }
+
+    try {
+        const r = await fetch('/api/create-checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cart: cartArr, userId: session.id || '', checkedItems: checkedPids })
+        });
+        const data = await r.json();
+        if (data.clientSecret) {
+            showStripeModal(data.clientSecret);
+        } else {
+            alert('Checkout failed: ' + (data.error || 'Please try again.'));
+            if (btn) { btn.textContent = 'Secure Checkout →'; btn.disabled = false; }
+        }
+    } catch(e) {
+        alert('Checkout error. Please try again.');
+        if (btn) { btn.textContent = 'Secure Checkout →'; btn.disabled = false; }
+    }
+}
+
+async function showStripeModal(clientSecret) {
+    const modal = document.getElementById('stripeModal');
+    modal.style.display = 'flex';
+    const container = document.getElementById('stripeContainer');
+    container.innerHTML = '<div style="text-align:center;padding:40px"><div style="width:32px;height:32px;border:3px solid #ff6100;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:auto"></div></div>';
+
+    if (!window.Stripe) {
+        const script = document.createElement('script');
+        script.src = 'https://js.stripe.com/v3/';
+        script.onload = async () => {
+            const r2 = await fetch('/api/get-config').then(r => r.json()).catch(() => ({}));
+            const stripe = Stripe(r2.publishableKey || '');
+            const checkout = await stripe.initEmbeddedCheckout({ clientSecret });
+            container.innerHTML = '';
+            checkout.mount('#stripeContainer');
+        };
+        document.head.appendChild(script);
+    }
+}
+
+function closeStripeModal() {
+    document.getElementById('stripeModal').style.display = 'none';
+}
+
+// Make cart float open drawer
+document.addEventListener('DOMContentLoaded', () => {
+    const cartFloat = document.getElementById('cart-float');
+    if (cartFloat) {
+        cartFloat.onclick = function() { openCartDrawer(); };
+    }
+});
+</script>
+
+<style>
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+</style>
+
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
