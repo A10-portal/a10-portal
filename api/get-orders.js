@@ -7,6 +7,9 @@ const uri = process.env.MONGODB_URI;
 async function handleImageProxy(req, res) {
     const url = req.query.img ? decodeURIComponent(req.query.img) : null;
     if (!url) return res.status(400).end();
+    // Set aggressive caching so images load instantly after first load
+    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800');
+    res.setHeader('Vary', 'Accept');
     try {
         const response = await fetch(url, {
             headers: {
