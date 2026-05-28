@@ -80,6 +80,16 @@ async function fetch17trackEvents(trackingNumber) {
         const info = accepted[0];
         const track = info.track || {};
 
+        // DEBUG — logs raw response to Vercel so we can see exact field names
+        console.log('[17track] RAW info keys:', Object.keys(info));
+        console.log('[17track] info.tag:', info.tag);
+        console.log('[17track] info.w1:', info.w1);
+        console.log('[17track] track keys:', Object.keys(track));
+        console.log('[17track] track.e:', track.e);
+        console.log('[17track] track.z0:', track.z0);
+        console.log('[17track] track.b:', track.b);
+        console.log('[17track] first event:', JSON.stringify(track.tracking_list?.[0]));
+
         // Events — each has: a=timestamp, s=description, l=location
         const events = (track.tracking_list || []).map(e => ({
             trackStatus: e.s || '',
@@ -87,11 +97,9 @@ async function fetch17trackEvents(trackingNumber) {
             location:    e.l || '',
         })).filter(e => e.trackStatus);
 
-        // Status code is language-independent — lives at info.tag in v2.2
-        // Values: NotFound, InfoReceived, InTransit, Expired, PickedUp,
-        //         OutForDelivery, Undelivered, Delivered, Alert
-        const latestStatus = info.tag || track.e || track.tag || '';
-        const deliveryTime = track.edd || track.es || '';
+        // Try every possible field where 17track puts the status code
+        const latestStatus = info.tag || info.w1 || track.e || track.z0 || track.b || track.tag || '';
+        const deliveryTime = track.edd || track.es || track.b1 || '';
 
         return { events, latestStatus, deliveryTime };
     } catch (e) {
