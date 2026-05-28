@@ -255,7 +255,6 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .p-4 { padding: 16px; } .pb-4 { padding-bottom: 16px; } .border-b { border-bottom: 1px solid var(--border); }
 input:focus, select:focus, textarea:focus { outline: none; }
 </style>
-  <script type="text/javascript" src="https://api.goaffpro.com/loader.js?shop=ennuikskcu"></script>
 </head>
 <body>
 
@@ -1293,20 +1292,60 @@ function buildOrderCard(order) {
   if (order.status==='declined') {
     trackHtml = `<div style="background:#fef2f2;border-radius:8px;padding:10px 12px;margin-top:10px;font-size:11px;color:var(--red);font-weight:700">Declined: ${order.declineReason||'Contact support'}</div>`;
   } else if (order.trackingNumber) {
+    const tn = order.trackingNumber;
+    const trackUrl = `https://t.17track.net/en#nums=${tn}`;
+    const events   = order.trackingEvents || [];
+    const latestSt = order.trackingStatus  || '';
+    const estDel   = order.estimatedDelivery || '';
+
+    // Status label map from 17track codes
+    const stMap = {
+      'NotFound':'Awaiting carrier scan','InfoReceived':'Info received','InTransit':'In transit',
+      'Expired':'Shipment expired','PickedUp':'Picked up','OutForDelivery':'Out for delivery',
+      'Undelivered':'Delivery attempted','Delivered':'Delivered ✅','Alert':'Attention needed'
+    };
+    const stLabel = stMap[latestSt] || (latestSt || 'In transit');
+    const stColor = latestSt==='Delivered'?'var(--green)':latestSt==='Alert'||latestSt==='Undelivered'?'var(--red)':'var(--orange)';
+
     trackHtml = `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
-      <p style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Tracking: ${order.trackingNumber}</p>`;
-    if (order.trackingEvents?.length) {
-      order.trackingEvents.slice(0,3).forEach(e => {
-        trackHtml += `<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:4px">
-          <div style="width:6px;height:6px;border-radius:50%;background:var(--orange);margin-top:4px;flex-shrink:0"></div>
-          <div><p style="font-size:11px;font-weight:600">${e.trackStatus||e.status||e.description||''}</p>
-          <p style="font-size:10px;color:var(--muted)">${e.trackTime||e.time||e.date||''}</p></div>
-        </div>`;
-      });
-    } else {
-      trackHtml += `<p style="font-size:11px;color:var(--muted)">Tracking updates loading...</p>`;
-    }
-    trackHtml += '</div>';
+      <!-- Tracking header row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+        <div>
+          <p style="font-size:9px;font-weight:800;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Tracking Number</p>
+          <p style="font-size:12px;font-weight:800;font-family:monospace;color:var(--text)">${tn}</p>
+        </div>
+        <a href="${trackUrl}" target="_blank"
+          style="font-size:10px;font-weight:700;color:var(--orange);border:1.5px solid var(--orange);background:var(--orange-pale);border-radius:6px;padding:5px 12px;text-decoration:none;white-space:nowrap">
+          Track Live →
+        </a>
+      </div>
+
+      <!-- Latest status pill -->
+      <div style="display:inline-flex;align-items:center;gap:6px;background:#f8f8f8;border-radius:20px;padding:6px 14px;margin-bottom:10px">
+        <div style="width:7px;height:7px;border-radius:50%;background:${stColor}"></div>
+        <span style="font-size:11px;font-weight:700;color:${stColor}">${stLabel}</span>
+        ${estDel ? `<span style="font-size:10px;color:var(--muted);margin-left:4px">· Est. ${estDel}</span>` : ''}
+      </div>
+
+      <!-- Event timeline -->
+      ${events.length ? `
+      <div style="position:relative;padding-left:16px">
+        <div style="position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--border)"></div>
+        ${events.slice(0,6).map((e,i) => `
+        <div style="position:relative;margin-bottom:10px">
+          <div style="position:absolute;left:-12px;top:3px;width:8px;height:8px;border-radius:50%;
+            background:${i===0?'var(--orange)':'#ddd'};border:2px solid ${i===0?'var(--orange)':'#ccc'}"></div>
+          <p style="font-size:11px;font-weight:${i===0?'700':'500'};color:${i===0?'var(--text)':'#555'};line-height:1.4">${e.trackStatus||''}</p>
+          ${e.location ? `<p style="font-size:10px;color:var(--orange);font-weight:600">📍 ${e.location}</p>` : ''}
+          <p style="font-size:10px;color:var(--muted)">${e.trackTime||''}</p>
+        </div>`).join('')}
+        ${events.length > 6 ? `<p style="font-size:10px;color:var(--muted);padding-left:0">+${events.length-6} more events — <a href="${trackUrl}" target="_blank" style="color:var(--orange);font-weight:700">view all</a></p>` : ''}
+      </div>` : `
+      <div style="background:#f8f8f8;border-radius:8px;padding:10px 14px;font-size:11px;color:var(--muted)">
+        📡 Waiting for first carrier scan — usually within 24-48 hours of shipment.
+        <a href="${trackUrl}" target="_blank" style="color:var(--orange);font-weight:700;display:block;margin-top:6px">Check 17track →</a>
+      </div>`}
+    </div>`;
   } else {
     trackHtml = `<p style="font-size:11px;color:var(--muted);margin-top:8px">Order received — tracking will appear once shipped.</p>`;
   }
