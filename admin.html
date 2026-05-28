@@ -6,19 +6,13 @@
 <title>Mova99 Admin</title>
 <link rel="icon" type="image/png" href="/image/logo.png">
 <style>
-/* IP gate — page hidden until IP check passes */
-body { opacity: 0; transition: opacity .2s; }
+body { opacity: 0; transition: opacity .15s; }
 body.ready { opacity: 1; }
 </style>
 <script>
-(async () => {
-  try {
-    const r = await fetch('/api/admin-api?action=check-ip');
-    const d = await r.json();
-    if (!d.allowed) { window.location.replace('/'); return; }
-  } catch(e) {}
-  document.addEventListener('DOMContentLoaded', () => document.body.classList.add('ready'));
-})();
+// Show page immediately — password is the security layer.
+// IP restriction is enforced server-side in admin-api on every authenticated request.
+document.addEventListener('DOMContentLoaded', () => document.body.classList.add('ready'));
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
