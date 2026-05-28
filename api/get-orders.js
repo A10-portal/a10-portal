@@ -150,6 +150,7 @@ export default async function handler(req, res) {
             }
 
             // ── Live tracking via 17track ──────────────────────────
+            console.log('[17track] order status:', order.status, '| tracking:', order.trackingNumber || 'none');
             if (order.trackingNumber && ['shipped', 'processing', 'payment_received'].includes(order.status)) {
                 try {
                     // Register with 17track first (safe to call multiple times — idempotent)
