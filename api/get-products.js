@@ -2,70 +2,37 @@ import axios from 'axios';
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-// Server-side cache to avoid hitting rate limit
-const cache = new Map();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
-function getCached(key) {
-    const entry = cache.get(key);
-    if (!entry) return null;
-    if (Date.now() - entry.time > CACHE_TTL) { cache.delete(key); return null; }
-    return entry.data;
-}
-
-function setCache(key, data) {
-    cache.set(key, { data, time: Date.now() });
-}
-
-const FASHION_KEYWORDS = [
-    'women dress', 'women top', 'women blouse', 'women shirt',
-    'women hoodie', 'women jacket', 'women activewear', 'women swimwear',
-    'men shirt', 'men hoodie', 'men jacket', 'men t-shirt',
-    'kids clothing', 'kids dress', 'boys shirt', 'girls dress',
-    'sneakers', 'boots', 'sandals', 'shoes',
-    'backpack', 'handbag', 'tote bag',
-    'bedding set', 'bed sheets', 'blanket', 'curtains',
-    'jewelry', 'watch', 'sunglasses', 'electronics', 'phone case'
+const KEYWORDS = [
+    'women dress', 'sneakers', 'phone case', 'jewelry accessories',
+    'men shirt', 'home kitchen', 'beauty makeup', 'kids clothing',
+    'handbag', 'sports fitness', 'watch', 'sunglasses',
+    'bedding set', 'pet supplies', 'bluetooth earphones', 'car accessories',
+    'women hoodie', 'men jacket', 'sandals', 'backpack',
+    'women activewear', 'men t-shirt', 'tote bag', 'curtains',
+    'women blouse', 'boots', 'electronics', 'blanket',
+    'women swimwear', 'boys shirt', 'girls dress', 'bed sheets'
 ];
 
-// Global request queue to enforce 1 req/sec
-let lastRequestTime = 0;
-async function rateLimitedRequest(fn) {
-    const now = Date.now();
-    const wait = Math.max(0, 1100 - (now - lastRequestTime));
-    if (wait > 0) await sleep(wait);
-    lastRequestTime = Date.now();
-    return fn();
-}
+async function fetchFromCJ(keyword, params, token) {
+    const p = { ...params };
+    if (keyword) p.productNameEn = keyword;
 
-async function productsFetch(keyword, params, token) {
-    const cacheKey = JSON.stringify({ keyword, params });
-    const cached = getCached(cacheKey);
-    if (cached) return cached;
-
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 3; i++) {
         try {
-            const p = { ...params };
-            if (keyword) p.productNameEn = keyword;
-
-            const data = await rateLimitedRequest(() =>
-                axios.get('https://developers.cjdropshipping.com/api2.0/v1/product/list', {
-                    headers: { 'CJ-Access-Token': token },
-                    params: p,
-                    timeout: 15000
-                }).then(r => r.data?.data || {})
-            );
-
-            setCache(cacheKey, data);
-            return data;
+            const r = await axios.get('https://developers.cjdropshipping.com/api2.0/v1/product/list', {
+                headers: { 'CJ-Access-Token': token },
+                params: p,
+                timeout: 12000
+            });
+            return r.data?.data || {};
         } catch (e) {
             const msg = e.response?.data?.message || e.message || '';
             if (msg.includes('Too Many Requests')) {
-                await sleep(2000 * (i + 1));
+                await sleep(2500 * (i + 1));
                 continue;
             }
-            if (i < 3) { await sleep(1200); continue; }
-            console.error('Products fetch error:', e.response?.data || e.message);
+            if (i < 2) { await sleep(1000); continue; }
+            console.error('CJ fetch error:', keyword, e.message);
             return {};
         }
     }
@@ -73,80 +40,99 @@ async function productsFetch(keyword, params, token) {
 }
 
 export default async function handler(req, res) {
-    // Set cache headers so browser caches results too
-    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+    // NO server-side cache — always fetch fresh from CJ so products vary every request
+    // Browser cache also disabled so refresh always gets new products
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
 
     const {
-        page = 1,
-        pageSize = 20,
-        keyword = '',
-        search = '',
-        minPrice = '',
-        maxPrice = '',
-        countryCode = ''
+        page      = 1,
+        pageSize  = 20,
+        keyword   = '',
+        search    = '',
+        minPrice  = '',
+        maxPrice  = '',
+        countryCode = '',
+        seed      = ''   // client sends a random seed to vary results
     } = req.query;
 
     const q = (keyword || search || '').trim();
+    const token = process.env.PRODUCTS_API_KEY;
+
+    // For browse (no search), use the seed from the client to pick a keyword.
+    // Each page load the dashboard sends a different random seed → different keyword → different products.
+    let browseKeyword = q;
+    if (!q) {
+        const seedNum = parseInt(seed) || Math.floor(Math.random() * KEYWORDS.length * 10);
+        browseKeyword = KEYWORDS[seedNum % KEYWORDS.length];
+    }
+
+    // Pick a random page within a safe range (1-8) so results vary even for same keyword
+    const requestedPage = parseInt(page) || 1;
+    // For fresh browse loads (page=1), randomise the actual CJ page to get variety
+    const cjPage = (!q && requestedPage === 1)
+        ? (Math.floor(Math.random() * 6) + 1)  // random page 1-6 for browsing
+        : requestedPage;
 
     const base = {
-        pageNum: parseInt(page),
-        pageSize: parseInt(pageSize),
+        pageNum:     cjPage,
+        pageSize:    Math.min(parseInt(pageSize) || 20, 30),
         countryCode: countryCode || 'US'
     };
 
     if (minPrice) base.priceFrom = (parseFloat(minPrice) / 2.4).toFixed(2);
-    if (maxPrice) base.priceTo = (parseFloat(maxPrice) / 2.4).toFixed(2);
+    if (maxPrice) base.priceTo   = (parseFloat(maxPrice) / 2.4).toFixed(2);
 
     try {
         let products = [], total = 0;
 
-        if (!q) {
-            // Rotate keywords deterministically by minute so results vary but reliably return data
-            const keyIdx = Math.floor(Date.now() / 60000) % FASHION_KEYWORDS.length;
-            const chosenKeyword = FASHION_KEYWORDS[keyIdx];
-            // Always use page 1-3 for no-keyword browse to avoid empty high-page results
-            const safePage = Math.min(parseInt(page) || 1, 3);
-            const safeBase = { ...base, pageNum: safePage };
-            const d = await productsFetch(chosenKeyword, safeBase, process.env.PRODUCTS_API_KEY);
-            products = d.list || []; total = d.total || 0;
-            // Fallback chain through reliable keywords
-            if (products.length === 0) {
-                for (const fallbackKw of ['women dress', 'sneakers', 'phone case', 'jewelry']) {
-                    const fb = await productsFetch(fallbackKw, { ...safeBase, pageNum: 1 }, process.env.PRODUCTS_API_KEY);
-                    if ((fb.list || []).length > 0) { products = fb.list; total = fb.total || 0; break; }
-                }
-            }
-        } else {
-            let d = await productsFetch(q, base, process.env.PRODUCTS_API_KEY);
-            products = d.list || []; total = d.total || 0;
+        // Primary fetch
+        let d = await fetchFromCJ(browseKeyword, base, token);
+        products = d.list || [];
+        total    = d.total || 0;
 
-            if (products.length === 0) {
-                const stop = new Set(['for','the','and','with','a','an','in','on','of','to','my','i','is']);
-                const words = q.toLowerCase().split(/\s+/).filter(w => w.length > 1 && !stop.has(w));
-                for (const w of words.slice(0, 3)) {
-                    d = await productsFetch(w, base, process.env.PRODUCTS_API_KEY);
-                    if ((d.list || []).length > 0) { products = d.list; total = d.total || 0; break; }
-                }
-            }
+        // If no results (e.g. page too high), retry on page 1 with same keyword
+        if (!products.length && cjPage > 1) {
+            d = await fetchFromCJ(browseKeyword, { ...base, pageNum: 1 }, token);
+            products = d.list || [];
+            total    = d.total || 0;
+        }
 
-            if (products.length === 0) {
-                const fallback = await productsFetch('women dress', base, process.env.PRODUCTS_API_KEY);
-                products = fallback.list || []; total = fallback.total || 0;
+        // Fallback keyword chain if still empty
+        if (!products.length && !q) {
+            for (const fallback of ['women dress', 'sneakers', 'phone case', 'jewelry']) {
+                d = await fetchFromCJ(fallback, { ...base, pageNum: 1 }, token);
+                if ((d.list||[]).length) { products = d.list; total = d.total||0; break; }
+            }
+        }
+
+        // For user search: try progressively shorter terms
+        if (!products.length && q) {
+            const stop = new Set(['for','the','and','with','a','an','in','on','of','to']);
+            const words = q.toLowerCase().split(/\s+/).filter(w => w.length > 1 && !stop.has(w));
+            for (const w of words.slice(0, 3)) {
+                d = await fetchFromCJ(w, { ...base, pageNum: 1 }, token);
+                if ((d.list||[]).length) { products = d.list; total = d.total||0; break; }
             }
         }
 
         // Apply 2.4x markup
         let result = products.map(p => ({
             ...p,
-            sellPrice: (parseFloat(p.sellPrice || 0) * 2.4).toFixed(2),
+            sellPrice:     (parseFloat(p.sellPrice || 0) * 2.4).toFixed(2),
             originalPrice: p.sellPrice
         }));
 
-        // Filter by displayed price AFTER markup
+        // Shuffle the result so the order itself varies on every load
+        for (let i = result.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [result[i], result[j]] = [result[j], result[i]];
+        }
+
+        // Price filter after markup
         if (minPrice) result = result.filter(p => parseFloat(p.sellPrice) >= parseFloat(minPrice));
         if (maxPrice) result = result.filter(p => parseFloat(p.sellPrice) <= parseFloat(maxPrice));
 
-        return res.status(200).json({ products: result, total, page: parseInt(page), pageSize: parseInt(pageSize) });
+        return res.status(200).json({ products: result, total, page: cjPage, pageSize: base.pageSize, keyword: browseKeyword });
     } catch (e) {
         console.error('Products handler error:', e.message);
         return res.status(500).json({ error: 'Failed to fetch products', products: [] });
