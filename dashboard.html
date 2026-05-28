@@ -447,21 +447,7 @@ let productLoading = false;
 let productKeyword = '';
 let stripeKey = '';
 
-// Keywords to cycle through — each refresh picks a different one
-const BROWSE_KEYWORDS = [
-  'women dress','sneakers','phone case','jewelry accessories',
-  'men shirt','home kitchen','beauty makeup','kids clothing',
-  'handbag','sports fitness','watch','sunglasses',
-  'bedding set','pet supplies','bluetooth earphones','car accessories',
-  'women hoodie','men jacket','sandals','backpack'
-];
-// Seed changes every 3 minutes so same session gets variety but it's stable during scroll
-function getBrowseSeed() {
-  return Math.floor(Date.now() / (3 * 60 * 1000));
-}
-function getBrowseKeyword() {
-  return BROWSE_KEYWORDS[getBrowseSeed() % BROWSE_KEYWORDS.length];
-}
+// Products are randomised server-side — API picks keyword + page randomly on every request
 
 // Inactivity logout — 5 minutes
 let idleTimer;
@@ -623,9 +609,10 @@ async function loadProducts(fresh) {
   const wh  = document.getElementById('f-wh')?.value  || '';
 
   try {
-    // When browsing (no search term) use a time-rotated keyword so each refresh shows fresh products
-    const browseKw = productKeyword || getBrowseKeyword();
-    const url = `/api/get-products?page=${productPage}&pageSize=20&keyword=${encodeURIComponent(browseKw)}&minPrice=${min}&maxPrice=${max}&countryCode=${wh}&_t=${Date.now()}`;
+    // Send a random seed on every fresh browse so the API picks a different keyword + page
+    const browseKw = productKeyword || '';
+    const seed = fresh ? Math.floor(Math.random() * 1000) : '';
+    const url = `/api/get-products?page=${productPage}&pageSize=20&keyword=${encodeURIComponent(browseKw)}&seed=${seed}&minPrice=${min}&maxPrice=${max}&countryCode=${wh}&_t=${Date.now()}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
