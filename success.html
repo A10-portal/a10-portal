@@ -212,5 +212,14 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js');
 }
 </script>
+    <script type="text/javascript">
+      window.goaffpro_order = {
+        number : "#1001",
+        total: 1000
+      }
+      if(typeof window.goaffproTrackConversion !== "undefined"){
+        window.goaffproTrackConversion(window.goaffpro_order)
+      }
+    </script>
 </body>
 </html>
