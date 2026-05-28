@@ -80,15 +80,6 @@ async function fetch17trackEvents(trackingNumber) {
         const info = accepted[0];
         const track = info.track || {};
 
-        // DEBUG — logs raw response to Vercel so we can see exact field names
-        console.log('[17track] RAW info keys:', Object.keys(info));
-        console.log('[17track] info.tag:', info.tag);
-        console.log('[17track] info.w1:', info.w1);
-        console.log('[17track] track keys:', Object.keys(track));
-        console.log('[17track] track.e:', track.e);
-        console.log('[17track] track.z0:', track.z0);
-        console.log('[17track] track.b:', track.b);
-        console.log('[17track] first event:', JSON.stringify(track.tracking_list?.[0]));
 
         // Events — each has: a=timestamp, s=description, l=location
         const events = (track.tracking_list || []).map(e => ({
@@ -150,7 +141,6 @@ export default async function handler(req, res) {
             }
 
             // ── Live tracking via 17track ──────────────────────────
-            console.log('[17track] order status:', order.status, '| tracking:', order.trackingNumber || 'none');
             if (order.trackingNumber && ['shipped', 'processing', 'payment_received'].includes(order.status)) {
                 try {
                     // Register with 17track first (safe to call multiple times — idempotent)
