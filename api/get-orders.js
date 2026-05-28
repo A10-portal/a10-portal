@@ -80,17 +80,18 @@ async function fetch17trackEvents(trackingNumber) {
         const info = accepted[0];
         const track = info.track || {};
 
-        // Normalise events from 17track format
+        // Events — each has: a=timestamp, s=description, l=location
         const events = (track.tracking_list || []).map(e => ({
-            trackStatus:  e.s || '',          // event description
-            trackTime:    e.a || '',           // timestamp
-            location:     e.l || '',           // location
-            sub_status:   e.z1 || ''
+            trackStatus: e.s || '',
+            trackTime:   e.a || '',
+            location:    e.l || '',
         })).filter(e => e.trackStatus);
 
-        // Latest status
-        const latestStatus = track.e || '';   // e.g. "Delivered", "InTransit"
-        const deliveryTime = track.edd || ''; // estimated delivery
+        // Status code is language-independent — lives at info.tag in v2.2
+        // Values: NotFound, InfoReceived, InTransit, Expired, PickedUp,
+        //         OutForDelivery, Undelivered, Delivered, Alert
+        const latestStatus = info.tag || track.e || track.tag || '';
+        const deliveryTime = track.edd || track.es || '';
 
         return { events, latestStatus, deliveryTime };
     } catch (e) {
@@ -154,8 +155,9 @@ export default async function handler(req, res) {
                         order.trackingStatus   = trackData.latestStatus;
                         order.estimatedDelivery = trackData.deliveryTime;
 
-                        // Auto-mark delivered if 17track confirms it
-                        if (trackData.latestStatus === 'Delivered' && order.status !== 'delivered') {
+                        // Auto-mark delivered — check status code (language-independent)
+                        const deliveredCodes = ['Delivered', 'delivered', 'DELIVERED'];
+                        if (deliveredCodes.includes(trackData.latestStatus) && order.status !== 'delivered') {
                             await orders.updateOne({ _id: order._id }, { $set: { status: 'delivered' } });
                             order.status = 'delivered';
                         }
