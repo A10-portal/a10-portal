@@ -499,7 +499,7 @@ function showView(view) {
   window.scrollTo(0, 0);
   const content = document.getElementById('content');
   content.innerHTML = '<div class="spinner"></div>';
-  if (view === 'market')      renderMarket();
+  if (view === 'market')      renderMarket(false);
   else if (view === 'categories') renderCategories();
   else if (view === 'orders')     renderOrders('all');
   else if (view === 'support')    renderSupport();
@@ -523,10 +523,10 @@ function updateCartBadge() {
 // ══════════════════════════════════════════════════
 //  MARKETPLACE VIEW
 // ══════════════════════════════════════════════════
-function renderMarket() {
+function renderMarket(keepKeyword) {
   productPage = 1;
   productLoading = false;
-  productKeyword = '';
+  if (!keepKeyword) productKeyword = '';
   const content = document.getElementById('content');
   content.innerHTML = `
     <div class="fade-in">
@@ -1200,9 +1200,20 @@ function renderCategories() {
 
 function searchCategory(kw, name) {
   productKeyword = kw;
-  document.getElementById('product-search') && (document.getElementById('product-search').value = kw);
-  showView('market');
-  // Override title after showView sets it
+  // Set search input value so user can see what's being searched
+  const si = document.getElementById('product-search');
+  const mi = document.getElementById('mob-product-search');
+  if (si) si.value = kw;
+  if (mi) mi.value = kw;
+  // Set nav active state manually before renderMarket so it doesn't reset keyword
+  currentView = 'market';
+  setActiveNav('market');
+  document.getElementById('sidebar').classList.remove('open');
+  window.scrollTo(0, 0);
+  const content = document.getElementById('content');
+  content.innerHTML = '<div class="spinner"></div>';
+  renderMarket(true); // true = keep the keyword we just set
+  // Update title to category name
   setTimeout(() => { const t = document.getElementById('topbar-title'); if(t) t.textContent = name; }, 50);
 }
 
