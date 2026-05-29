@@ -1181,8 +1181,9 @@ function renderCategories() {
     <div class="section-header"><div class="section-title">Categories</div><div class="section-sub">Browse by category</div></div>
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px" id="cat-grid">`;
 
-  CATEGORIES.forEach(c => {
-    h += `<div onclick="searchCategory('${esc(c.kw)}','${esc(c.name)}')"
+  CATEGORIES.forEach((c, idx) => {
+    // Use data attributes — avoids ALL quote/apostrophe breaking in onclick
+    h += `<div class="cat-item" data-idx="${idx}"
       style="background:white;border-radius:12px;padding:16px;border:1.5px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .15s"
       onmouseover="this.style.borderColor='var(--orange)';this.style.background='var(--orange-pale)'"
       onmouseout="this.style.borderColor='var(--border)';this.style.background='white'">
@@ -1197,6 +1198,15 @@ function renderCategories() {
   h += '</div></div>';
   content.innerHTML = h;
 }
+
+// Delegated handler for category taps — uses data-idx to avoid string escaping bugs
+document.addEventListener('click', function(e) {
+  const el = e.target.closest('.cat-item');
+  if (!el) return;
+  const idx = parseInt(el.dataset.idx);
+  if (isNaN(idx) || !CATEGORIES[idx]) return;
+  searchCategory(CATEGORIES[idx].kw, CATEGORIES[idx].name);
+});
 
 function searchCategory(kw, name) {
   productKeyword = kw;
