@@ -132,55 +132,6 @@ export default async function handler(req, res) {
         if (minPrice) result = result.filter(p => parseFloat(p.sellPrice) >= parseFloat(minPrice));
         if (maxPrice) result = result.filter(p => parseFloat(p.sellPrice) <= parseFloat(maxPrice));
 
-        // ── Google Merchant Feed format ──────────────────────────
-        // When called with ?format=feed returns TSV for Google Merchant
-        if (req.query.format === 'feed') {
-            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-            res.setHeader('Cache-Control', 'public, s-maxage=86400');
-            res.setHeader('Content-Disposition', 'inline; filename="products.txt"');
-
-            const CATEGORY_MAP = {
-                'women dress':'Apparel & Accessories > Clothing > Dresses',
-                'men shirt':'Apparel & Accessories > Clothing > Shirts & Tops',
-                'sneakers':'Apparel & Accessories > Shoes > Athletic Shoes',
-                'jewelry accessories':'Apparel & Accessories > Jewelry',
-                'handbag':'Apparel & Accessories > Handbags, Wallets & Cases > Handbags',
-                'home kitchen':'Home & Garden > Kitchen & Dining',
-                'beauty makeup':'Health & Beauty > Personal Care > Cosmetics',
-                'kids clothing':'Apparel & Accessories > Clothing',
-                'sports fitness':'Sporting Goods',
-                'watch':'Apparel & Accessories > Jewelry > Watches',
-                'sunglasses':'Apparel & Accessories > Clothing Accessories > Sunglasses',
-                'backpack':'Apparel & Accessories > Bags > Backpacks',
-                'bedding set':'Home & Garden > Linens & Bedding',
-                'pet supplies':'Animals & Pet Supplies',
-                'bluetooth earphones':'Electronics > Audio > Headphones',
-                'car accessories':'Vehicles & Parts > Vehicle Accessories',
-                'women hoodie':'Apparel & Accessories > Clothing > Outerwear',
-                'men jacket':'Apparel & Accessories > Clothing > Outerwear',
-                'sandals':'Apparel & Accessories > Shoes > Sandals',
-                'boots':'Apparel & Accessories > Shoes > Boots',
-            };
-
-            const headers = ['id','title','description','price','condition','link','availability','image_link','google_product_category','brand','shipping'].join('	');
-            const rows = [headers];
-
-            result.forEach(p => {
-                const title = (p.productNameEn || p.productName || '').replace(/[一-鿿]+/g,'').replace(/	|
-/g,' ').trim().substring(0,150);
-                if (!title || !p.productImage) return;
-                const desc  = title;
-                const price = parseFloat(p.sellPrice).toFixed(2) + ' USD';
-                const link  = 'https://www.mova99.com/product?pid=' + encodeURIComponent(p.pid);
-                const cat   = CATEGORY_MAP[browseKeyword] || 'Apparel & Accessories';
-                const row   = [p.pid, title, desc, price, 'new', link, 'in_stock', p.productImage, cat, 'Mova99', 'US:::0 USD'].map(v => String(v||'').replace(/	/g,' ')).join('	');
-                rows.push(row);
-            });
-
-            return res.status(200).send(rows.join('
-'));
-        }
-        // ── Normal JSON response ──────────────────────────────────
         return res.status(200).json({ products: result, total, page: cjPage, pageSize: base.pageSize, keyword: browseKeyword });
     } catch (e) {
         console.error('Products handler error:', e.message);
