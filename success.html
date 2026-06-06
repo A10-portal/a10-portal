@@ -79,7 +79,7 @@
     <script>
         (async function guard() {
             const session = JSON.parse(localStorage.getItem('foundry_session') || 'null');
-            if (!session) { window.location.replace('/'); return; }
+            if (!session) { // guest allowed }
             const params = new URLSearchParams(window.location.search);
             const stripeSessionId = params.get('session_id');
             if (!stripeSessionId || !stripeSessionId.startsWith('cs_')) {
@@ -130,7 +130,7 @@
             </div>
         </div>
         <p class="hint">A confirmation email with your order details has been sent to your inbox. Track your order from the Orders tab in your dashboard.</p>
-        <a href="/dashboard#orders" class="btn-primary">View My Orders</a>
+        <a href="/track" class="btn-primary">Track My Order</a>
         <a href="/dashboard" class="btn-secondary">Continue Shopping</a>
     </div>
 </div>
