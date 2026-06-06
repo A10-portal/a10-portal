@@ -7,13 +7,14 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     try {
-        const { cart, userId, checkedItems, guestEmail } = req.body;
+        const { cart, userId, checkedItems } = req.body;
 
+        // Use only checked items if provided, otherwise use all cart items
         const itemsToCheckout = checkedItems && checkedItems.length > 0
             ? cart.filter(item => checkedItems.includes(item.pid))
             : cart;
 
-        let userEmail = guestEmail || '';
+        let userEmail = '';
         if (userId) {
             const _mc = new MongoClient(process.env.MONGODB_URI);
             try {
@@ -25,9 +26,10 @@ export default async function handler(req, res) {
 
         if (!itemsToCheckout || itemsToCheckout.length === 0) return res.status(400).json({ error: 'Cart is empty' });
 
+        // Calculate total quantity for dynamic shipping
         const totalQty = itemsToCheckout.reduce((sum, item) => sum + (item.qty || 1), 0);
         const shippingGroups = Math.ceil(totalQty / 6);
-        const shippingAmount = Math.round(241 * shippingGroups);
+        const shippingAmount = Math.round(241 * shippingGroups); // $2.41 base * groups
 
         const lineItems = itemsToCheckout.map(item => {
             const qty = item.qty || 1;
@@ -81,11 +83,12 @@ export default async function handler(req, res) {
             })));
         }
 
+        // Build shipping label based on quantity
         const shippingLabel = shippingGroups > 1
             ? `Standard Shipping x${shippingGroups} ($${(shippingAmount/100).toFixed(2)})`
             : 'Standard Shipping (3-8 business days)';
 
-        const sessionData = {
+        const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: lineItems,
             mode: 'payment',
@@ -104,22 +107,10 @@ export default async function handler(req, res) {
                     }
                 }
             }],
-            metadata: {
-                userId: userId || '',
-                userEmail: userEmail || '',
-                guestEmail: guestEmail || '',
-                isGuest: userId ? 'false' : 'true',
-                cart: cartStr
-            },
+            metadata: { userId: userId || '', userEmail: userEmail || '', cart: cartStr },
             return_url: (req.headers.origin || 'https://www.mova99.com') + '/success.html?session_id={CHECKOUT_SESSION_ID}',
-        };
+        });
 
-        // Pre-fill email if we have it
-        if (userEmail) {
-            sessionData.customer_email = userEmail;
-        }
-
-        const session = await stripe.checkout.sessions.create(sessionData);
         return res.status(200).json({ clientSecret: session.client_secret });
     } catch (error) {
         console.error('Checkout error:', error.message);
