@@ -10,7 +10,7 @@
 
 <!-- Gatekeeper -->
 <script>
-  // Guest browsing allowed — login only required at checkout
+  if (!localStorage.getItem('foundry_session')) window.location.replace('/login');
 </script>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -441,16 +441,6 @@ async function loadCartFromServer() {
   } catch(e) { /* keep local cart on error */ }
 }
 let session = JSON.parse(localStorage.getItem('foundry_session') || 'null');
-
-// Auto-trigger checkout if user just logged in from checkout flow
-if (session && localStorage.getItem('mova_checkout_after_login')) {
-  localStorage.removeItem('mova_checkout_after_login');
-  setTimeout(() => {
-    if (cart.length > 0) {
-      openCart();
-    }
-  }, 1000);
-}
 let currentView = 'market';
 let productPage = 1;
 let productLoading = false;
@@ -1096,75 +1086,9 @@ function removeFromCart(key) {
   renderCart();
 }
 
-// ── GUEST CHECKOUT MODAL ──
-function showGuestCheckoutModal(groupedItems) {
-  // Remove existing modal if any
-  const existing = document.getElementById('guest-checkout-modal');
-  if (existing) existing.remove();
-
-  const modal = document.createElement('div');
-  modal.id = 'guest-checkout-modal';
-  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);padding:20px';
-  modal.innerHTML = `
-    <div style="background:#fff;border-radius:16px;max-width:420px;width:100%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-      <div style="background:#111;padding:20px;text-align:center;border-bottom:3px solid #ff6100">
-        <div style="font-size:20px;font-weight:900;font-style:italic;color:#ff6100">Mova99</div>
-        <div style="font-size:13px;color:#fff;margin-top:4px;font-weight:600">Complete Your Order</div>
-      </div>
-      <div style="padding:24px">
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <button onclick="window._guestCheckoutProceed('login')" style="padding:14px;background:#ff6100;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .2s" onmouseover="this.style.background='#e05500'" onmouseout="this.style.background='#ff6100'">
-            🔑 Login to My Account
-          </button>
-          <button onclick="window._guestCheckoutProceed('signup')" style="padding:14px;background:#111;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .2s" onmouseover="this.style.background='#333'" onmouseout="this.style.background='#111'">
-            ✨ Create Account & Checkout
-          </button>
-          <div style="text-align:center;font-size:11px;color:#aaa;padding:4px 0">or</div>
-          <div id="guest-email-form">
-            <div style="margin-bottom:8px">
-              <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#888;display:block;margin-bottom:4px">Continue as Guest</label>
-              <input type="email" id="guest-email-input" placeholder="Enter your email address" style="width:100%;padding:12px 16px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#ff6100'" onblur="this.style.borderColor='#e0e0e0'">
-              <div style="font-size:10px;color:#888;margin-top:4px">We will send your order confirmation here</div>
-            </div>
-            <button onclick="window._guestCheckoutProceed('guest')" style="width:100%;padding:13px;background:#f5f5f5;color:#333;border:1.5px solid #e0e0e0;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s" onmouseover="this.style.background='#e0e0e0'" onmouseout="this.style.background='#f5f5f5'">
-              Continue as Guest →
-            </button>
-          </div>
-        </div>
-        <button onclick="document.getElementById('guest-checkout-modal').remove()" style="width:100%;padding:10px;background:transparent;color:#aaa;border:none;font-size:12px;cursor:pointer;margin-top:12px;font-family:inherit">Cancel</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-
-  window._guestCheckoutProceed = async function(type) {
-    if (type === 'login') {
-      // Save cart and redirect to login
-      localStorage.setItem('mova_cart', JSON.stringify(cart));
-      localStorage.setItem('mova_checkout_after_login', '1');
-      window.location.href = '/login?redirect=dashboard';
-      return;
-    }
-    if (type === 'signup') {
-      localStorage.setItem('mova_cart', JSON.stringify(cart));
-      localStorage.setItem('mova_checkout_after_login', '1');
-      window.location.href = '/signup?redirect=dashboard';
-      return;
-    }
-    if (type === 'guest') {
-      const guestEmail = document.getElementById('guest-email-input').value.trim();
-      if (!guestEmail || !guestEmail.includes('@')) {
-        document.getElementById('guest-email-input').style.borderColor = '#ef4444';
-        document.getElementById('guest-email-input').placeholder = 'Please enter a valid email';
-        return;
-      }
-      document.getElementById('guest-checkout-modal').remove();
-      await proceedToStripeCheckout(groupedItems, null, guestEmail);
-    }
-  };
-}
-
 async function startCheckout() {
+  if (!session?.id) { closeCart(); window.location.href='/login'; return; }
+
   // Get checked cart rows using cartKey
   const checkedKeys = Object.keys(window._checked||{}).filter(k=>window._checked[k]!==false);
   const checkedItems = cart.filter(i=>checkedKeys.includes(i.cartKey||i.pid));
@@ -1182,31 +1106,16 @@ async function startCheckout() {
       grouped.push({ ...item, qty: item.qty || 1, _groupId: groupId });
     }
   });
+  // Clean up internal field before sending
   grouped.forEach(i => delete i._groupId);
 
-  if (!session?.id) {
-    // Guest — show login/signup/guest modal
-    closeCart();
-    showGuestCheckoutModal(grouped);
-    return;
-  }
-
-  await proceedToStripeCheckout(grouped, session.id, null);
-}
-
-async function proceedToStripeCheckout(grouped, userId, guestEmail) {
   const btn = document.querySelector('#cart-body .btn-primary');
   if (btn) { btn.textContent='Processing...'; btn.disabled=true; }
 
   try {
     const r = await fetch('/api/create-checkout', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        cart: grouped,
-        userId: userId || '',
-        guestEmail: guestEmail || '',
-        checkedItems: grouped.map(i=>i.pid)
-      })
+      body: JSON.stringify({ cart: grouped, userId: session.id, checkedItems: grouped.map(i=>i.pid) })
     });
     const d = await r.json();
     if (d.clientSecret) showStripeCheckout(d.clientSecret);
