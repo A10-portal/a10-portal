@@ -779,9 +779,29 @@ function removeItem(key) {
   renderCartDrawer();
 }
 
+function showAuthModal() {
+  var ex = document.getElementById('auth-modal');
+  if (ex) ex.remove();
+  localStorage.setItem('mova_cart', JSON.stringify(cart));
+  var m = document.createElement('div');
+  m.id = 'auth-modal';
+  m.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:20px';
+  m.innerHTML = '<div style="background:#fff;border-radius:16px;max-width:380px;width:100%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">'
+    + '<div style="background:#111;padding:20px;text-align:center;border-bottom:3px solid #ff6100">'
+    + '<div style="font-size:20px;font-weight:900;font-style:italic;color:#ff6100">Mova99</div>'
+    + '<div style="font-size:12px;color:#fff;margin-top:3px;opacity:.7">Sign in to complete your order</div>'
+    + '</div>'
+    + '<div style="padding:24px;display:flex;flex-direction:column;gap:10px">'
+    + '<a href="/login?redirect=index" style="display:block;padding:13px;background:#ff6100;color:#fff;border-radius:10px;font-size:14px;font-weight:800;text-align:center;text-decoration:none">&#128273; Login to My Account</a>'
+    + '<a href="/signup?redirect=index" style="display:block;padding:13px;background:#111;color:#fff;border-radius:10px;font-size:14px;font-weight:800;text-align:center;text-decoration:none">&#10024; Create Free Account</a>'
+    + '<button onclick="document.getElementById('auth-modal').remove()" style="padding:10px;background:transparent;color:#aaa;border:none;font-size:12px;cursor:pointer;font-family:inherit">Cancel</button>'
+    + '</div></div>';
+  document.body.appendChild(m);
+}
+
 async function doCheckout() {
   const session = JSON.parse(localStorage.getItem('foundry_session') || 'null');
-  if (!session?.id) { closeCartDrawer(); window.location.href = '/login'; return; }
+  if (!session?.id) { closeCartDrawer(); showAuthModal(); return; }
 
   const checkedKeys = Object.keys(window._chk||{}).filter(k=>window._chk[k]!==false);
   const items = cart.filter(i=>checkedKeys.includes(i.cartKey||i.pid));
@@ -853,9 +873,29 @@ setTimeout(() => document.querySelectorAll('.fade-up').forEach(el=>el.classList.
 // ══════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
   updateCartBadge();
-  // Load both grids with different seeds so they show different products
   loadGrid('grid-trending', 0);
   loadGrid('grid-arrivals', 500);
+
+  // Restore cart after login redirect
+  var savedCart = localStorage.getItem('mova_cart');
+  if (savedCart) {
+    try {
+      var parsed = JSON.parse(savedCart);
+      if (parsed && parsed.length > 0) { cart = parsed; saveCart(); }
+    } catch(e) {}
+  }
+
+  // Auto open product modal from ad link: mova99.com?pid=PRODUCT_ID
+  var urlParams = new URLSearchParams(window.location.search);
+  var pid = urlParams.get('pid');
+  if (pid) {
+    var attempts = 0;
+    var tryOpen = setInterval(function() {
+      attempts++;
+      if (PRODUCT_REG[pid]) { clearInterval(tryOpen); openModal(pid); }
+      if (attempts > 20) clearInterval(tryOpen);
+    }, 500);
+  }
 });
 </script>
 
