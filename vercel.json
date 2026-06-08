@@ -8,6 +8,14 @@
         { "key": "Content-Type", "value": "application/json" },
         { "key": "Cache-Control", "value": "no-cache" }
       ]
+    },
+    {
+      "source": "/google-feed.xml",
+      "headers": [
+        { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=3600" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
     }
   ],
   "rewrites": [
@@ -19,6 +27,8 @@
     { "source": "/success", "destination": "/success.html" },
     { "source": "/login", "destination": "/login.html" },
     { "source": "/signup", "destination": "/signup.html" },
+    { "source": "/track", "destination": "/track.html" },
+    { "source": "/product", "destination": "/product.html" },
     { "source": "/kids-shoes", "destination": "/category.html" },
     { "source": "/womens-lingerie", "destination": "/category.html" },
     { "source": "/arts-crafts", "destination": "/category.html" },
@@ -51,9 +61,6 @@
     { "source": "/health-household", "destination": "/category.html" },
     { "source": "/food-grocery", "destination": "/category.html" },
     { "source": "/books-media", "destination": "/category.html" },
-    { "source": "/mens-underwear", "destination": "/category.html" },
-    { "source": "/product", "destination": "/product.html" }
-
-    
+    { "source": "/mens-underwear", "destination": "/category.html" }
   ]
 }
