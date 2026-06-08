@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff6100">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" type="image/png" href="/image/logo.png">
+<title>Product — Mova99</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TK7Y07K9VH"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TK7Y07K9VH');</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--orange:#ff6100;--orange-light:#ff8533;--orange-pale:#fff3ed;--text:#1a1a1a;--border:#f0f0f0;--bg:#f5f5f5}
+body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--orange);border-radius:2px}
+
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 20px}
+.nav-inner{max-width:1000px;margin:auto;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.nav-logo{font-size:20px;font-weight:900;font-style:italic;color:var(--orange);text-decoration:none;letter-spacing:-1px}
+.nav-logo span{color:var(--text)}
+.nav-links{display:flex;gap:8px;align-items:center}
+.nav-btn{padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .18s;font-family:inherit}
+.nav-btn-outline{background:transparent;border:2px solid var(--orange);color:var(--orange)}
+.nav-btn-solid{background:var(--orange);border:2px solid var(--orange);color:#fff}
+.nav-cart-btn{position:relative;width:38px;height:38px;border-radius:50%;background:var(--orange);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cart-badge{position:absolute;top:-3px;right:-3px;background:#ef4444;color:#fff;font-size:8px;font-weight:900;border-radius:50%;width:16px;height:16px;display:none;align-items:center;justify-content:center}
+.cart-badge.show{display:flex}
+
+.page{max-width:1000px;margin:0 auto;padding:20px}
+.breadcrumb{font-size:12px;color:#888;margin-bottom:16px}
+.breadcrumb a{color:var(--orange);text-decoration:none}
+
+.product-layout{display:grid;grid-template-columns:1fr;gap:20px}
+@media(min-width:640px){.product-layout{grid-template-columns:1fr 1fr}}
+
+.gallery-main{aspect-ratio:1;background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border)}
+.gallery-main img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.gallery-main img:hover{transform:scale(1.05)}
+.gallery-thumbs{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.gallery-thumbs::-webkit-scrollbar{display:none}
+.thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;cursor:pointer;border:2px solid var(--border);flex-shrink:0;transition:border-color .15s}
+.thumb.active,.thumb:hover{border-color:var(--orange)}
+
+.product-info{background:#fff;border-radius:14px;padding:20px;border:1px solid var(--border)}
+.product-title{font-size:16px;font-weight:800;line-height:1.4;margin-bottom:10px}
+.product-price{font-size:28px;font-weight:900;color:var(--orange);margin-bottom:4px}
+.product-old{font-size:13px;color:#bbb;text-decoration:line-through;margin-bottom:14px}
+.shipping-badge{display:inline-flex;align-items:center;gap:6px;background:var(--orange-pale);border:1px solid var(--orange);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--orange);margin-bottom:16px}
+.delivery-info{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.delivery-chip{background:#f5f5f5;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:700;color:#555;flex:1;min-width:120px;text-align:center}
+.delivery-chip span{display:block;font-size:16px;font-weight:900;color:var(--orange);margin-bottom:2px}
+
+.var-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#888;margin:14px 0 8px}
+.var-btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.vbtn{padding:7px 14px;border:1.5px solid #ddd;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;display:inline-flex;align-items:center;gap:4px;transition:all .15s;font-family:inherit}
+.vbtn.sel,.vbtn:hover{border-color:var(--orange);background:var(--orange-pale);color:var(--orange)}
+
+.qty-row{display:flex;align-items:center;gap:12px;margin:16px 0}
+.qty-label{font-size:11px;font-weight:800;text-transform:uppercase;color:#888}
+.qty-btn{width:32px;height:32px;border:1.5px solid #ddd;border-radius:8px;background:#fff;font-size:18px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.qty-btn:hover{border-color:var(--orange);color:var(--orange)}
+.qty-num{font-size:16px;font-weight:800;min-width:28px;text-align:center}
+
+.add-btn{width:100%;padding:16px;background:var(--orange);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:8px;letter-spacing:.04em}
+.add-btn:hover{background:var(--orange-light);transform:translateY(-1px)}
+.add-btn:disabled{background:#ccc;cursor:not-allowed;transform:none}
+
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.feature{background:#f9f9f9;border-radius:8px;padding:10px;text-align:center}
+.feature-icon{font-size:20px;margin-bottom:4px}
+.feature-text{font-size:10px;font-weight:700;color:#555}
+
+.desc-section{background:#fff;border-radius:14px;padding:20px;border:1px solid var(--border);margin-top:16px}
+.desc-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;color:#333}
+.desc-text{font-size:13px;color:#666;line-height:1.8}
+
+.spinner{display:inline-block;width:36px;height:36px;border:3px solid #f0f0f0;border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{text-align:center;padding:80px 20px}
+
+.error-state{text-align:center;padding:80px 20px}
+.error-icon{font-size:64px;margin-bottom:16px}
+
+/* Cart Drawer */
+.cart-overlay{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.5);display:none}
+.cart-overlay.open{display:block}
+.cart-drawer{position:fixed;right:-100%;top:0;bottom:0;width:100%;max-width:420px;background:#fff;z-index:900;box-shadow:-4px 0 30px rgba(0,0,0,.12);transition:right .3s ease;overflow-y:auto;padding:20px}
+.cart-drawer.open{right:0}
+
+/* Auth Modal */
+.auth-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:20px}
+.auth-overlay.open{display:flex}
+.auth-box{background:#fff;border-radius:16px;max-width:380px;width:100%;overflow:hidden}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.product-layout{animation:fadeIn .4s ease}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Mova<span>99</span></a>
+    <div class="nav-links">
+      <a href="/signup" class="nav-btn nav-btn-outline" style="display:none" id="nav-signup">Sign Up</a>
+      <a href="/login" class="nav-btn nav-btn-solid" id="nav-login">Sign In</a>
+      <button class="nav-cart-btn" onclick="openCartDrawer()">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2.3 2.3c-.63.63-.18 1.7.71 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span class="cart-badge" id="cart-badge">0</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="breadcrumb"><a href="/">Home</a> › <span id="bc-name">Product</span></div>
+  <div id="product-container"><div class="loading"><div class="spinner"></div><p style="margin-top:16px;color:#888;font-size:14px">Loading product...</p></div></div>
+</div>
+
+<!-- Cart Overlay + Drawer -->
+<div class="cart-overlay" id="cart-overlay" onclick="closeCartDrawer()"></div>
+<div class="cart-drawer" id="cart-drawer">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+    <span style="font-size:16px;font-weight:800">Your Cart</span>
+    <button onclick="closeCartDrawer()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888">×</button>
+  </div>
+  <div id="cart-items-drawer"></div>
+</div>
+
+<!-- Auth Modal -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-box">
+    <div style="background:#111;padding:20px;text-align:center;border-bottom:3px solid #ff6100">
+      <div style="font-size:20px;font-weight:900;font-style:italic;color:#ff6100">Mova99</div>
+      <div style="font-size:12px;color:#fff;margin-top:4px;opacity:.7">Sign in to complete your order</div>
+    </div>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:10px">
+      <a href="/login?redirect=product" id="auth-login-btn" style="display:block;padding:13px;background:#ff6100;color:#fff;border-radius:10px;font-size:14px;font-weight:800;text-align:center;text-decoration:none">Login to My Account</a>
+      <a href="/signup?redirect=product" id="auth-signup-btn" style="display:block;padding:13px;background:#111;color:#fff;border-radius:10px;font-size:14px;font-weight:800;text-align:center;text-decoration:none">Create Free Account</a>
+      <button onclick="document.getElementById('auth-overlay').classList.remove('open')" style="padding:10px;background:transparent;color:#aaa;border:none;font-size:12px;cursor:pointer;font-family:inherit">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ORANGE = '#ff6100';
+let cart = JSON.parse(localStorage.getItem('mova_cart') || '[]');
+let stripeKey = '';
+let _p = { pid:'', name:'', basePrice:0, image:'', qty:1, vid:'', color:'', size:'' };
+
+fetch('/api/get-config').then(r=>r.json()).then(d=>{ stripeKey = d.publishableKey||''; }).catch(()=>{});
+
+// Update nav based on session
+const session = JSON.parse(localStorage.getItem('foundry_session') || 'null');
+if (session) {
+  document.getElementById('nav-login').textContent = 'My Account';
+  document.getElementById('nav-login').href = '/dashboard';
+  document.getElementById('nav-signup').style.display = 'none';
+} else {
+  document.getElementById('nav-signup').style.display = 'block';
+}
+
+function imgUrl(url) {
+  if (!url) return '';
+  return '/api/get-orders?img=' + encodeURIComponent(url);
+}
+
+function updateCartBadge() {
+  const n = cart.length;
+  const el = document.getElementById('cart-badge');
+  if (el) { el.textContent = n; el.classList.toggle('show', n > 0); }
+}
+
+function saveCart() {
+  localStorage.setItem('mova_cart', JSON.stringify(cart));
+  updateCartBadge();
+}
+
+function pickV(btn, vid, color, size, price, img) {
+  btn.closest('.var-btns').querySelectorAll('.vbtn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  _p.vid = vid;
+  if (color) _p.color = color;
+  if (size) _p.size = size;
+  const pr = parseFloat(price);
+  if (!isNaN(pr) && pr > 0) _p.basePrice = pr;
+  if (img) document.getElementById('main-img').src = imgUrl(img);
+  updatePrice();
+}
+
+function changeQty(d) {
+  _p.qty = Math.max(1, (_p.qty||1) + d);
+  document.getElementById('qty-num').textContent = _p.qty;
+  updatePrice();
+}
+
+function updatePrice() {
+  const el = document.getElementById('prod-price');
+  if (el) el.textContent = '$' + (_p.basePrice * _p.qty).toFixed(2);
+}
+
+function addToCart() {
+  const label = [_p.color, _p.size].filter(Boolean).join(' / ');
+  const displayName = _p.name.split(' — ')[0] + (label ? ' — ' + label : '') + (_p.qty > 1 ? ` (x${_p.qty})` : '');
+  const entry = {
+    pid: _p.pid, cartKey: _p.pid + '_' + Date.now(),
+    name: displayName, price: (_p.basePrice * _p.qty).toFixed(2),
+    image: _p.image, qty: _p.qty, color: _p.color, size: _p.size, vid: _p.vid
+  };
+  const idx = cart.findIndex(i => i.pid === _p.pid);
+  if (idx > -1) cart[idx] = entry; else cart.push(entry);
+  saveCart();
+
+  const btn = document.getElementById('add-btn');
+  btn.textContent = '✓ Added to Cart!';
+  btn.style.background = '#22c55e';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = '🛒 Add to Cart';
+    btn.style.background = ORANGE;
+    btn.disabled = false;
+    openCartDrawer();
+  }, 1200);
+}
+
+// ── Cart Drawer
+function openCartDrawer() {
+  document.getElementById('cart-drawer').classList.add('open');
+  document.getElementById('cart-overlay').classList.add('open');
+  renderCart();
+}
+function closeCartDrawer() {
+  document.getElementById('cart-drawer').classList.remove('open');
+  document.getElementById('cart-overlay').classList.remove('open');
+}
+
+function renderCart() {
+  const body = document.getElementById('cart-items-drawer');
+  if (!body) return;
+  if (!cart.length) {
+    body.innerHTML = '<div style="text-align:center;padding:40px"><div style="font-size:48px;margin-bottom:12px">🛒</div><p style="color:#888;font-weight:700;margin-bottom:16px">Your cart is empty</p><a href="/" style="display:inline-block;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Continue Shopping</a></div>';
+    return;
+  }
+  const sub = cart.reduce((s,i) => s + parseFloat(i.price||0), 0);
+  const tQty = cart.reduce((s,i) => s + (i.qty||1), 0);
+  const sg = Math.ceil(tQty/6)||1;
+  const ship = (2.41*sg).toFixed(2);
+  const total = (sub + parseFloat(ship)).toFixed(2);
+
+  let h = '';
+  cart.forEach(item => {
+    const key = (item.cartKey||item.pid).replace(/['"\\]/g,'');
+    h += `<div style="border:1.5px solid var(--border);border-radius:10px;padding:11px;margin-bottom:8px">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <img src="${imgUrl(item.image||'')}" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#f5f5f5">
+        <div style="flex:1;min-width:0">
+          <p style="font-size:11px;font-weight:700;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:3px">${(item.name||'').split(' — ')[0]}</p>
+          <p style="font-size:14px;font-weight:800;color:var(--orange)">$${parseFloat(item.price||0).toFixed(2)}</p>
+        </div>
+        <button onclick="removeItem('${key}')" style="color:#e02020;background:none;border:none;cursor:pointer;font-size:20px;line-height:1;padding:0 4px">✕</button>
+      </div>
+    </div>`;
+  });
+
+  h += `<div style="border-top:1.5px solid var(--border);padding-top:14px;margin-top:6px">
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:#888">Subtotal</span><span style="font-weight:700">$${sub.toFixed(2)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:12px"><span style="color:#888">Shipping</span><span style="font-weight:700">$${ship}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:900;margin-bottom:16px"><span>Total</span><span style="color:var(--orange)">$${total}</span></div>
+    <button onclick="doCheckout()" style="width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Secure Checkout →</button>
+    <button onclick="closeCartDrawer()" style="width:100%;margin-top:8px;padding:11px;background:transparent;color:#888;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Continue Shopping</button>
+  </div>`;
+  body.innerHTML = h;
+}
+
+function removeItem(key) {
+  cart = cart.filter(i => (i.cartKey||i.pid) !== key);
+  saveCart(); renderCart();
+}
+
+async function doCheckout() {
+  if (!session?.id) {
+    localStorage.setItem('mova_cart', JSON.stringify(cart));
+    document.getElementById('auth-login-btn').href = '/login?redirect=product&pid=' + _p.pid;
+    document.getElementById('auth-signup-btn').href = '/signup?redirect=product&pid=' + _p.pid;
+    document.getElementById('auth-overlay').classList.add('open');
+    return;
+  }
+  const btn = document.querySelector('#cart-items-drawer button[onclick="doCheckout()"]');
+  if (btn) { btn.textContent = 'Processing...'; btn.disabled = true; }
+  try {
+    const grouped = cart.map(i => ({...i, _gid: i.pid+'|'+(i.vid||'')+'|'+(i.color||'')+'|'+(i.size||'')}));
+    const r = await fetch('/api/create-checkout', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ cart: grouped, userId: session.id, checkedItems: grouped.map(i=>i.pid) })
+    });
+    const d = await r.json();
+    if (d.clientSecret) showStripe(d.clientSecret);
+    else throw new Error(d.error||'Checkout failed');
+  } catch(e) {
+    alert(e.message);
+    if (btn) { btn.textContent = 'Secure Checkout →'; btn.disabled = false; }
+  }
+}
+
+async function showStripe(clientSecret) {
+  closeCartDrawer();
+  const wrap = document.createElement('div');
+  wrap.id = 'stripe-wrap';
+  wrap.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;padding:16px';
+  wrap.innerHTML = '<div style="background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative"><button onclick="document.getElementById(\'stripe-wrap\').remove()" style="position:absolute;top:10px;right:10px;background:#f0f0f0;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:16px;z-index:10">×</button><div id="stripe-container" style="padding:24px"><div style="text-align:center;padding:40px"><div style="width:28px;height:28px;border:3px solid #ff6100;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:auto"></div></div></div></div>';
+  document.body.appendChild(wrap);
+  if (!window.Stripe) {
+    const s = document.createElement('script');
+    s.src = 'https://js.stripe.com/v3/';
+    s.onload = async () => {
+      const stripe = Stripe(stripeKey);
+      const co = await stripe.initEmbeddedCheckout({clientSecret});
+      document.getElementById('stripe-container').innerHTML = '';
+      co.mount('#stripe-container');
+    };
+    document.head.appendChild(s);
+  } else {
+    const stripe = Stripe(stripeKey);
+    const co = await stripe.initEmbeddedCheckout({clientSecret});
+    document.getElementById('stripe-container').innerHTML = '';
+    co.mount('#stripe-container');
+  }
+}
+
+// ── Load Product
+async function loadProduct(pid) {
+  const container = document.getElementById('product-container');
+  try {
+    const r = await fetch('/api/get-details?pid=' + encodeURIComponent(pid));
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+
+    const name = d.productNameEn || d.productName || 'Product';
+    const variants = d.variants || [];
+    const gallery = d.productGallery || [];
+
+    let basePrice = parseFloat(d.sellPrice) || 0;
+    let mainImage = d.productImage || '';
+
+    if (variants[0]) {
+      const vp = parseFloat(variants[0].variantSellPrice);
+      if (!isNaN(vp) && vp > 0) basePrice = vp;
+      if (variants[0].variantImage) mainImage = variants[0].variantImage;
+    }
+
+    const fakeOld = (basePrice * (1.3 + Math.random() * 0.3)).toFixed(2);
+
+    _p = { pid, name, basePrice, image: mainImage, qty: 1, vid: variants[0]?.vid||'', color: variants[0]?.color||'', size: variants[0]?.size||'' };
+
+    const seen = {};
+    const imgs = [mainImage, ...gallery, ...variants.map(v=>v.variantImage).filter(Boolean)]
+      .filter(i => { if(!i||seen[i]) return false; seen[i]=true; return true; }).slice(0,8);
+
+    const colorVars = variants.filter(v=>v.color?.trim());
+    const sizeVars = variants.filter(v=>v.size?.trim());
+    const otherVars = !colorVars.length && !sizeVars.length ? variants : [];
+
+    let varHtml = '';
+    if (colorVars.length) {
+      varHtml += '<div class="var-label">Color</div><div class="var-btns">';
+      colorVars.slice(0,12).forEach((v,i) => {
+        const thumb = v.variantImage ? `<img src="${imgUrl(v.variantImage)}" style="width:16px;height:16px;object-fit:cover;border-radius:3px">` : '';
+        varHtml += `<button class="vbtn${i===0?' sel':''}" onclick="pickV(this,'${v.vid}','${(v.color||'').replace(/'/g,'')}','','${v.variantSellPrice||''}','${v.variantImage||''}')">${thumb}${(v.color||'').trim()}</button>`;
+      });
+      varHtml += '</div>';
+    }
+    if (sizeVars.length) {
+      varHtml += '<div class="var-label">Size</div><div class="var-btns">';
+      sizeVars.slice(0,14).forEach((v,i) => {
+        varHtml += `<button class="vbtn${!colorVars.length&&i===0?' sel':''}" onclick="pickV(this,'${v.vid}','','${(v.size||'').replace(/'/g,'')}','${v.variantSellPrice||''}','')">${(v.size||'').trim().toUpperCase()}</button>`;
+      });
+      varHtml += '</div>';
+    }
+    if (otherVars.length) {
+      varHtml += '<div class="var-label">Options</div><div class="var-btns">';
+      otherVars.slice(0,8).forEach((v,i) => {
+        const lbl = (v.displayName||v.variantNameEn||`Option ${i+1}`).substring(0,22).replace(/'/g,'');
+        varHtml += `<button class="vbtn${i===0?' sel':''}" onclick="pickV(this,'${v.vid}','${lbl}','','${v.variantSellPrice||''}','${v.variantImage||''}')">${lbl}</button>`;
+      });
+      varHtml += '</div>';
+    }
+
+    const strip = s => (s||'').replace(/<[^>]*>/g,' ').replace(/[\u4e00-\u9fff]+/g,'').replace(/https?:\/\/\S+/g,'').replace(/\s+/g,' ').trim().substring(0,600);
+    const desc = strip(d.productDescription||d.productIntro||d.remark||'');
+
+    document.getElementById('bc-name').textContent = name.substring(0,40);
+    document.title = name.substring(0,60) + ' — Mova99';
+
+    container.innerHTML = `
+      <div class="product-layout">
+        <div>
+          <div class="gallery-main">
+            <img id="main-img" src="${imgUrl(mainImage)}" alt="${name}">
+          </div>
+          <div class="gallery-thumbs">
+            ${imgs.map((img,i) => `<img class="thumb${i===0?' active':''}" src="${imgUrl(img)}" onclick="switchImg(this,'${imgUrl(img)}')">`).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="product-info">
+            <h1 class="product-title">${name}</h1>
+            <div id="prod-price" class="product-price">$${basePrice.toFixed(2)}</div>
+            <div class="product-old">Was $${fakeOld}</div>
+            <div class="shipping-badge">📦 Flat $2.41 Shipping — USA</div>
+            <div class="delivery-info">
+              <div class="delivery-chip"><span>1-2</span>Processing Days</div>
+              <div class="delivery-chip"><span>3-8</span>Delivery Days</div>
+              <div class="delivery-chip"><span>🔒</span>Stripe Secured</div>
+            </div>
+            ${varHtml}
+            <div class="qty-row">
+              <span class="qty-label">Qty</span>
+              <button class="qty-btn" onclick="changeQty(-1)">−</button>
+              <span class="qty-num" id="qty-num">1</span>
+              <button class="qty-btn" onclick="changeQty(1)">+</button>
+            </div>
+            <button class="add-btn" id="add-btn" onclick="addToCart()">🛒 Add to Cart</button>
+            <div class="features">
+              <div class="feature"><div class="feature-icon">🚚</div><div class="feature-text">Fast USA Delivery</div></div>
+              <div class="feature"><div class="feature-icon">↩️</div><div class="feature-text">Easy Returns</div></div>
+              <div class="feature"><div class="feature-icon">⭐</div><div class="feature-text">Top Quality</div></div>
+            </div>
+          </div>
+          ${desc ? `<div class="desc-section"><div class="desc-title">Product Details</div><p class="desc-text">${desc}</p></div>` : ''}
+        </div>
+      </div>`;
+  } catch(e) {
+    container.innerHTML = `<div class="error-state"><div class="error-icon">😕</div><p style="font-size:16px;font-weight:700;margin-bottom:8px">Product not found</p><p style="color:#888;font-size:13px;margin-bottom:20px">This product may no longer be available.</p><a href="/" style="display:inline-block;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Browse Products</a></div>`;
+  }
+}
+
+function switchImg(el, src) {
+  document.getElementById('main-img').src = src;
+  document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Init
+updateCartBadge();
+const pid = new URLSearchParams(window.location.search).get('pid');
+if (pid) {
+  loadProduct(pid);
+} else {
+  document.getElementById('product-container').innerHTML = '<div class="error-state"><div class="error-icon">🛍️</div><p style="font-size:16px;font-weight:700;margin-bottom:20px">No product specified</p><a href="/" style="display:inline-block;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Browse Products</a></div>';
+}
+</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+</body>
+</html>
