@@ -588,9 +588,89 @@ function onScroll() {
 function doSearch() {
   const desktop = document.getElementById('product-search');
   const mobile = document.getElementById('mob-product-search');
-  productKeyword = (desktop?.value || mobile?.value || '').trim();
+  const query = (desktop?.value || mobile?.value || '').trim();
+
+  if (!query) { productKeyword = ''; productPage = 1; loadProducts(true); return; }
+
+  // Detect SKU — alphanumeric with dashes like CGDM123456 or CJ-XXXXX
+  const isSku = /^[A-Z0-9\-]{6,30}$/i.test(query) && !query.includes(' ');
+
+  // Detect SPU — pure number like 2062590960497782785
+  const isSpu = /^\d{10,}$/.test(query);
+
+  // Detect CJ URL
+  const isCjUrl = query.includes('cjdropshipping.com');
+
+  if (isSpu || isCjUrl) {
+    // Extract pid from URL or use directly as pid
+    let pid = query;
+    if (isCjUrl) {
+      const m = query.match(/pid=([^&]+)/) || query.match(/\/([A-Za-z0-9\-]+)(?:\?|$)/);
+      if (m) pid = m[1];
+    }
+    loadProductByPid(pid);
+    return;
+  }
+
+  if (isSku) {
+    loadProductBySku(query);
+    return;
+  }
+
+  // Regular keyword search
+  productKeyword = query;
   productPage = 1;
   loadProducts(true);
+}
+
+async function loadProductByPid(pid) {
+  const grid = document.getElementById('product-grid');
+  if (!grid) return;
+  grid.innerHTML = renderSkeletons(4);
+  try {
+    const r = await fetch('/api/get-details?pid=' + encodeURIComponent(pid));
+    if (!r.ok) throw new Error('Product not found');
+    const p = await r.json();
+    if (p.error) throw new Error(p.error);
+    grid.innerHTML = '';
+    // Build a product object compatible with appendProductCard
+    const product = {
+      pid: p.pid || pid,
+      productNameEn: p.productNameEn || p.productName || 'Product',
+      productImage: p.productImage || '',
+      sellPrice: p.sellPrice || p.variants?.[0]?.variantSellPrice || '0',
+      variants: p.variants || []
+    };
+    appendProductCard(grid, product);
+  } catch(e) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px">
+      <div style="font-size:40px;margin-bottom:12px">🔍</div>
+      <p style="font-weight:700;color:#888">Product not found for "${pid}"</p>
+      <p style="font-size:12px;color:#bbb;margin-top:6px">Check the SPU or URL and try again</p>
+    </div>`;
+  }
+}
+
+async function loadProductBySku(sku) {
+  const grid = document.getElementById('product-grid');
+  if (!grid) return;
+  grid.innerHTML = renderSkeletons(4);
+  try {
+    // Search by SKU as keyword — CJ returns matching products
+    const r = await fetch('/api/get-products?keyword=' + encodeURIComponent(sku) + '&pageSize=6&_t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    const products = Array.isArray(data) ? data : (data.products || []);
+    grid.innerHTML = '';
+    if (!products.length) throw new Error('No products found');
+    products.forEach(p => appendProductCard(grid, p));
+  } catch(e) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px">
+      <div style="font-size:40px;margin-bottom:12px">🔍</div>
+      <p style="font-weight:700;color:#888">No product found for SKU "${sku}"</p>
+      <p style="font-size:12px;color:#bbb;margin-top:6px">Try searching by product name instead</p>
+    </div>`;
+  }
 }
 
 async function loadProducts(fresh) {
@@ -684,14 +764,15 @@ function appendProductCard(grid, p) {
   grid.appendChild(div);
 }
 
-// Delegated handler: tap image/name → open product page in new tab
+// Delegated handler: tap image/name → open product detail modal
 document.addEventListener('click', function(e) {
   const target = e.target.closest('.pcard-open');
   if (!target) return;
   e.stopPropagation();
   const pid = target.dataset.pid;
-  if (!pid) return;
-  window.open('/product?pid=' + pid, '_blank');
+  if (!pid || !PRODUCT_REGISTRY[pid]) return;
+  const p = PRODUCT_REGISTRY[pid];
+  openProduct(pid, p.productNameEn||p.productName||'', p.sellPrice, p.productImage||'');
 });
 
 // Delegated handler: tap Add to Cart button → quick-add directly, no modal
