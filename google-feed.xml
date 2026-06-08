@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+  <channel>
+    <title>Mova99 Shopping Store</title>
+    <link>https://www.mova99.com</link>
+    <description>Millions of products with flat $2.41 shipping across the USA</description>
+
+    <item>
+      <g:id>2062590960497782785</g:id>
+      <g:title>Bluetooth Wireless Earbuds</g:title>
+      <g:description>Wireless Bluetooth earbuds with crystal clear sound and long battery life</g:description>
+      <g:link>https://www.mova99.com/product?pid=2062590960497782785</g:link>
+      <g:image_link>https://cf.cjdropshipping.com/bcecb1fb-b6b6-4dbb-b39a-ee57c161ae11.jpg</g:image_link>
+      <g:price>13.97 USD</g:price>
+      <g:availability>in stock</g:availability>
+      <g:condition>new</g:condition>
+      <g:brand>Mova99</g:brand>
+      <g:identifier_exists>false</g:identifier_exists>
+      <g:shipping>
+        <g:country>US</g:country>
+        <g:price>2.41 USD</g:price>
+      </g:shipping>
+    </item>
+
+    <item>
+      <g:id>NEXT_PRODUCT_PID</g:id>
+      <g:title>Product Title Here</g:title>
+      <g:description>Product description here</g:description>
+      <g:link>https://www.mova99.com/product?pid=NEXT_PRODUCT_PID</g:link>
+      <g:image_link>IMAGE_URL_HERE</g:image_link>
+      <g:price>PRICE USD</g:price>
+      <g:availability>in stock</g:availability>
+      <g:condition>new</g:condition>
+      <g:brand>Mova99</g:brand>
+      <g:identifier_exists>false</g:identifier_exists>
+      <g:shipping>
+        <g:country>US</g:country>
+        <g:price>2.41 USD</g:price>
+      </g:shipping>
+    </item>
+
+  </channel>
+</rss>
