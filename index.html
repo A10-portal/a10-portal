@@ -782,6 +782,7 @@ function removeItem(key) {
 function showAuthModal() {
   var existing = document.getElementById('auth-modal');
   if (existing) existing.remove();
+  localStorage.setItem('mova_cart', JSON.stringify(cart));
   var m = document.createElement('div');
   m.id = 'auth-modal';
   m.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px';
@@ -796,7 +797,6 @@ function showAuthModal() {
     + '<button onclick="document.getElementById('auth-modal').remove()" style="padding:10px;background:transparent;color:#aaa;border:none;font-size:12px;cursor:pointer;font-family:inherit">Cancel</button>'
     + '</div></div>';
   document.body.appendChild(m);
-  localStorage.setItem('mova_cart', JSON.stringify(cart));
 }
 
 async function doCheckout() {
@@ -871,41 +871,31 @@ setTimeout(() => document.querySelectorAll('.fade-up').forEach(el=>el.classList.
 // ══════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  updateCartBadge();
+  loadGrid('grid-trending', 0);
+  loadGrid('grid-arrivals', 500);
 
-// Auto open product from URL param (from ad links)
-window.addEventListener('DOMContentLoaded', function() {
-  var urlParams = new URLSearchParams(window.location.search);
-  var pid = urlParams.get('pid');
-  if (pid) {
-    // Wait for products to load then open modal
-    var attempts = 0;
-    var tryOpen = setInterval(function() {
-      attempts++;
-      if (PRODUCT_REG[pid]) {
-        clearInterval(tryOpen);
-        openModal(pid);
-      }
-      if (attempts > 20) clearInterval(tryOpen);
-    }, 500);
-  }
-  
   // Restore cart from localStorage if coming back from login
   var savedCart = localStorage.getItem('mova_cart');
   if (savedCart) {
     try {
       var parsed = JSON.parse(savedCart);
-      if (parsed.length > 0) {
-        cart = parsed;
-        saveCart();
-      }
+      if (parsed && parsed.length > 0) { cart = parsed; saveCart(); }
     } catch(e) {}
   }
-});
-window.addEventListener('DOMContentLoaded', () => {
-  updateCartBadge();
-  // Load both grids with different seeds so they show different products
-  loadGrid('grid-trending', 0);
-  loadGrid('grid-arrivals', 500);
+
+  // Auto open product from URL param — from ad links ?pid=PRODUCT_ID
+  var urlParams = new URLSearchParams(window.location.search);
+  var pid = urlParams.get('pid');
+  if (pid) {
+    var attempts = 0;
+    var tryOpen = setInterval(function() {
+      attempts++;
+      if (PRODUCT_REG[pid]) { clearInterval(tryOpen); openModal(pid); }
+      if (attempts > 20) clearInterval(tryOpen);
+    }, 500);
+  }
 });
 </script>
 
