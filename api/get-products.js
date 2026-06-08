@@ -40,6 +40,54 @@ async function fetchFromCJ(keyword, params, token) {
 }
 
 export default async function handler(req, res) {
+  // Google Shopping XML Feed route
+  if (req.query.feed === 'google') {
+    try {
+      const r = await axios.get('https://developers.cjdropshipping.com/api2.0/v1/product/list', {
+        headers: { 'CJ-Access-Token': process.env.PRODUCTS_API_KEY },
+        params: { pageNum: 1, pageSize: 200 },
+        timeout: 10000
+      });
+      const products = r.data?.data?.list || [];
+      const items = products.map(p => {
+        const pid = p.pid || '';
+        const name = (p.productNameEn || p.productName || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const price = parseFloat(p.sellPrice || 0).toFixed(2);
+        const image = p.productImage || '';
+        const link = `https://www.mova99.com/product?pid=${pid}`;
+        const desc = (p.productNameEn || '').replace(/&/g,'&amp;').substring(0, 500);
+        return `<item>
+      <g:id>${pid}</g:id>
+      <g:title>${name.substring(0,150)}</g:title>
+      <g:description>${desc}</g:description>
+      <g:link>${link}</g:link>
+      <g:image_link>${image}</g:image_link>
+      <g:price>${price} USD</g:price>
+      <g:availability>in stock</g:availability>
+      <g:condition>new</g:condition>
+      <g:brand>Mova99</g:brand>
+      <g:identifier_exists>false</g:identifier_exists>
+      <g:shipping><g:country>US</g:country><g:price>2.41 USD</g:price></g:shipping>
+    </item>`;
+      }).join('
+');
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+  <channel>
+    <title>Mova99 Shopping Store</title>
+    <link>https://www.mova99.com</link>
+    <description>Millions of products with flat $2.41 shipping across the USA</description>
+    ${items}
+  </channel>
+</rss>`;
+      res.setHeader('Content-Type', 'application/xml');
+      res.setHeader('Cache-Control', 's-maxage=3600');
+      return res.status(200).send(xml);
+    } catch(e) {
+      return res.status(500).json({ error: 'Feed failed: ' + e.message });
+    }
+  }
+
     // NO server-side cache — always fetch fresh from CJ so products vary every request
     // Browser cache also disabled so refresh always gets new products
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
