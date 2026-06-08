@@ -591,23 +591,16 @@ function doSearch() {
   const query = (desktop?.value || mobile?.value || '').trim();
   if (!query) { productKeyword = ''; productPage = 1; loadProducts(true); return; }
 
-  // Detect SPU — pure long number
   const isSpu = /^\d{10,}$/.test(query);
-
-  // Detect CJ URL
   const isCjUrl = query.includes('cjdropshipping.com');
 
   if (isSpu || isCjUrl) {
     let pid = query;
-    if (isCjUrl) {
-      const m = query.match(/pid=([^&]+)/);
-      if (m) pid = m[1];
-    }
+    if (isCjUrl) { const m = query.match(/pid=([^&]+)/); if (m) pid = m[1]; }
     loadProductByPid(pid);
     return;
   }
 
-  // Regular keyword search
   productKeyword = query;
   productPage = 1;
   loadProducts(true);
@@ -623,20 +616,15 @@ async function loadProductByPid(pid) {
     const p = await r.json();
     if (p.error) throw new Error(p.error);
     grid.innerHTML = '';
-    const product = {
+    appendProductCard(grid, {
       pid: p.pid || pid,
       productNameEn: p.productNameEn || p.productName || 'Product',
       productImage: p.productImage || '',
       sellPrice: p.sellPrice || p.variants?.[0]?.variantSellPrice || '0',
       variants: p.variants || []
-    };
-    appendProductCard(grid, product);
+    });
   } catch(e) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px">
-      <div style="font-size:40px;margin-bottom:12px">🔍</div>
-      <p style="font-weight:700;color:#888">Product not found</p>
-      <p style="font-size:12px;color:#bbb;margin-top:6px">Check the SPU number and try again</p>
-    </div>`;
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px"><div style="font-size:40px;margin-bottom:12px">🔍</div><p style="font-weight:700;color:#888">Product not found</p><p style="font-size:12px;color:#bbb;margin-top:6px">Check the SPU number and try again</p></div>';
   }
 }
 
@@ -731,15 +719,14 @@ function appendProductCard(grid, p) {
   grid.appendChild(div);
 }
 
-// Delegated handler: tap image/name → open product detail modal
+// Delegated handler: tap image/name → open product page in new tab
 document.addEventListener('click', function(e) {
   const target = e.target.closest('.pcard-open');
   if (!target) return;
   e.stopPropagation();
   const pid = target.dataset.pid;
-  if (!pid || !PRODUCT_REGISTRY[pid]) return;
-  const p = PRODUCT_REGISTRY[pid];
-  openProduct(pid, p.productNameEn||p.productName||'', p.sellPrice, p.productImage||'');
+  if (!pid) return;
+  window.open('/product?pid=' + pid, '_blank');
 });
 
 // Delegated handler: tap Add to Cart button → quick-add directly, no modal
