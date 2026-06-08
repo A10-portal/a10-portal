@@ -51,7 +51,9 @@
     { "source": "/health-household", "destination": "/category.html" },
     { "source": "/food-grocery", "destination": "/category.html" },
     { "source": "/books-media", "destination": "/category.html" },
-    { "source": "/mens-underwear", "destination": "/category.html" }
+    { "source": "/mens-underwear", "destination": "/category.html" },
+    { "source": "/product", "destination": "/product.html" }
+
     
   ]
 }
