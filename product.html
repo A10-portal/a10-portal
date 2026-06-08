@@ -250,19 +250,7 @@ function addToCart() {
 
 // ── Cart Drawer
 function buyNow() {
-  // Add to cart then immediately checkout
-  const label = [_p.color, _p.size].filter(Boolean).join(' / ');
-  const displayName = _p.name.split(' — ')[0] + (label ? ' — ' + label : '') + (_p.qty > 1 ? ` (x${_p.qty})` : '');
-  const entry = {
-    pid: _p.pid, cartKey: _p.pid + '_' + Date.now(),
-    name: displayName, price: (_p.basePrice * _p.qty).toFixed(2),
-    image: _p.image, qty: _p.qty, color: _p.color, size: _p.size, vid: _p.vid
-  };
-  const idx = cart.findIndex(i => i.pid === _p.pid);
-  if (idx > -1) cart[idx] = entry; else cart.push(entry);
-  saveCart();
-
-  // Go straight to checkout
+  // Checkout THIS product only — ignore everything else in cart
   if (!session?.id) {
     localStorage.setItem('mova_cart', JSON.stringify(cart));
     document.getElementById('auth-login-btn').href = '/login?redirect=product&pid=' + _p.pid;
@@ -275,20 +263,21 @@ function buyNow() {
   btn.textContent = 'Processing...';
   btn.disabled = true;
 
-  // Trim cart data to stay under Stripe 500 char metadata limit
-  const grouped = cart.map(i => ({
-    pid: (i.pid||'').substring(0,36),
-    name: (i.name||'').substring(0,30),
-    price: i.price,
-    qty: i.qty||1,
-    color: (i.color||'').substring(0,15),
-    size: (i.size||'').substring(0,10),
-    vid: (i.vid||'').substring(0,20),
-    image: (i.image||'').substring(0,80)
-  }));
+  // Single item only
+  const singleItem = [{
+    pid: (_p.pid||'').substring(0,20),
+    name: (_p.name||'').substring(0,25),
+    price: (_p.basePrice * _p.qty).toFixed(2),
+    qty: _p.qty || 1,
+    color: (_p.color||'').substring(0,8),
+    size: (_p.size||'').substring(0,6),
+    vid: (_p.vid||'').substring(0,12),
+    image: (_p.image||'').substring(0,80)
+  }];
+
   fetch('/api/create-checkout', {
     method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ cart: grouped, userId: session.id, checkedItems: grouped.map(i=>i.pid) })
+    body: JSON.stringify({ cart: singleItem, userId: session.id, checkedItems: [_p.pid] })
   })
   .then(r => r.json())
   .then(d => {
