@@ -503,13 +503,13 @@ async function loadGrid(gridId, extraSeedOffset) {
   }
 }
 
-// ── Tap image/name → open product detail modal
+// ── Tap image/name → open product page in new tab
 document.addEventListener('click', function(e) {
   const el = e.target.closest('.pcard-view');
   if (!el) return;
   e.stopPropagation();
   const pid = el.dataset.pid;
-  if (pid && PRODUCT_REG[pid]) openModal(pid);
+  if (pid) window.open('/product?pid=' + pid, '_blank');
 });
 
 // ── Tap Add to Cart button → quick-add + 2s feedback + flip back
