@@ -43,12 +43,10 @@ export default async function handler(req, res) {
   // Google Shopping XML Feed route
   if (req.query.feed === 'google') {
     try {
-      const r = await axios.get('https://developers.cjdropshipping.com/api2.0/v1/product/list', {
-        headers: { 'CJ-Access-Token': process.env.PRODUCTS_API_KEY },
-        params: { pageNum: 1, pageSize: 200 },
-        timeout: 10000
-      });
-      const products = r.data?.data?.list || [];
+      // Use existing fetchFromCJ function with small pageSize to avoid timeout
+      const token = process.env.PRODUCTS_API_KEY;
+      const data = await fetchFromCJ('', { pageNum: 1, pageSize: 50 }, token);
+      const products = data.list || [];
       const items = products.map(p => {
         const pid = p.pid || '';
         const name = (p.productNameEn || p.productName || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
