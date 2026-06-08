@@ -96,6 +96,29 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
 
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .product-layout{animation:fadeIn .4s ease}
+
+/* Mobile responsive */
+@media(max-width:480px){
+  .page{padding:12px}
+  .product-title{font-size:14px}
+  .product-price{font-size:24px}
+  .add-btn{padding:14px;font-size:14px}
+  .delivery-info{gap:6px}
+  .delivery-chip{padding:6px 8px;min-width:90px}
+  .delivery-chip span{font-size:14px}
+  .features{gap:6px}
+  .feature{padding:8px 6px}
+  .gallery-main{border-radius:10px}
+  .product-info{padding:14px}
+  .nav-btn-outline{display:none}
+  .qty-btn{width:28px;height:28px}
+  .vbtn{padding:5px 10px;font-size:10px}
+}
+@media(max-width:360px){
+  .product-price{font-size:20px}
+  .add-btn{font-size:13px}
+  .features{grid-template-columns:repeat(3,1fr)}
+}
 </style>
 </head>
 <body>
@@ -252,7 +275,17 @@ function buyNow() {
   btn.textContent = 'Processing...';
   btn.disabled = true;
 
-  const grouped = cart.map(i => ({...i}));
+  // Trim cart data to stay under Stripe 500 char metadata limit
+  const grouped = cart.map(i => ({
+    pid: (i.pid||'').substring(0,36),
+    name: (i.name||'').substring(0,30),
+    price: i.price,
+    qty: i.qty||1,
+    color: (i.color||'').substring(0,15),
+    size: (i.size||'').substring(0,10),
+    vid: (i.vid||'').substring(0,20),
+    image: (i.image||'').substring(0,80)
+  }));
   fetch('/api/create-checkout', {
     method: 'POST', headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ cart: grouped, userId: session.id, checkedItems: grouped.map(i=>i.pid) })
