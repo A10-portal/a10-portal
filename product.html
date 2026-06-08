@@ -226,6 +226,49 @@ function addToCart() {
 }
 
 // ── Cart Drawer
+function buyNow() {
+  // Add to cart then immediately checkout
+  const label = [_p.color, _p.size].filter(Boolean).join(' / ');
+  const displayName = _p.name.split(' — ')[0] + (label ? ' — ' + label : '') + (_p.qty > 1 ? ` (x${_p.qty})` : '');
+  const entry = {
+    pid: _p.pid, cartKey: _p.pid + '_' + Date.now(),
+    name: displayName, price: (_p.basePrice * _p.qty).toFixed(2),
+    image: _p.image, qty: _p.qty, color: _p.color, size: _p.size, vid: _p.vid
+  };
+  const idx = cart.findIndex(i => i.pid === _p.pid);
+  if (idx > -1) cart[idx] = entry; else cart.push(entry);
+  saveCart();
+
+  // Go straight to checkout
+  if (!session?.id) {
+    localStorage.setItem('mova_cart', JSON.stringify(cart));
+    document.getElementById('auth-login-btn').href = '/login?redirect=product&pid=' + _p.pid;
+    document.getElementById('auth-signup-btn').href = '/signup?redirect=product&pid=' + _p.pid;
+    document.getElementById('auth-overlay').classList.add('open');
+    return;
+  }
+
+  const btn = document.getElementById('buy-btn');
+  btn.textContent = 'Processing...';
+  btn.disabled = true;
+
+  const grouped = cart.map(i => ({...i}));
+  fetch('/api/create-checkout', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ cart: grouped, userId: session.id, checkedItems: grouped.map(i=>i.pid) })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.clientSecret) showStripe(d.clientSecret);
+    else throw new Error(d.error||'Checkout failed');
+  })
+  .catch(e => {
+    alert(e.message);
+    btn.textContent = '⚡ Buy Now';
+    btn.disabled = false;
+  });
+}
+
 function openCartDrawer() {
   document.getElementById('cart-drawer').classList.add('open');
   document.getElementById('cart-overlay').classList.add('open');
@@ -422,6 +465,7 @@ async function loadProduct(pid) {
               <button class="qty-btn" onclick="changeQty(1)">+</button>
             </div>
             <button class="add-btn" id="add-btn" onclick="addToCart()">🛒 Add to Cart</button>
+            <button class="add-btn" id="buy-btn" onclick="buyNow()" style="background:#111;margin-top:8px">⚡ Buy Now</button>
             <div class="features">
               <div class="feature"><div class="feature-icon">🚚</div><div class="feature-text">Fast USA Delivery</div></div>
               <div class="feature"><div class="feature-icon">↩️</div><div class="feature-text">Easy Returns</div></div>
