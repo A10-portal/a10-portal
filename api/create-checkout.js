@@ -58,30 +58,33 @@ export default async function handler(req, res) {
             };
         });
 
-        const cartMeta = itemsToCheckout.map(i => ({
-            pid:     (i.pid     || '').substring(0, 36),
-            price:   i.price    || '0',
-            name:    (i.name    || '').substring(0, 45),
-            image:   (i.image   || '').substring(0, 100),
-            qty:     i.qty      || 1,
-            color:   (i.color   || '').substring(0, 20),
-            size:    (i.size    || '').substring(0, 10),
-            variant: (i.variant || '').substring(0, 30)
-        }));
+        // Build compressed cart string — must stay under 490 chars for Stripe metadata
+        const buildCartStr = (items, level) => {
+            if (level === 0) return JSON.stringify(items.map(i => ({
+                p: (i.pid||'').substring(0,18),
+                pr: parseFloat(i.price||0).toFixed(2),
+                q: i.qty||1,
+                c: (i.color||'').substring(0,6),
+                s: (i.size||'').substring(0,5)
+            })));
+            if (level === 1) return JSON.stringify(items.map(i => ({
+                p: (i.pid||'').substring(0,18),
+                pr: parseFloat(i.price||0).toFixed(2),
+                q: i.qty||1
+            })));
+            // Level 2 — absolute minimum
+            return JSON.stringify(items.map(i => ({
+                p: (i.pid||'').substring(0,15),
+                pr: parseFloat(i.price||0).toFixed(2),
+                q: i.qty||1
+            })));
+        };
 
-        let cartStr = JSON.stringify(cartMeta);
-        if (cartStr.length > 490) {
-            cartStr = JSON.stringify(cartMeta.map(i => ({
-                pid: i.pid, price: i.price, qty: i.qty,
-                name: i.name.substring(0, 25),
-                color: i.color, size: i.size, variant: i.variant
-            })));
-        }
-        if (cartStr.length > 490) {
-            cartStr = JSON.stringify(cartMeta.map(i => ({
-                pid: i.pid, price: i.price, qty: i.qty, variant: i.variant
-            })));
-        }
+        let cartStr = buildCartStr(itemsToCheckout, 0);
+        if (cartStr.length > 490) cartStr = buildCartStr(itemsToCheckout, 1);
+        if (cartStr.length > 490) cartStr = buildCartStr(itemsToCheckout, 2);
+        if (cartStr.length > 490) cartStr = buildCartStr(itemsToCheckout.slice(0, 5), 2);
+        if (cartStr.length > 490) cartStr = buildCartStr(itemsToCheckout.slice(0, 3), 2);
 
         // Build shipping label based on quantity
         const shippingLabel = shippingGroups > 1
