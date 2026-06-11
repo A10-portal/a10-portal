@@ -1675,6 +1675,25 @@ document.addEventListener('DOMContentLoaded', () => {
 <script>
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 </script>
- 
+ <script>
+(function(){
+  function u(b){var p='='.repeat((4-b.length%4)%4),s=(b+p).replace(/-/g,'+').replace(/_/g,'/'),r=window.atob(s),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;}
+  async function reg(){
+    try{
+      if(!('serviceWorker' in navigator)||!('PushManager' in window))return;
+      var r=await navigator.serviceWorker.ready;
+      var e=await r.pushManager.getSubscription();
+      if(e)return;
+      var p=await Notification.requestPermission();
+      if(p!=='granted')return;
+      var sub=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u('BKDaWm4VMC4Gz8UZH4MZNCUgeXDBY3mEnhy9YKhxZxpRf0JpNhLQwn8fwKxqzN_4Qq4yUXKcoMJXJie9iEgrkoI')});
+      var ses=JSON.parse(localStorage.getItem('foundry_session')||'null');
+      fetch('/api/push-notification?action=register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:JSON.stringify(sub),userId:ses?.id||''})});
+    }catch(e){console.log('Push:',e.message);}
+  }
+  window.addEventListener('load',reg);
+  document.addEventListener('click',function f(){reg();document.removeEventListener('click',f);},{once:true});
+})();
+</script>
 </body>
 </html>
