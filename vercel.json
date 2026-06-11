@@ -206,19 +206,5 @@
       "source": "/mens-underwear",
       "destination": "/category.html"
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/push-notification?action=auto&period=morning",
-      "schedule": "0 14 * * *"
-    },
-    {
-      "path": "/api/push-notification?action=auto&period=afternoon",
-      "schedule": "0 19 * * *"
-    },
-    {
-      "path": "/api/push-notification?action=auto&period=evening",
-      "schedule": "0 0 * * *"
-    }
   ]
 }
