@@ -53,7 +53,7 @@ function getRandomMessage(period) {
   return msgs[Math.floor(Math.random() * msgs.length)];
 }
 
-async function sendToAll(db, title, body, landing) {
+async function sendToAll(db, title, body, landing, image) {
   const tokenDocs = await db.collection('push_tokens').find({}).toArray();
   const subscriptions = tokenDocs.map(t => {
     try { return JSON.parse(t.token); } catch(e) { return null; }
@@ -61,10 +61,12 @@ async function sendToAll(db, title, body, landing) {
 
   if (!subscriptions.length) return { sent: 0, total: 0 };
 
+  const defaultImage = 'https://www.mova99.com/api/get-orders?img=https%3A%2F%2Fcf.cjdropshipping.com%2F11924956-1f18-4a76-8080-e4ab78fec6d5.png';
   const payload = JSON.stringify({
     title,
     body,
     icon: 'https://www.mova99.com/image/logo.png',
+    image: image || defaultImage,
     badge: 'https://www.mova99.com/image/logo.png',
     landing: landing || '/dashboard',
     url: 'https://www.mova99.com' + (landing || '/dashboard')
@@ -146,10 +148,11 @@ export default async function handler(req, res) {
     try {
       await client.connect();
       const db = client.db('foundry_db');
-      const result = await sendToAll(db, title, body, landingPage);
+      const result = await sendToAll(db, title, body, landingPage, image);
       await db.collection('notifications').insertOne({
         title, body, landingPage: landingPage || '/dashboard',
-        type: 'manual', sentTo: result.total, delivered: result.sent,
+        image: image || '', type: 'manual',
+        sentTo: result.total, delivered: result.sent,
         createdAt: new Date()
       });
       return res.status(200).json({ success: true, ...result });
