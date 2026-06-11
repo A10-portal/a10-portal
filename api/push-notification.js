@@ -144,7 +144,7 @@ export default async function handler(req, res) {
   // Manual send — admin only
   if (req.method === 'POST' && req.query.action === 'send') {
     if (!verifyToken(req)) return res.status(401).json({ error: 'Unauthorized' });
-    const { title, body, landingPage } = req.body || {};
+    const { title, body, landingPage, image } = req.body || {};
     if (!title || !body) return res.status(400).json({ error: 'Missing title or body' });
     try {
       await client.connect();
