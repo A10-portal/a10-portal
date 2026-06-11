@@ -54,6 +54,7 @@ function getRandomMessage(period) {
 }
 
 async function sendToAll(db, title, body, landing, image) {
+  image = image || '';
   const tokenDocs = await db.collection('push_tokens').find({}).toArray();
   const subscriptions = tokenDocs.map(t => {
     try { return JSON.parse(t.token); } catch(e) { return null; }
@@ -127,7 +128,7 @@ export default async function handler(req, res) {
     try {
       await client.connect();
       const db = client.db('foundry_db');
-      const result = await sendToAll(db, msg.title, msg.body, msg.landing);
+      const result = await sendToAll(db, msg.title, msg.body, msg.landing, '');
       await db.collection('notifications').insertOne({
         title: msg.title, body: msg.body,
         landingPage: msg.landing, type: 'auto',
