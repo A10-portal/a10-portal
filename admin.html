@@ -809,21 +809,92 @@ function renderPush() {
   const content = document.getElementById('content');
   content.innerHTML = `
     <div class="card" style="max-width:520px">
-      <div class="card-title">Send Push Notification</div>
+      <div class="card-title">Push Notifications</div>
       <div class="space-y">
-        <div><label class="field-label">Title</label><input id="push-title" class="field-input" placeholder="e.g. New deals just dropped 🔥"></div>
-        <div><label class="field-label">Message</label><textarea id="push-body" class="field-input" rows="4" placeholder="Write your message..." style="resize:vertical"></textarea></div>
-        <div><label class="field-label">Landing Page</label>
-          <select id="push-landing" class="field-input">
-            <option value="/dashboard">Marketplace</option>
-            <option value="/dashboard#orders">Orders</option>
-            <option value="/dashboard#support">Contact Us</option>
-          </select>
+
+        <!-- SUBSCRIBER COUNT -->
+        <div id="push-stats" style="background:#1a1a1a;border-radius:8px;padding:14px;text-align:center;border:1px solid #333">
+          <div style="font-size:11px;color:#888;margin-bottom:4px;text-transform:uppercase;letter-spacing:.08em">Total Subscribers</div>
+          <div id="push-count" style="font-size:28px;font-weight:900;color:#ff6100">...</div>
         </div>
+
+        <!-- AUTO SCHEDULE INFO -->
+        <div style="background:#1a1a1a;border:1px solid #ff6100;border-radius:8px;padding:14px">
+          <div style="font-size:11px;font-weight:800;color:#ff6100;margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">Auto Schedule</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <div style="background:#111;border-radius:6px;padding:8px;text-align:center">
+              <div style="font-size:16px;margin-bottom:3px">☀️</div>
+              <div style="font-size:9px;color:#888">Morning</div>
+              <div style="font-size:11px;font-weight:700;color:#ff6100">9:00 AM</div>
+            </div>
+            <div style="background:#111;border-radius:6px;padding:8px;text-align:center">
+              <div style="font-size:16px;margin-bottom:3px">🌤️</div>
+              <div style="font-size:9px;color:#888">Afternoon</div>
+              <div style="font-size:11px;font-weight:700;color:#ff6100">2:00 PM</div>
+            </div>
+            <div style="background:#111;border-radius:6px;padding:8px;text-align:center">
+              <div style="font-size:16px;margin-bottom:3px">🌙</div>
+              <div style="font-size:9px;color:#888">Evening</div>
+              <div style="font-size:11px;font-weight:700;color:#ff6100">7:00 PM</div>
+            </div>
+          </div>
+          <div style="font-size:10px;color:#555;margin-top:8px">Messages rotate automatically from 7 different messages per period</div>
+        </div>
+
+        <!-- QUICK SEND -->
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Quick Send</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button onclick="quickSend('morning')" class="btn btn-primary">☀️ Morning Deal</button>
+            <button onclick="quickSend('afternoon')" class="btn btn-primary">🌤️ Afternoon Deal</button>
+            <button onclick="quickSend('evening')" class="btn btn-primary">🌙 Evening Deal</button>
+            <button onclick="quickSend('referral')" class="btn" style="background:#333;color:#fff;border:none">💰 Referral Promo</button>
+          </div>
+        </div>
+
+        <!-- CUSTOM MESSAGE -->
+        <div style="border-top:1px solid #222;padding-top:14px">
+          <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Custom Message</div>
+          <div><label class="field-label">Title</label><input id="push-title" class="field-input" placeholder="e.g. New deals just dropped 🔥"></div>
+          <div><label class="field-label">Message</label><textarea id="push-body" class="field-input" rows="3" placeholder="Write your message..." style="resize:vertical"></textarea></div>
+          <div><label class="field-label">Landing Page</label>
+            <select id="push-landing" class="field-input">
+              <option value="/dashboard">Marketplace</option>
+              <option value="/dashboard#orders">Orders</option>
+              <option value="/signup">Sign Up</option>
+            </select>
+          </div>
+        </div>
+
         <div class="msg-box" id="push-msg"></div>
-        <button onclick="sendPush()" class="btn btn-primary w-full">Send to All Users 🔔</button>
+        <button onclick="sendPush()" class="btn btn-primary w-full">Send Custom Message 🔔</button>
       </div>
     </div>`;
+
+  // Load subscriber count
+  af('/api/push-notification?action=count').then(r => r.json()).then(d => {
+    const el = document.getElementById('push-count');
+    if (el) el.textContent = (d.count || 0).toLocaleString();
+  }).catch(() => {
+    const el = document.getElementById('push-count');
+    if (el) el.textContent = '0';
+  });
+}
+
+const QUICK_MESSAGES = {
+  morning:   { title: 'Morning Deals at Mova99 ☀️', body: 'Jewelry from $3.22 — flat $2.41 shipping anywhere in the USA! Shop now.', landing: '/dashboard' },
+  afternoon: { title: 'Flash Sale Now Live! ⚡', body: 'Hot products from $8 with flat $2.41 shipping. Limited time only!', landing: '/dashboard' },
+  evening:   { title: 'Tonight Best Deals 🌙', body: 'Shop jewelry, fashion and electronics at Mova99. Fast USA delivery!', landing: '/dashboard' },
+  referral:  { title: 'Earn $15,000 Free 💸', body: 'Join Mova99 referral program. Earn 5% on every purchase. No investment needed!', landing: '/signup' }
+};
+
+async function quickSend(type) {
+  const msg = QUICK_MESSAGES[type];
+  if (!msg) return;
+  document.getElementById('push-title').value = msg.title;
+  document.getElementById('push-body').value = msg.body;
+  document.getElementById('push-landing').value = msg.landing;
+  await sendPush();
 }
 
 async function sendPush() {
