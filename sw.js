@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mova99-v2';
+const CACHE_NAME = 'mova99-v3';
 const STATIC_ASSETS = ['/', '/dashboard', '/login', '/signup', '/image/logo.PNG'];
 
 self.addEventListener('install', event => {
@@ -30,13 +30,28 @@ self.addEventListener('push', event => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; }
   catch(e) { data = { title: 'Mova99', body: event.data ? event.data.text() : 'New deals available!' }; }
+
   const title = data.title || 'Mova99 Shopping Store';
+  const notifUrl = data.url || 'https://www.mova99.com/dashboard';
+
+  // Extract direct CJ image URL from proxy URL if needed
+  let notifImage = data.image || '';
+  if (notifImage.includes('get-orders?img=')) {
+    try {
+      const encoded = notifImage.split('get-orders?img=')[1];
+      notifImage = decodeURIComponent(encoded);
+    } catch(e) {
+      notifImage = 'https://www.mova99.com/image/logo.png';
+    }
+  }
+  if (!notifImage) notifImage = 'https://www.mova99.com/image/logo.png';
+
   const options = {
     body: data.body || 'Check out our latest deals!',
     icon: 'https://www.mova99.com/image/logo.png',
-    image: 'https://www.mova99.com/image/logo.png',
+    image: notifImage,
     badge: 'https://www.mova99.com/image/logo.png',
-    data: { url: data.url || 'https://www.mova99.com/dashboard' },
+    data: { url: notifUrl },
     actions: [{ action: 'shop', title: 'Shop Now' }, { action: 'dismiss', title: 'Dismiss' }],
     vibrate: [200, 100, 200],
     tag: 'mova99-promo',
@@ -53,7 +68,10 @@ self.addEventListener('notificationclick', event => {
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
       for (const client of clientList) {
-        if (client.url.includes('mova99.com') && 'focus' in client) { client.navigate(url); return client.focus(); }
+        if (client.url.includes('mova99.com') && 'focus' in client) {
+          client.navigate(url);
+          return client.focus();
+        }
       }
       if (clients.openWindow) return clients.openWindow(url);
     })
