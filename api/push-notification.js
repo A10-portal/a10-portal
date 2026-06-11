@@ -63,14 +63,17 @@ async function sendToAll(db, title, body, landing, image) {
   if (!subscriptions.length) return { sent: 0, total: 0 };
 
   const defaultImage = 'https://www.mova99.com/api/get-orders?img=https%3A%2F%2Fcf.cjdropshipping.com%2F11924956-1f18-4a76-8080-e4ab78fec6d5.png';
+  const finalImage = image || defaultImage;
+  const finalUrl = landing
+    ? (landing.startsWith('http') ? landing : 'https://www.mova99.com' + (landing.startsWith('/') ? landing : '/' + landing))
+    : 'https://www.mova99.com/dashboard';
   const payload = JSON.stringify({
     title,
     body,
     icon: 'https://www.mova99.com/image/logo.png',
-    image: image || defaultImage,
+    image: finalImage,
     badge: 'https://www.mova99.com/image/logo.png',
-    landing: landing || '/dashboard',
-    url: 'https://www.mova99.com' + (landing || '/dashboard')
+    url: finalUrl
   });
 
   let sent = 0;
