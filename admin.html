@@ -857,14 +857,20 @@ function renderPush() {
           <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Custom Message</div>
           <div><label class="field-label">Title</label><input id="push-title" class="field-input" placeholder="e.g. New deals just dropped 🔥"></div>
           <div><label class="field-label">Message</label><textarea id="push-body" class="field-input" rows="3" placeholder="Write your message..." style="resize:vertical"></textarea></div>
-          <div><label class="field-label">Product Image URL (optional)</label><input id="push-image" class="field-input" placeholder="https://cf.cjdropshipping.com/..."></div>
-          <div style="font-size:10px;color:#666;margin-top:-8px">Leave blank to use Mova99 logo. Paste any product image URL from CJ.</div>
+          <div><label class="field-label">Product Image URL (optional)</label><input id="push-image" class="field-input" placeholder="https://www.mova99.com/api/get-orders?img=https%3A%2F%2Fcf.cjdropshipping.com%2F..."></div>
+          <div style="font-size:10px;color:#666;margin-top:-8px">Copy image address from any product on mova99.com and paste here.</div>
           <div><label class="field-label">Landing Page</label>
-            <select id="push-landing" class="field-input">
+            <select id="push-landing" class="field-input" onchange="toggleCustomLanding(this.value)">
               <option value="/dashboard">Marketplace</option>
               <option value="/dashboard#orders">Orders</option>
               <option value="/signup">Sign Up</option>
+              <option value="custom">Custom URL...</option>
             </select>
+          </div>
+          <div id="custom-landing-wrap" style="display:none">
+            <label class="field-label">Custom URL</label>
+            <input id="push-landing-custom" class="field-input" placeholder="e.g. /product?pid=2062590960497782785">
+            <div style="font-size:10px;color:#666;margin-top:4px">Paste product URL or any mova99.com path</div>
           </div>
         </div>
 
@@ -883,12 +889,30 @@ function renderPush() {
   });
 }
 
+function toggleCustomLanding(val) {
+  const wrap = document.getElementById('custom-landing-wrap');
+  if (wrap) wrap.style.display = val === 'custom' ? 'block' : 'none';
+}
+
 const QUICK_MESSAGES = {
   morning:   { title: 'Morning Deals at Mova99 ☀️', body: 'Jewelry from $3.22 — flat $2.41 shipping anywhere in the USA! Shop now.', landing: '/dashboard' },
   afternoon: { title: 'Flash Sale Now Live! ⚡', body: 'Hot products from $8 with flat $2.41 shipping. Limited time only!', landing: '/dashboard' },
   evening:   { title: 'Tonight Best Deals 🌙', body: 'Shop jewelry, fashion and electronics at Mova99. Fast USA delivery!', landing: '/dashboard' },
   referral:  { title: 'Earn $15,000 Free 💸', body: 'Join Mova99 referral program. Earn 5% on every purchase. No investment needed!', landing: '/signup' }
 };
+
+function toggleCustomLanding(val) {
+  const wrap = document.getElementById('custom-landing-wrap');
+  if (wrap) wrap.style.display = val === 'custom' ? 'block' : 'none';
+}
+
+function getLanding() {
+  const select = document.getElementById('push-landing');
+  if (select?.value === 'custom') {
+    return document.getElementById('push-landing-custom')?.value.trim() || '/dashboard';
+  }
+  return select?.value || '/dashboard';
+}
 
 async function quickSend(type) {
   const msg = QUICK_MESSAGES[type];
@@ -902,15 +926,18 @@ async function quickSend(type) {
 async function sendPush() {
   const title   = document.getElementById('push-title')?.value.trim();
   const body    = document.getElementById('push-body')?.value.trim();
-  const landing = document.getElementById('push-landing')?.value;
+  const landing = getLanding();
   const msg     = document.getElementById('push-msg');
   if (!title||!body) { showMsg(msg,'Fill in title and message.',false); return; }
   const btn = document.querySelector('[onclick="sendPush()"]');
   if (btn) { btn.textContent='Sending...'; btn.disabled=true; }
   try {
     const image = document.getElementById('push-image')?.value.trim() || '';
+    const landingVal = landing === 'custom' 
+      ? (document.getElementById('push-landing-custom')?.value.trim() || '/dashboard')
+      : landing;
     const r = await af('/api/push-notification?action=send', {
-      method:'POST', body:JSON.stringify({ title, body, landingPage:landing, image })
+      method:'POST', body:JSON.stringify({ title, body, landingPage:landingVal, image })
     });
     const d = await r.json();
     if (d.success) {
