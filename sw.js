@@ -33,8 +33,9 @@ self.addEventListener('push', event => {
   const title = data.title || 'Mova99 Shopping Store';
   const options = {
     body: data.body || 'Check out our latest deals!',
-    icon: '/image/logo.png',
-    badge: '/image/logo.png',
+    icon: 'https://www.mova99.com/image/logo.png',
+    image: 'https://www.mova99.com/image/logo.png',
+    badge: 'https://www.mova99.com/image/logo.png',
     data: { url: data.url || 'https://www.mova99.com/dashboard' },
     actions: [{ action: 'shop', title: 'Shop Now' }, { action: 'dismiss', title: 'Dismiss' }],
     vibrate: [200, 100, 200],
