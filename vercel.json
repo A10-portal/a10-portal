@@ -5,62 +5,220 @@
     {
       "source": "/.well-known/assetlinks.json",
       "headers": [
-        { "key": "Content-Type", "value": "application/json" },
-        { "key": "Cache-Control", "value": "no-cache" }
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
       ]
     },
     {
       "source": "/google-feed.xml",
       "headers": [
-        { "key": "Content-Type", "value": "application/xml; charset=utf-8" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
       ]
     }
   ],
   "rewrites": [
-    { "source": "/.well-known/assetlinks.json", "destination": "/.well-known/assetlinks.json" },
-    { "source": "/api/contact", "destination": "/api/get-user?action=contact" },
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/dashboard", "destination": "/dashboard.html" },
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/success", "destination": "/success.html" },
-    { "source": "/login", "destination": "/login.html" },
-    { "source": "/signup", "destination": "/signup.html" },
-    { "source": "/track", "destination": "/track.html" },
-    { "source": "/product", "destination": "/product.html" },
-    { "source": "/kids-shoes", "destination": "/category.html" },
-    { "source": "/womens-lingerie", "destination": "/category.html" },
-    { "source": "/arts-crafts", "destination": "/category.html" },
-    { "source": "/beauty-health", "destination": "/category.html" },
-    { "source": "/kids-fashion", "destination": "/category.html" },
-    { "source": "/bags-luggage", "destination": "/category.html" },
-    { "source": "/womens-clothing", "destination": "/category.html" },
-    { "source": "/appliances", "destination": "/category.html" },
-    { "source": "/womens-shoes", "destination": "/category.html" },
-    { "source": "/jewelry-accessories", "destination": "/category.html" },
-    { "source": "/home-kitchen", "destination": "/category.html" },
-    { "source": "/pet-supplies", "destination": "/category.html" },
-    { "source": "/mens-shoes", "destination": "/category.html" },
-    { "source": "/mens-clothing", "destination": "/category.html" },
-    { "source": "/business-science", "destination": "/category.html" },
-    { "source": "/automotive", "destination": "/category.html" },
-    { "source": "/office-supplies", "destination": "/category.html" },
-    { "source": "/toys-games", "destination": "/category.html" },
-    { "source": "/womens-curve", "destination": "/category.html" },
-    { "source": "/smart-home", "destination": "/category.html" },
-    { "source": "/baby-maternity", "destination": "/category.html" },
-    { "source": "/mens-big-tall", "destination": "/category.html" },
-    { "source": "/cell-phones", "destination": "/category.html" },
-    { "source": "/sports-outdoors", "destination": "/category.html" },
-    { "source": "/musical-instruments", "destination": "/category.html" },
-    { "source": "/patio-garden", "destination": "/category.html" },
-    { "source": "/electronics", "destination": "/category.html" },
-    { "source": "/tools-home-improvement", "destination": "/category.html" },
-    { "source": "/beachwear", "destination": "/category.html" },
-    { "source": "/health-household", "destination": "/category.html" },
-    { "source": "/food-grocery", "destination": "/category.html" },
-    { "source": "/books-media", "destination": "/category.html" },
-    { "source": "/mens-underwear", "destination": "/category.html" }
+    {
+      "source": "/.well-known/assetlinks.json",
+      "destination": "/.well-known/assetlinks.json"
+    },
+    {
+      "source": "/api/contact",
+      "destination": "/api/get-user?action=contact"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/dashboard.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/success",
+      "destination": "/success.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/signup",
+      "destination": "/signup.html"
+    },
+    {
+      "source": "/track",
+      "destination": "/track.html"
+    },
+    {
+      "source": "/product",
+      "destination": "/product.html"
+    },
+    {
+      "source": "/kids-shoes",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/womens-lingerie",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/arts-crafts",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/beauty-health",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/kids-fashion",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/bags-luggage",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/womens-clothing",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/appliances",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/womens-shoes",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/jewelry-accessories",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/home-kitchen",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/pet-supplies",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/mens-shoes",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/mens-clothing",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/business-science",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/automotive",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/office-supplies",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/toys-games",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/womens-curve",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/smart-home",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/baby-maternity",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/mens-big-tall",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/cell-phones",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/sports-outdoors",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/musical-instruments",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/patio-garden",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/electronics",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/tools-home-improvement",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/beachwear",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/health-household",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/food-grocery",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/books-media",
+      "destination": "/category.html"
+    },
+    {
+      "source": "/mens-underwear",
+      "destination": "/category.html"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/push-notification?action=auto&period=morning",
+      "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/push-notification?action=auto&period=afternoon",
+      "schedule": "0 19 * * *"
+    },
+    {
+      "path": "/api/push-notification?action=auto&period=evening",
+      "schedule": "0 0 * * *"
+    }
   ]
 }
