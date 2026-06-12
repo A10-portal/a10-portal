@@ -401,11 +401,14 @@ let _cartSaveTimer = null;
 function calcShipping(price, qty) {
   const p = parseFloat(price) || 0;
   const q = parseInt(qty) || 1;
-  // Base shipping
-  let base;
-  if (p >= 101) {
-    base = 5.00;
-  } else {
+  // Base shipping: $7 + 10% for products under $101, flat $5 for $101+
+  const base = p >= 101 ? 5.0 : 7 + (p * 0.1);
+  if (q <= 1) return Math.max(base, 3).toFixed(2);
+  // Reduce evenly from base down to $3 minimum over 5 quantities
+  const step = Math.max((base - 3) / 4, 0);
+  const reduced = base - (step * (q - 1));
+  return Math.max(reduced, 3).toFixed(2);
+} else {
     base = 7 + (p * 0.1);
   }
   // Quantity discount — reduces shipping up to 50% at qty 5+
