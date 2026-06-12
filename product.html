@@ -242,8 +242,9 @@ function changeQty(d) {
 function updatePrice() {
   const el = document.getElementById('prod-price');
   if (el) el.textContent = '$' + (_p.basePrice * _p.qty).toFixed(2);
-  // Update shipping badge — pass unit price and qty separately
-  const ship = calcShipping(_p.basePrice, _p.qty);
+  // Use total price like dashboard does: calcShipping(totalPrice, qty)
+  const totalPrice = _p.basePrice * _p.qty;
+  const ship = calcShipping(totalPrice, _p.qty);
   const badge = document.getElementById('shipping-badge');
   if (badge) {
     if (_p.qty >= 5 || parseFloat(ship) <= 3) {
@@ -301,7 +302,7 @@ function buyNow() {
     name: (_p.name||'').substring(0,25),
     price: (_p.basePrice * _p.qty).toFixed(2),
     qty: _p.qty || 1,
-    shippingCost: calcShipping(_p.basePrice, _p.qty),
+    shippingCost: calcShipping((_p.basePrice * _p.qty).toFixed(2), _p.qty),
     color: (_p.color||'').substring(0,8),
     size: (_p.size||'').substring(0,6),
     vid: (_p.vid||'').substring(0,12),
@@ -580,7 +581,7 @@ async function loadProduct(pid) {
             <h1 class="product-title">${name}</h1>
             <div id="prod-price" class="product-price">$${basePrice.toFixed(2)}</div>
             <div class="product-old">Was $${(parseFloat(fakeOld) > basePrice ? fakeOld : (basePrice * 1.4).toFixed(2))}</div>
-            <div class="shipping-badge" id="shipping-badge">📦 Shipping: $${calcShipping(basePrice, 1)} — USA</div>
+            <div class="shipping-badge" id="shipping-badge">📦 Shipping: $${calcShipping(basePrice * 1, 1)} — USA</div>
             <div class="delivery-info">
               <div class="delivery-chip"><span>1-2</span>Processing Days</div>
               <div class="delivery-chip"><span>3-8</span>Delivery Days</div>
