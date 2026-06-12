@@ -1,4 +1,9 @@
-<!DOCTYPE html>
+<!DOCTY
+    // Update shipping badge after HTML is rendered
+      if (parseFloat(shipCost) === 0) {
+      } else {
+      }
+    }PE html>
 <html lang="en">
 <head>
 <link rel="manifest" href="/manifest.json">
@@ -415,19 +420,22 @@ async function loadProduct(pid) {
       if (variants[0].variantImage) mainImage = variants[0].variantImage;
     }
 
-    // Shipping = 10% of sell price
+    // Shipping = 10% of sell price — stored for after HTML renders
     const shipCost = (parseFloat(d.sellPrice || 0) * 0.1).toFixed(2);
     window._productShipping = parseFloat(shipCost);
-    const shipBadge = document.getElementById('shipping-badge');
-    if (shipBadge) {
-      if (parseFloat(shipCost) === 0) {
-        shipBadge.textContent = '📦 Free Shipping — USA 🎉';
-      } else {
-        shipBadge.textContent = '📦 Shipping: $' + shipCost + ' — USA';
-      }
-    }
 
     const fakeOld = (basePrice * (1.3 + Math.random() * 0.3)).toFixed(2);
+
+
+    // Update shipping badge after HTML is rendered
+    const shipBadge = document.getElementById('shipping-badge');
+    if (shipBadge) {
+      if (parseFloat(window._productShipping) === 0) {
+        shipBadge.textContent = '📦 Free Shipping — USA 🎉';
+      } else {
+        shipBadge.textContent = '📦 Shipping: $' + window._productShipping.toFixed(2) + ' — USA';
+      }
+    }
 
     _p = { pid, name, basePrice, image: mainImage, qty: 1, vid: variants[0]?.vid||'', color: variants[0]?.color||'', size: variants[0]?.size||'' };
 
