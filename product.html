@@ -214,7 +214,8 @@ function pickV(btn, vid, color, size, price, img) {
   if (color) _p.color = color;
   if (size) _p.size = size;
   const pr = parseFloat(price);
-  if (!isNaN(pr) && pr > 0) _p.basePrice = pr;
+  // Only update basePrice if variant price is close to listed price (within 50%)
+  if (!isNaN(pr) && pr > 0 && pr >= _p.basePrice * 0.5) _p.basePrice = pr;
   if (img) document.getElementById('main-img').src = imgUrl(img);
   updatePrice();
 }
@@ -483,24 +484,27 @@ async function loadProduct(pid) {
     const gallery = d.productGallery || [];
 
     // Unit price — use listed price first, then variant price
-    let basePrice = parseFloat(d.sellPrice) || 0;
+    // listedPrice = the actual sell price shown (from d.sellPrice)
+    // basePrice = display price (may use variant price for display)
+    const listedPrice = parseFloat(d.sellPrice) || 0;
+    let basePrice = listedPrice;
     let mainImage = d.productImage || '';
 
     if (variants[0]) {
       const vp = parseFloat(variants[0].variantSellPrice);
-      if (!isNaN(vp) && vp > 0) basePrice = vp;
+      // Only use variant price for display if it makes sense (not less than half of listed)
+      if (!isNaN(vp) && vp > 0 && vp >= listedPrice * 0.8) basePrice = vp;
       if (variants[0].variantImage) mainImage = variants[0].variantImage;
     }
 
-    // Was price always higher than sell price (40-70% above)
-    const listedPrice = parseFloat(d.sellPrice) || basePrice;
+    // Was price always 40-70% above listed price
     const fakeOld = (listedPrice * (1.4 + Math.random() * 0.3)).toFixed(2);
 
-    // Initial shipping at qty 1 using unit price
-    const initShip = calcShipping(basePrice, 1);
+    // Shipping always calculated on listedPrice (actual product price)
+    const initShip = calcShipping(listedPrice, 1);
 
-    // Set _p state
-    _p = { pid, name, basePrice, image: mainImage, qty: 1, vid: variants[0]?.vid||'', color: variants[0]?.color||'', size: variants[0]?.size||'' };
+    // _p.basePrice stores listedPrice for consistent shipping calculation
+    _p = { pid, name, basePrice: listedPrice, image: mainImage, qty: 1, vid: variants[0]?.vid||'', color: variants[0]?.color||'', size: variants[0]?.size||'' };
 
     const seen = {};
     const imgs = [mainImage, ...gallery, ...variants.map(v=>v.variantImage).filter(Boolean)]
