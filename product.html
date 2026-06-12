@@ -242,15 +242,22 @@ function changeQty(d) {
 function updatePrice() {
   const el = document.getElementById('prod-price');
   if (el) el.textContent = '$' + (_p.basePrice * _p.qty).toFixed(2);
+  // Update shipping badge based on qty
+  const totalPrice = _p.basePrice * _p.qty;
+  const ship = calcShipping(totalPrice, _p.qty);
+  const badge = document.getElementById('shipping-badge');
+  if (badge) badge.textContent = '📦 Shipping: $' + ship + ' — USA (qty ' + _p.qty + ')';
 }
 
 function addToCart() {
   const label = [_p.color, _p.size].filter(Boolean).join(' / ');
   const displayName = _p.name.split(' — ')[0] + (label ? ' — ' + label : '') + (_p.qty > 1 ? ` (x${_p.qty})` : '');
+  const totalPrice = (_p.basePrice * _p.qty).toFixed(2);
   const entry = {
     pid: _p.pid, cartKey: _p.pid + '_' + Date.now(),
-    name: displayName, price: (_p.basePrice * _p.qty).toFixed(2),
-    image: _p.image, qty: _p.qty, color: _p.color, size: _p.size, vid: _p.vid
+    name: displayName, price: totalPrice,
+    image: _p.image, qty: _p.qty, color: _p.color, size: _p.size, vid: _p.vid,
+    shippingCost: calcShipping(totalPrice, _p.qty)
   };
   const idx = cart.findIndex(i => i.pid === _p.pid);
   if (idx > -1) cart[idx] = entry; else cart.push(entry);
@@ -289,6 +296,7 @@ function buyNow() {
     name: (_p.name||'').substring(0,25),
     price: (_p.basePrice * _p.qty).toFixed(2),
     qty: _p.qty || 1,
+    shippingCost: calcShipping((_p.basePrice * _p.qty).toFixed(2), _p.qty),
     color: (_p.color||'').substring(0,8),
     size: (_p.size||'').substring(0,6),
     vid: (_p.vid||'').substring(0,12),
@@ -331,7 +339,7 @@ function renderCart() {
   const sub = cart.reduce((s,i) => s + parseFloat(i.price||0), 0);
   const tQty = cart.reduce((s,i) => s + (i.qty||1), 0);
   const sg = Math.ceil(tQty/6)||1;
-  const ship = Math.max(cart.reduce((s,i) => s + parseFloat(i.shippingCost || calcShipping(i.price)), 0), 1).toFixed(2);
+  const ship = Math.max(cart.reduce((s,i) => s + parseFloat(i.shippingCost || calcShipping(i.price, i.qty||1)), 0), 3).toFixed(2);
   const total = (sub + parseFloat(ship)).toFixed(2);
 
   let h = '';
