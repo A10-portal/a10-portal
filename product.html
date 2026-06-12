@@ -242,9 +242,8 @@ function changeQty(d) {
 function updatePrice() {
   const el = document.getElementById('prod-price');
   if (el) el.textContent = '$' + (_p.basePrice * _p.qty).toFixed(2);
-  // Use total price like dashboard does: calcShipping(totalPrice, qty)
-  const totalPrice = _p.basePrice * _p.qty;
-  const ship = calcShipping(totalPrice, _p.qty);
+  // Pass unit price + qty so tiered logic works per item
+  const ship = calcShipping(_p.basePrice, _p.qty);
   const badge = document.getElementById('shipping-badge');
   if (badge) {
     if (_p.qty >= 5 || parseFloat(ship) <= 3) {
@@ -263,7 +262,7 @@ function addToCart() {
     pid: _p.pid, cartKey: _p.pid + '_' + Date.now(),
     name: displayName, price: totalPrice,
     image: _p.image, qty: _p.qty, color: _p.color, size: _p.size, vid: _p.vid,
-    shippingCost: calcShipping(totalPrice, _p.qty)
+    shippingCost: calcShipping(_p.basePrice, _p.qty)
   };
   const idx = cart.findIndex(i => i.pid === _p.pid);
   if (idx > -1) cart[idx] = entry; else cart.push(entry);
@@ -302,7 +301,7 @@ function buyNow() {
     name: (_p.name||'').substring(0,25),
     price: (_p.basePrice * _p.qty).toFixed(2),
     qty: _p.qty || 1,
-    shippingCost: calcShipping((_p.basePrice * _p.qty).toFixed(2), _p.qty),
+    shippingCost: calcShipping(_p.basePrice, _p.qty),
     color: (_p.color||'').substring(0,8),
     size: (_p.size||'').substring(0,6),
     vid: (_p.vid||'').substring(0,12),
@@ -512,7 +511,8 @@ async function loadProduct(pid) {
     const shipCost = calcShipping(d.sellPrice || 0);
     window._productShipping = parseFloat(shipCost);
 
-    const fakeOld = (basePrice * (1.4 + Math.random() * 0.3)).toFixed(2); // always 40-70% higher
+    const listedPrice = parseFloat(d.sellPrice) || basePrice;
+    const fakeOld = (listedPrice * (1.4 + Math.random() * 0.3)).toFixed(2); // always 40-70% above listed price
 
 
     // Update shipping badge after HTML is rendered
@@ -580,8 +580,8 @@ async function loadProduct(pid) {
           <div class="product-info">
             <h1 class="product-title">${name}</h1>
             <div id="prod-price" class="product-price">$${basePrice.toFixed(2)}</div>
-            <div class="product-old">Was $${(parseFloat(fakeOld) > basePrice ? fakeOld : (basePrice * 1.4).toFixed(2))}</div>
-            <div class="shipping-badge" id="shipping-badge">📦 Shipping: $${calcShipping(basePrice * 1, 1)} — USA</div>
+            <div class="product-old">Was $${fakeOld}</div>
+            <div class="shipping-badge" id="shipping-badge">📦 Shipping: $${calcShipping(listedPrice, 1)} — USA</div>
             <div class="delivery-info">
               <div class="delivery-chip"><span>1-2</span>Processing Days</div>
               <div class="delivery-chip"><span>3-8</span>Delivery Days</div>
