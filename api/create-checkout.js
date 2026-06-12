@@ -26,17 +26,14 @@ export default async function handler(req, res) {
 
         if (!itemsToCheckout || itemsToCheckout.length === 0) return res.status(400).json({ error: 'Cart is empty' });
 
-        // Calculate real shipping — use shippingCost from cart items if available
-        // Each item carries its real CJ shipping cost fetched at product page load
+        // Shipping = 10% of each item's price
         const totalShipping = itemsToCheckout.reduce((sum, item) => {
-            const itemShip = parseFloat(item.shippingCost || 0);
-            const qty = item.qty || 1;
-            // Cap per-item shipping at qty * shippingCost (don't multiply full rate for each unit)
-            return sum + (itemShip * Math.min(qty, 1));
+            const itemPrice = parseFloat(item.price || 0);
+            const itemShip = parseFloat(item.shippingCost || (itemPrice * 0.1));
+            return sum + itemShip;
         }, 0);
-        // Minimum $2.41 shipping, round up to cents
-        const shippingAmount = Math.round(Math.max(totalShipping, 2.41) * 100);
-        const shippingGroups = 1; // kept for label compatibility
+        const shippingAmount = Math.round(Math.max(totalShipping, 1) * 100);
+        const shippingGroups = 1;
 
         const lineItems = itemsToCheckout.map(item => {
             const qty = item.qty || 1;
