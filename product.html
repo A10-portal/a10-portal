@@ -234,6 +234,7 @@ function updatePrice() {
   if (priceEl) priceEl.textContent = '$' + (_p.basePrice * _p.qty).toFixed(2);
 
   // Shipping uses UNIT price + qty — same logic as dashboard
+  console.log('DEBUG updatePrice basePrice:', _p.basePrice, 'qty:', _p.qty);
   const ship = calcShipping(_p.basePrice, _p.qty);
   const badge = document.getElementById('shipping-badge');
   if (badge) {
@@ -496,6 +497,9 @@ async function loadProduct(pid) {
 
     // Shipping uses listedPrice (d.sellPrice) — never variant price
     const initShip = calcShipping(listedPrice, 1);
+
+    // DEBUG — remove after testing
+    console.log('DEBUG sellPrice:', d.sellPrice, 'listedPrice:', listedPrice, 'variant0 price:', variants[0]?.variantSellPrice, 'initShip:', initShip);
 
     // _p.basePrice = listedPrice always — never changes from variant
     _p = { pid, name, basePrice: listedPrice, image: mainImage, qty: 1, vid: variants[0]?.vid||'', color: variants[0]?.color||'', size: variants[0]?.size||'' };
