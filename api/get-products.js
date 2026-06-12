@@ -128,7 +128,8 @@ export default async function handler(req, res) {
             [result[i], result[j]] = [result[j], result[i]];
         }
 
-        // Price filter after markup
+        // Price filter after markup — minimum $15 always enforced
+        result = result.filter(p => parseFloat(p.sellPrice) >= 15);
         if (minPrice) result = result.filter(p => parseFloat(p.sellPrice) >= parseFloat(minPrice));
         if (maxPrice) result = result.filter(p => parseFloat(p.sellPrice) <= parseFloat(maxPrice));
 
