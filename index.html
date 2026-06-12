@@ -501,8 +501,8 @@ async function loadGrid(gridId, extraSeedOffset) {
             ${fire ? `<span style="font-size:9px;font-weight:800;color:var(--orange);background:var(--orange-pale);padding:2px 5px;border-radius:3px">${pct}% OFF</span>` : ''}
           </div>
         </div>
-        <button class="pcard-add-btn pcard-view" data-pid="${p.pid}">
-          🛒 View Product
+        <button class="pcard-add-btn pcard-add" data-pid="${p.pid}">
+          🛒 Add to Cart
         </button>`;
       grid.appendChild(card);
     });
