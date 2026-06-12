@@ -55,24 +55,33 @@ function parseVariantName(raw) {
 }
 
 // Fetch real shipping cost from CJ
-async function fetchShippingCost(pid, token) {
+async function fetchShippingCost(pid, weight, token) {
     try {
+        const params = {
+            startCountryCode: 'CN',
+            endCountryCode: 'US',
+            quantity: 1,
+            pid,
+            weight: weight || 0.5 // default 500g if no weight
+        };
+
         const r = await axios.get('https://developers.cjdropshipping.com/api2.0/v1/logistic/freightCalculate', {
             headers: H(token),
-            params: {
-                startCountryCode: 'CN',
-                endCountryCode: 'US',
-                quantity: 1,
-                pid
-            },
+            params,
             timeout: 8000
         });
         const list = r.data?.data || [];
         if (!list.length) return null;
+
+        // Filter out invalid entries
+        const valid = list.filter(s => s.logisticPrice && parseFloat(s.logisticPrice) >= 0);
+        if (!valid.length) return null;
+
         // Get cheapest shipping option
-        const cheapest = list.reduce((min, s) =>
+        const cheapest = valid.reduce((min, s) =>
             parseFloat(s.logisticPrice || 999) < parseFloat(min.logisticPrice || 999) ? s : min
-        , list[0]);
+        , valid[0]);
+
         return {
             cost: parseFloat(cheapest.logisticPrice || 0).toFixed(2),
             name: cheapest.logisticName || 'Standard Shipping',
@@ -89,17 +98,19 @@ export default async function handler(req, res) {
     if (!pid) return res.status(400).json({ error: 'Missing pid' });
 
     try {
-        const [varRes, prodRes, shipRes] = await Promise.allSettled([
+        const [varRes, prodRes] = await Promise.allSettled([
             axios.get('https://developers.cjdropshipping.com/api2.0/v1/product/variant/query',
                 { headers: H(TOKEN), params: { pid } }),
             axios.get('https://developers.cjdropshipping.com/api2.0/v1/product/query',
-                { headers: H(TOKEN), params: { pid } }),
-            fetchShippingCost(pid, TOKEN)
+                { headers: H(TOKEN), params: { pid } })
         ]);
 
         const rawVariants = varRes.status === 'fulfilled' ? (varRes.value.data?.data || []) : [];
         const product     = prodRes.status === 'fulfilled' ? (prodRes.value.data?.data || {}) : {};
-        const shipping    = shipRes.status === 'fulfilled' ? shipRes.value : null;
+
+        // Fetch shipping with product weight
+        const weight = parseFloat(product.productWeight || product.weight || 0.5);
+        const shipping = await fetchShippingCost(pid, weight, TOKEN);
 
         const attrs = product.productAttributes || product.productAttribute || [];
         let attrColors = [], attrSizes = [];
