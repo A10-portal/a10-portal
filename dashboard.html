@@ -712,8 +712,8 @@ function appendProductCard(grid, p) {
       </div>
     </div>
     <div class="pcard-footer">
-      <button class="add-btn ${inCart?'added':''} pcard-add" data-pid="${pid}">
-        ${inCart ? '✓ In Cart' : '🛒 Add to Cart'}
+      <button class="add-btn pcard-open" data-pid="${pid}">
+        🛒 View Product
       </button>
     </div>`;
   grid.appendChild(div);
@@ -1082,15 +1082,19 @@ function renderCart() {
     h += `<div style="border:1.5px solid ${chk?'var(--orange)':'var(--border)'};border-radius:10px;padding:12px;margin-bottom:8px;opacity:${chk?1:.6}">
       <div style="display:flex;gap:10px;align-items:flex-start">
         <input type="checkbox" ${chk?'checked':''} onchange="toggleItem('${safeKey}',this.checked)" style="width:16px;height:16px;accent-color:var(--orange);cursor:pointer;flex-shrink:0;margin-top:4px">
-        <img src="${imgUrl(item.image||'')}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#f8f8f8">
+        <img src="${imgUrl(item.image||'')}" onclick="openProductFromCart('${item.pid}')" style="width:56px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#f8f8f8;cursor:pointer">
         <div style="flex:1;min-width:0">
-          <p style="font-size:11px;font-weight:700;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:4px">${(item.name||'').split(' — ')[0]}</p>
+          <p onclick="openProductFromCart('${item.pid}')" style="font-size:11px;font-weight:700;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:4px;cursor:pointer;color:var(--orange)">${(item.name||'').split(' — ')[0]}</p>
           ${(item.color||item.size) ? `<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px">
             ${item.color?`<span style="font-size:9px;font-weight:700;background:var(--orange-pale);color:var(--orange);padding:2px 8px;border-radius:10px">🎨 ${item.color}</span>`:''}
             ${item.size?`<span style="font-size:9px;font-weight:700;background:#f0f0f0;color:#333;padding:2px 8px;border-radius:6px">📏 ${item.size}</span>`:''}
           </div>` : ''}
           <p style="font-size:15px;font-weight:800;color:var(--orange)">$${parseFloat(item.price||0).toFixed(2)}</p>
-          <p style="font-size:10px;color:var(--muted)">Qty: ${item.qty||1}</p>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <button onclick="changeCartQty('${safeKey}',-1)" style="width:22px;height:22px;border:1.5px solid var(--border);border-radius:4px;background:#fff;font-size:14px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center">−</button>
+            <span style="font-size:12px;font-weight:700">${item.qty||1}</span>
+            <button onclick="changeCartQty('${safeKey}',1)" style="width:22px;height:22px;border:1.5px solid var(--border);border-radius:4px;background:#fff;font-size:14px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center">+</button>
+          </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
           <button onclick="removeFromCart('${safeKey}')" style="color:var(--red);background:none;border:none;cursor:pointer;font-size:22px;padding:0 4px;line-height:1;font-weight:300">✕</button>
@@ -1114,9 +1118,20 @@ function renderCart() {
 function toggleItem(key, val) { window._checked = window._checked||{}; window._checked[key]=val; renderCart(); }
 function toggleAll(val) { cart.forEach(i=>{ const k=i.cartKey||i.pid; window._checked[k]=val; }); renderCart(); }
 function removeFromCart(key) {
-  // key is cartKey if present, otherwise pid
   cart = cart.filter(i => (i.cartKey || i.pid) !== key);
   delete (window._checked || {})[key];
+  persistCart();
+  renderCart();
+}
+
+function changeCartQty(key, delta) {
+  const item = cart.find(i => (i.cartKey || i.pid) === key);
+  if (!item) return;
+  const newQty = Math.max(1, (item.qty || 1) + delta);
+  const unitPrice = parseFloat(item.price || 0) / (item.qty || 1);
+  item.qty = newQty;
+  item.price = (unitPrice * newQty).toFixed(2);
+  item.shippingCost = (parseFloat(item.price) * 0.1).toFixed(2);
   persistCart();
   renderCart();
 }
