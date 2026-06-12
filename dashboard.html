@@ -398,6 +398,13 @@ const PRODUCT_REGISTRY = {};
 // Debounce timer so rapid add/remove doesn't spam the server
 let _cartSaveTimer = null;
 
+function calcShipping(price) {
+  const p = parseFloat(price) || 0;
+  if (p <= 50) return (p * 0.1).toFixed(2);
+  if (p <= 100) return '6.00';
+  return '5.00';
+}
+
 function persistCart() {
   // Save to localStorage immediately
   localStorage.setItem('mova_cart', JSON.stringify(cart));
@@ -1057,7 +1064,7 @@ function renderCart() {
   const sub = checked.reduce((s,i)=>s+parseFloat(i.price||0),0);
   const totalQty = checked.reduce((s,i)=>s+(i.qty||1),0);
   // Shipping = 10% of each item price
-  const totalShip = checked.reduce((s,i) => s + parseFloat(i.shippingCost || (parseFloat(i.price||0) * 0.1)), 0);
+  const totalShip = checked.reduce((s,i) => s + parseFloat(i.shippingCost || calcShipping(i.price)), 0);
   const ship = Math.max(totalShip, 1).toFixed(2);
   const total = (sub + parseFloat(ship)).toFixed(2);
 
@@ -1122,7 +1129,7 @@ function changeCartQty(key, delta) {
   const unitPrice = parseFloat(item.price || 0) / (item.qty || 1);
   item.qty = newQty;
   item.price = (unitPrice * newQty).toFixed(2);
-  item.shippingCost = (parseFloat(item.price) * 0.1).toFixed(2);
+  item.shippingCost = calcShipping(item.price);
   persistCart();
   renderCart();
 }
