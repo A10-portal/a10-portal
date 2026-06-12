@@ -39,30 +39,7 @@ async function fetchFromCJ(keyword, params, token) {
     return {};
 }
 
-// Fetch real shipping cost from CJ for a product
-async function fetchShippingCost(pid, token) {
-    try {
-        const r = await axios.get('https://developers.cjdropshipping.com/api2.0/v1/logistic/freightCalculate', {
-            headers: { 'CJ-Access-Token': token },
-            params: {
-                startCountryCode: 'CN',
-                endCountryCode: 'US',
-                quantity: 1,
-                pid
-            },
-            timeout: 8000
-        });
-        const list = r.data?.data || [];
-        if (!list.length) return null;
-        // Get cheapest shipping option
-        const cheapest = list.reduce((min, s) => 
-            parseFloat(s.logisticPrice || 999) < parseFloat(min.logisticPrice || 999) ? s : min
-        , list[0]);
-        return parseFloat(cheapest.logisticPrice || 0);
-    } catch (e) {
-        return null;
-    }
-}
+
 
 export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
@@ -98,8 +75,8 @@ export default async function handler(req, res) {
         countryCode: countryCode || 'US'
     };
 
-    if (minPrice) base.priceFrom = (parseFloat(minPrice) / 2.1).toFixed(2);
-    if (maxPrice) base.priceTo   = (parseFloat(maxPrice) / 2.1).toFixed(2);
+    if (minPrice) base.priceFrom = (parseFloat(minPrice) / 2.4).toFixed(2);
+    if (maxPrice) base.priceTo   = (parseFloat(maxPrice) / 2.4).toFixed(2);
 
     try {
         let products = [], total = 0;
@@ -130,13 +107,20 @@ export default async function handler(req, res) {
             }
         }
 
-        // Apply 2.1x markup
-        let result = products.map(p => ({
-            ...p,
-            sellPrice:     (parseFloat(p.sellPrice || 0) * 2.1).toFixed(2),
-            originalPrice: p.sellPrice,
-            shippingCost:  null // will be calculated below
-        }));
+        // Filter — only import products where CJ price is $15+
+        products = products.filter(p => parseFloat(p.sellPrice || 0) >= 15);
+
+        // Apply 2.1x markup and 10% shipping fee
+        let result = products.map(p => {
+            const sellPrice = (parseFloat(p.sellPrice || 0) * 2.4).toFixed(2);
+            const shippingCost = (parseFloat(sellPrice) * 0.1).toFixed(2);
+            return {
+                ...p,
+                sellPrice,
+                originalPrice: p.sellPrice,
+                shippingCost
+            };
+        });
 
         // Shuffle
         for (let i = result.length - 1; i > 0; i--) {
@@ -148,39 +132,8 @@ export default async function handler(req, res) {
         if (minPrice) result = result.filter(p => parseFloat(p.sellPrice) >= parseFloat(minPrice));
         if (maxPrice) result = result.filter(p => parseFloat(p.sellPrice) <= parseFloat(maxPrice));
 
-        // Fetch shipping costs in parallel for up to 10 products
-        // Filter out products where shipping > 40% of product price
-        const shippingResults = await Promise.allSettled(
-            result.slice(0, 10).map(p => fetchShippingCost(p.pid, token))
-        );
-
-        const finalResult = [];
-        result.forEach((p, i) => {
-            if (i < 10) {
-                const shipCost = shippingResults[i].status === 'fulfilled' 
-                    ? shippingResults[i].value 
-                    : null;
-                
-                const sellPrice = parseFloat(p.sellPrice);
-                
-                // If we got shipping cost, check 40% rule
-                if (shipCost !== null) {
-                    const maxAllowedShipping = sellPrice * 0.4;
-                    if (shipCost > maxAllowedShipping) return; // skip product
-                    p.shippingCost = shipCost.toFixed(2);
-                } else {
-                    // No shipping data — include product but flag as unknown
-                    p.shippingCost = null;
-                }
-                finalResult.push(p);
-            } else {
-                // Beyond 10 — include without shipping check
-                finalResult.push(p);
-            }
-        });
-
         return res.status(200).json({ 
-            products: finalResult, 
+            products: result, 
             total, 
             page: cjPage, 
             pageSize: base.pageSize, 
