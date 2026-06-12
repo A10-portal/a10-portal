@@ -453,11 +453,19 @@ function updateCartBadge() {
   if (floatBtn) floatBtn.classList.toggle('visible', n > 0);
 }
 
-function calcShipping(price) {
+function calcShipping(price, qty) {
   const p = parseFloat(price) || 0;
-  if (p <= 50) return (p * 0.1).toFixed(2);
-  if (p <= 100) return '6.00';
-  return '5.00';
+  const q = parseInt(qty) || 1;
+  let base;
+  if (p >= 101) {
+    base = 5.00;
+  } else {
+    base = 7 + (p * 0.1);
+  }
+  const discounts = [0, 0, 0.15, 0.25, 0.35, 0.50];
+  const discountRate = discounts[Math.min(q, 5)] || 0.50;
+  const discounted = base * (1 - discountRate);
+  return Math.max(discounted, 3).toFixed(2);
 }
 
 function saveCart() {
@@ -547,7 +555,7 @@ document.addEventListener('click', function(e) {
     price: String(p.sellPrice),
     image: p.productImage || '',
     qty: 1, color: '', size: '', vid: '',
-    shippingCost: p.shippingCost || calcShipping(p.sellPrice)
+    shippingCost: p.shippingCost || calcShipping(p.sellPrice, 1)
   });
   saveCart();
   flyDot(btn);
@@ -749,7 +757,7 @@ function renderCartDrawer() {
   const tQty = checked.reduce((s,i)=>s+(i.qty||1),0);
   const sg   = Math.ceil(tQty/6)||1;
   // Shipping = 10% of each item price
-  const totalShip = checked.reduce((s,i) => s + parseFloat(i.shippingCost || calcShipping(i.price)), 0);
+  const totalShip = checked.reduce((s,i) => s + parseFloat(i.shippingCost || calcShipping(i.price, i.qty||1)), 0);
   const ship = Math.max(totalShip, 1).toFixed(2);
   const total= (sub+parseFloat(ship)).toFixed(2);
 
@@ -788,7 +796,7 @@ function renderCartDrawer() {
     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:#888">Subtotal (${checked.length})</span><span style="font-weight:700">$${sub.toFixed(2)}</span></div>
     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:12px"><span style="color:#888">Shipping (USA)</span><span style="font-weight:700">$${ship}</span></div>
     <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:900;margin-bottom:16px"><span>Total</span><span style="color:var(--orange)">$${total}</span></div>
-    <button onclick="doCheckout()" style="width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;font-family:inherit">Secure Checkout →</button>
+    <button onclick="showShippingPopup(doCheckout)" style="width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;font-family:inherit">Secure Checkout →</button>
     <button onclick="closeCartDrawer()" style="width:100%;margin-top:8px;padding:11px;background:transparent;color:#888;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Continue Shopping</button>
   </div>`;
 
@@ -811,9 +819,51 @@ function changeQty(key, delta) {
   const unitPrice = parseFloat(item.price || 0) / (item.qty || 1);
   item.qty = newQty;
   item.price = (unitPrice * newQty).toFixed(2);
-  item.shippingCost = calcShipping(item.price);
+  item.shippingCost = calcShipping(item.price, item.qty||1);
   saveCart();
   renderCartDrawer();
+}
+
+
+function showShippingPopup(onContinue) {
+  const checked = cart.filter(i => (window._checked || window._chk || {})[i.cartKey||i.pid] !== false);
+  if (!checked.length) { onContinue(); return; }
+  const canSave = checked.some(i => {
+    const qty = i.qty || 1;
+    if (qty >= 5) return false;
+    const unitPrice = parseFloat(i.price||0) / qty;
+    const current = parseFloat(calcShipping(unitPrice * qty, qty));
+    const next = parseFloat(calcShipping(unitPrice * (qty+1), qty+1));
+    return current > 3 && next < current;
+  });
+  if (!canSave) { onContinue(); return; }
+  const totalCurrentShip = checked.reduce((s,i) => s + parseFloat(i.shippingCost || calcShipping(i.price, i.qty||1)), 0);
+  const totalNextShip = checked.reduce((s,i) => {
+    const qty = i.qty || 1;
+    const unitPrice = parseFloat(i.price||0) / qty;
+    return s + parseFloat(calcShipping(unitPrice * (qty+1), qty+1));
+  }, 0);
+  const saving = Math.max(totalCurrentShip - totalNextShip, 0).toFixed(2);
+  const el = document.getElementById('popup-current-ship');
+  const nextEl = document.getElementById('popup-next-ship');
+  if (el) el.textContent = '$' + totalCurrentShip.toFixed(2);
+  if (nextEl) nextEl.textContent = parseFloat(saving) > 0
+    ? '➕ Add 1 more item → save $' + saving + ' on shipping'
+    : '🎉 You have reached the lowest shipping rate!';
+  window._checkoutCallback = onContinue;
+  const popup = document.getElementById('shipping-popup');
+  if (popup) popup.style.display = 'flex';
+}
+
+function popupContinue() {
+  const popup = document.getElementById('shipping-popup');
+  if (popup) popup.style.display = 'none';
+  if (window._checkoutCallback) window._checkoutCallback();
+}
+
+function popupAddMore() {
+  const popup = document.getElementById('shipping-popup');
+  if (popup) popup.style.display = 'none';
 }
 
 async function doCheckout() {
@@ -979,5 +1029,26 @@ setTimeout(function() {
 </script>
 
 
+
+<div id="shipping-popup" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="background:linear-gradient(135deg,#ff6100,#ff8533);padding:20px;text-align:center">
+      <div style="font-size:32px;margin-bottom:8px">💡</div>
+      <div style="color:#fff;font-size:16px;font-weight:900">Save on Shipping!</div>
+      <div style="color:rgba(255,255,255,.85);font-size:12px;margin-top:4px">Increase quantity to reduce your shipping cost</div>
+    </div>
+    <div style="padding:20px">
+      <div style="background:#fff3ed;border-radius:10px;padding:14px;margin-bottom:16px;text-align:center">
+        <div style="font-size:12px;color:#888;margin-bottom:4px">Current shipping cost</div>
+        <div id="popup-current-ship" style="font-size:24px;font-weight:900;color:#ff6100">$0.00</div>
+        <div id="popup-next-ship" style="font-size:12px;color:#22c55e;font-weight:700;margin-top:4px"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button onclick="popupAddMore()" style="padding:14px;background:#fff;color:#ff6100;border:2px solid #ff6100;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">+ Add More Items</button>
+        <button onclick="popupContinue()" style="padding:14px;background:#ff6100;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Continue to Checkout →</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
