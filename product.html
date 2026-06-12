@@ -512,7 +512,7 @@ async function loadProduct(pid) {
     const shipCost = calcShipping(d.sellPrice || 0);
     window._productShipping = parseFloat(shipCost);
 
-    const fakeOld = (basePrice * (1.35 + Math.random() * 0.25)).toFixed(2);
+    const fakeOld = (basePrice * (1.4 + Math.random() * 0.3)).toFixed(2); // always 40-70% higher
 
 
     // Update shipping badge after HTML is rendered
