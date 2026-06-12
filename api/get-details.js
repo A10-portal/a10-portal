@@ -54,43 +54,7 @@ function parseVariantName(raw) {
     return { color, size };
 }
 
-// Fetch real shipping cost from CJ
-async function fetchShippingCost(pid, weight, token) {
-    try {
-        const params = {
-            startCountryCode: 'CN',
-            endCountryCode: 'US',
-            quantity: 1,
-            pid,
-            weight: weight || 0.5 // default 500g if no weight
-        };
 
-        const r = await axios.get('https://developers.cjdropshipping.com/api2.0/v1/logistic/freightCalculate', {
-            headers: H(token),
-            params,
-            timeout: 8000
-        });
-        const list = r.data?.data || [];
-        if (!list.length) return null;
-
-        // Filter out invalid entries
-        const valid = list.filter(s => s.logisticPrice && parseFloat(s.logisticPrice) >= 0);
-        if (!valid.length) return null;
-
-        // Get cheapest shipping option
-        const cheapest = valid.reduce((min, s) =>
-            parseFloat(s.logisticPrice || 999) < parseFloat(min.logisticPrice || 999) ? s : min
-        , valid[0]);
-
-        return {
-            cost: parseFloat(cheapest.logisticPrice || 0).toFixed(2),
-            name: cheapest.logisticName || 'Standard Shipping',
-            days: cheapest.logisticAging || '3-8'
-        };
-    } catch (e) {
-        return null;
-    }
-}
 
 export default async function handler(req, res) {
     const { pid } = req.query;
@@ -107,10 +71,6 @@ export default async function handler(req, res) {
 
         const rawVariants = varRes.status === 'fulfilled' ? (varRes.value.data?.data || []) : [];
         const product     = prodRes.status === 'fulfilled' ? (prodRes.value.data?.data || {}) : {};
-
-        // Fetch shipping with product weight
-        const weight = parseFloat(product.productWeight || product.weight || 0.5);
-        const shipping = await fetchShippingCost(pid, weight, TOKEN);
 
         const attrs = product.productAttributes || product.productAttribute || [];
         let attrColors = [], attrSizes = [];
@@ -148,7 +108,7 @@ export default async function handler(req, res) {
                 variantImage:     v.variantImage  || '',
                 variantStock:     v.variantStock  > 0 ? v.variantStock : 999,
                 variantSellPrice: v.variantSellPrice
-                    ? (parseFloat(v.variantSellPrice) * 2.1).toFixed(2) : '',
+                    ? (parseFloat(v.variantSellPrice) * 2.4).toFixed(2) : '',
                 productSku:       v.productSku  || '',
                 variantSku:       v.variantSku  || '',
                 color, size, displayName
@@ -163,7 +123,7 @@ export default async function handler(req, res) {
         return res.status(200).json({
             pid:             product.pid || pid,
             productNameEn:   product.productNameEn || product.productName || '',
-            sellPrice:       product.sellPrice ? (parseFloat(product.sellPrice) * 2.1).toFixed(2) : '',
+            sellPrice:       product.sellPrice ? (parseFloat(product.sellPrice) * 2.4).toFixed(2) : '',
             productImage:    product.productImage  || '',
             productGallery:  product.productGallery || [],
             productSku:      product.productSku    || '',
@@ -180,10 +140,10 @@ export default async function handler(req, res) {
             productAttributes:  (product.productAttributes || []).map(a => ({ name: a.attrEnName||a.attrName||'', value: a.attrEnValue||a.attrValue||'' })).filter(a => a.name && a.value),
             availableColors: hasColorVariants ? [] : attrColors,
             availableSizes:  hasSizeVariants  ? [] : attrSizes,
-            // Real shipping info
-            shippingCost:    shipping ? shipping.cost : null,
-            shippingName:    shipping ? shipping.name : 'Standard Shipping',
-            shippingDays:    shipping ? shipping.days : '3-8',
+            // Shipping = 10% of sell price
+            shippingCost:    product.sellPrice ? (parseFloat(product.sellPrice) * 2.1 * 0.1).toFixed(2) : null,
+            shippingName:    'Standard Shipping',
+            shippingDays:    '3-8',
             variants
         });
 
