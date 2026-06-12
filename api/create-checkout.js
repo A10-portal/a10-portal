@@ -26,19 +26,22 @@ export default async function handler(req, res) {
 
         if (!itemsToCheckout || itemsToCheckout.length === 0) return res.status(400).json({ error: 'Cart is empty' });
 
-        // Tiered shipping: $15-$50 = 10%, $51-$100 = $6, $101+ = $5
-        function calcShip(price) {
+        // Tiered shipping: $15-$100 = $7+10%, $101+ = $5 flat, min $3, qty discount up to 50%
+        function calcShip(price, qty) {
             const p = parseFloat(price) || 0;
-            if (p <= 50) return p * 0.1;
-            if (p <= 100) return 6;
-            return 5;
+            const q = parseInt(qty) || 1;
+            const base = p >= 101 ? 5 : 7 + (p * 0.1);
+            const discounts = [0, 0, 0.15, 0.25, 0.35, 0.50];
+            const discounted = base * (1 - (discounts[Math.min(q, 5)] || 0.50));
+            return Math.max(discounted, 3);
         }
         const totalShipping = itemsToCheckout.reduce((sum, item) => {
             const itemPrice = parseFloat(item.price || 0);
-            const itemShip = parseFloat(item.shippingCost || calcShip(itemPrice));
+            const itemQty = item.qty || 1;
+            const itemShip = parseFloat(item.shippingCost || calcShip(itemPrice, itemQty));
             return sum + itemShip;
         }, 0);
-        const shippingAmount = Math.round(Math.max(totalShipping, 1) * 100);
+        const shippingAmount = Math.round(Math.max(totalShipping, 3) * 100);
         const shippingGroups = 1;
 
         const lineItems = itemsToCheckout.map(item => {
