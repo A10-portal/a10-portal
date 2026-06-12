@@ -1,7 +1,4 @@
-<!DOCTY
-    // Update shipping badge after HTML is rendered
-      }
-    }PE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <link rel="manifest" href="/manifest.json">
@@ -20,7 +17,6 @@
 :root{--orange:#ff6100;--orange-light:#ff8533;--orange-pale:#fff3ed;--text:#1a1a1a;--border:#f0f0f0;--bg:#f5f5f5}
 body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--orange);border-radius:2px}
-
 .nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 20px}
 .nav-inner{max-width:1000px;margin:auto;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .nav-logo{font-size:20px;font-weight:900;font-style:italic;color:var(--orange);text-decoration:none;letter-spacing:-1px}
@@ -32,14 +28,11 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
 .nav-cart-btn{position:relative;width:38px;height:38px;border-radius:50%;background:var(--orange);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .cart-badge{position:absolute;top:-3px;right:-3px;background:#ef4444;color:#fff;font-size:8px;font-weight:900;border-radius:50%;width:16px;height:16px;display:none;align-items:center;justify-content:center}
 .cart-badge.show{display:flex}
-
 .page{max-width:1000px;margin:0 auto;padding:20px}
 .breadcrumb{font-size:12px;color:#888;margin-bottom:16px}
 .breadcrumb a{color:var(--orange);text-decoration:none}
-
 .product-layout{display:grid;grid-template-columns:1fr;gap:20px}
 @media(min-width:640px){.product-layout{grid-template-columns:1fr 1fr}}
-
 .gallery-main{aspect-ratio:1;background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--border)}
 .gallery-main img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
 .gallery-main img:hover{transform:scale(1.05)}
@@ -47,7 +40,6 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
 .gallery-thumbs::-webkit-scrollbar{display:none}
 .thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;cursor:pointer;border:2px solid var(--border);flex-shrink:0;transition:border-color .15s}
 .thumb.active,.thumb:hover{border-color:var(--orange)}
-
 .product-info{background:#fff;border-radius:14px;padding:20px;border:1px solid var(--border)}
 .product-title{font-size:16px;font-weight:800;line-height:1.4;margin-bottom:10px}
 .product-price{font-size:28px;font-weight:900;color:var(--orange);margin-bottom:4px}
@@ -56,73 +48,46 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
 .delivery-info{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
 .delivery-chip{background:#f5f5f5;border-radius:8px;padding:8px 12px;font-size:11px;font-weight:700;color:#555;flex:1;min-width:120px;text-align:center}
 .delivery-chip span{display:block;font-size:16px;font-weight:900;color:var(--orange);margin-bottom:2px}
-
 .var-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#888;margin:14px 0 8px}
 .var-btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
 .vbtn{padding:7px 14px;border:1.5px solid #ddd;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;display:inline-flex;align-items:center;gap:4px;transition:all .15s;font-family:inherit}
 .vbtn.sel,.vbtn:hover{border-color:var(--orange);background:var(--orange-pale);color:var(--orange)}
-
 .qty-row{display:flex;align-items:center;gap:12px;margin:16px 0}
 .qty-label{font-size:11px;font-weight:800;text-transform:uppercase;color:#888}
 .qty-btn{width:32px;height:32px;border:1.5px solid #ddd;border-radius:8px;background:#fff;font-size:18px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .qty-btn:hover{border-color:var(--orange);color:var(--orange)}
 .qty-num{font-size:16px;font-weight:800;min-width:28px;text-align:center}
-
 .add-btn{width:100%;padding:16px;background:var(--orange);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:8px;letter-spacing:.04em}
 .add-btn:hover{background:var(--orange-light);transform:translateY(-1px)}
 .add-btn:disabled{background:#ccc;cursor:not-allowed;transform:none}
-
 .features{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
 .feature{background:#f9f9f9;border-radius:8px;padding:10px;text-align:center}
 .feature-icon{font-size:20px;margin-bottom:4px}
 .feature-text{font-size:10px;font-weight:700;color:#555}
-
 .desc-section{background:#fff;border-radius:14px;padding:20px;border:1px solid var(--border);margin-top:16px}
 .desc-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;color:#333}
 .desc-text{font-size:13px;color:#666;line-height:1.8}
-
 .spinner{display:inline-block;width:36px;height:36px;border:3px solid #f0f0f0;border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading{text-align:center;padding:80px 20px}
-
 .error-state{text-align:center;padding:80px 20px}
 .error-icon{font-size:64px;margin-bottom:16px}
-
-/* Cart Drawer */
 .cart-overlay{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.5);display:none}
 .cart-overlay.open{display:block}
 .cart-drawer{position:fixed;right:-100%;top:0;bottom:0;width:100%;max-width:420px;background:#fff;z-index:900;box-shadow:-4px 0 30px rgba(0,0,0,.12);transition:right .3s ease;overflow-y:auto;padding:20px}
 .cart-drawer.open{right:0}
-
-/* Auth Modal */
 .auth-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:20px}
 .auth-overlay.open{display:flex}
 .auth-box{background:#fff;border-radius:16px;max-width:380px;width:100%;overflow:hidden}
-
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .product-layout{animation:fadeIn .4s ease}
-
-/* Mobile responsive */
 @media(max-width:480px){
-  .page{padding:12px}
-  .product-title{font-size:14px}
-  .product-price{font-size:24px}
-  .add-btn{padding:14px;font-size:14px}
-  .delivery-info{gap:6px}
-  .delivery-chip{padding:6px 8px;min-width:90px}
-  .delivery-chip span{font-size:14px}
-  .features{gap:6px}
-  .feature{padding:8px 6px}
-  .gallery-main{border-radius:10px}
-  .product-info{padding:14px}
-  .nav-btn-outline{display:none}
-  .qty-btn{width:28px;height:28px}
-  .vbtn{padding:5px 10px;font-size:10px}
-}
-@media(max-width:360px){
-  .product-price{font-size:20px}
-  .add-btn{font-size:13px}
-  .features{grid-template-columns:repeat(3,1fr)}
+  .page{padding:12px}.product-title{font-size:14px}.product-price{font-size:24px}
+  .add-btn{padding:14px;font-size:14px}.delivery-info{gap:6px}
+  .delivery-chip{padding:6px 8px;min-width:90px}.delivery-chip span{font-size:14px}
+  .features{gap:6px}.feature{padding:8px 6px}.gallery-main{border-radius:10px}
+  .product-info{padding:14px}.nav-btn-outline{display:none}
+  .qty-btn{width:28px;height:28px}.vbtn{padding:5px 10px;font-size:10px}
 }
 </style>
 </head>
@@ -172,15 +137,37 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
   </div>
 </div>
 
+<!-- Shipping Savings Popup -->
+<div id="shipping-popup" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="background:linear-gradient(135deg,#ff6100,#ff8533);padding:20px;text-align:center">
+      <div style="font-size:32px;margin-bottom:8px">💡</div>
+      <div style="color:#fff;font-size:16px;font-weight:900">Save on Shipping!</div>
+      <div style="color:rgba(255,255,255,.85);font-size:12px;margin-top:4px">Increase quantity to reduce your shipping cost</div>
+    </div>
+    <div style="padding:20px">
+      <div style="background:#fff3ed;border-radius:10px;padding:14px;margin-bottom:16px;text-align:center">
+        <div style="font-size:12px;color:#888;margin-bottom:4px">Current shipping cost</div>
+        <div id="popup-current-ship" style="font-size:24px;font-weight:900;color:#ff6100">$0.00</div>
+        <div id="popup-next-ship" style="font-size:12px;color:#22c55e;font-weight:700;margin-top:4px"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button onclick="popupAddMore()" style="padding:14px;background:#fff;color:#ff6100;border:2px solid #ff6100;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">+ Add More Items</button>
+        <button onclick="popupContinue()" style="padding:14px;background:#ff6100;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Continue to Checkout →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const ORANGE = '#ff6100';
 let cart = JSON.parse(localStorage.getItem('mova_cart') || '[]');
 let stripeKey = '';
+// _p holds the current product state — unit price only
 let _p = { pid:'', name:'', basePrice:0, image:'', qty:1, vid:'', color:'', size:'' };
 
 fetch('/api/get-config').then(r=>r.json()).then(d=>{ stripeKey = d.publishableKey||''; }).catch(()=>{});
 
-// Update nav based on session
 const session = JSON.parse(localStorage.getItem('foundry_session') || 'null');
 if (session) {
   document.getElementById('nav-login').textContent = 'My Account';
@@ -201,19 +188,17 @@ function updateCartBadge() {
   if (el) { el.textContent = n; el.classList.toggle('show', n > 0); }
 }
 
+// ── SHIPPING LOGIC (same as dashboard and index) ──
+// price = unit price of ONE item, qty = quantity
 function calcShipping(price, qty) {
   const p = parseFloat(price) || 0;
   const q = parseInt(qty) || 1;
-  let base;
-  if (p >= 101) {
-    base = 5.00;
-  } else {
-    base = 7 + (p * 0.1);
-  }
+  // Base shipping by unit price
+  const base = p >= 101 ? 5.00 : 7 + (p * 0.1);
+  // Quantity discount
   const discounts = [0, 0, 0.15, 0.25, 0.35, 0.50];
-  const discountRate = discounts[Math.min(q, 5)] || 0.50;
-  const discounted = base * (1 - discountRate);
-  return Math.max(discounted, 3).toFixed(2);
+  const rate = discounts[Math.min(q, 5)] || 0.50;
+  return Math.max(base * (1 - rate), 3).toFixed(2);
 }
 
 function saveCart() {
@@ -221,6 +206,7 @@ function saveCart() {
   updateCartBadge();
 }
 
+// Called when variant is picked
 function pickV(btn, vid, color, size, price, img) {
   btn.closest('.var-btns').querySelectorAll('.vbtn').forEach(b=>b.classList.remove('sel'));
   btn.classList.add('sel');
@@ -233,16 +219,20 @@ function pickV(btn, vid, color, size, price, img) {
   updatePrice();
 }
 
+// Called when +/- qty clicked
 function changeQty(d) {
-  _p.qty = Math.max(1, (_p.qty||1) + d);
+  _p.qty = Math.max(1, (_p.qty || 1) + d);
   document.getElementById('qty-num').textContent = _p.qty;
   updatePrice();
 }
 
+// Updates price display and shipping badge
 function updatePrice() {
-  const el = document.getElementById('prod-price');
-  if (el) el.textContent = '$' + (_p.basePrice * _p.qty).toFixed(2);
-  // Pass unit price + qty so tiered logic works per item
+  // Show total price (unit * qty)
+  const priceEl = document.getElementById('prod-price');
+  if (priceEl) priceEl.textContent = '$' + (_p.basePrice * _p.qty).toFixed(2);
+
+  // Shipping uses UNIT price + qty — same logic as dashboard
   const ship = calcShipping(_p.basePrice, _p.qty);
   const badge = document.getElementById('shipping-badge');
   if (badge) {
@@ -254,15 +244,21 @@ function updatePrice() {
   }
 }
 
+// Add to cart
 function addToCart() {
   const label = [_p.color, _p.size].filter(Boolean).join(' / ');
   const displayName = _p.name.split(' — ')[0] + (label ? ' — ' + label : '') + (_p.qty > 1 ? ` (x${_p.qty})` : '');
-  const totalPrice = (_p.basePrice * _p.qty).toFixed(2);
   const entry = {
-    pid: _p.pid, cartKey: _p.pid + '_' + Date.now(),
-    name: displayName, price: totalPrice,
-    image: _p.image, qty: _p.qty, color: _p.color, size: _p.size, vid: _p.vid,
-    shippingCost: calcShipping(_p.basePrice, _p.qty)
+    pid: _p.pid,
+    cartKey: _p.pid + '_' + Date.now(),
+    name: displayName,
+    price: (_p.basePrice * _p.qty).toFixed(2), // total price
+    image: _p.image,
+    qty: _p.qty,
+    color: _p.color,
+    size: _p.size,
+    vid: _p.vid,
+    shippingCost: calcShipping(_p.basePrice, _p.qty) // unit price + qty
   };
   const idx = cart.findIndex(i => i.pid === _p.pid);
   if (idx > -1) cart[idx] = entry; else cart.push(entry);
@@ -280,22 +276,18 @@ function addToCart() {
   }, 1200);
 }
 
-// ── Cart Drawer
+// Buy Now
 function buyNow() {
-  // Checkout THIS product only — ignore everything else in cart
   if (!session?.id) {
-    localStorage.setItem('mova_cart', JSON.stringify(cart));
     document.getElementById('auth-login-btn').href = '/login?redirect=product&pid=' + _p.pid;
     document.getElementById('auth-signup-btn').href = '/signup?redirect=product&pid=' + _p.pid;
     document.getElementById('auth-overlay').classList.add('open');
     return;
   }
-
   const btn = document.getElementById('buy-btn');
   btn.textContent = 'Processing...';
   btn.disabled = true;
 
-  // Single item only
   const singleItem = [{
     pid: (_p.pid||'').substring(0,20),
     name: (_p.name||'').substring(0,25),
@@ -324,6 +316,7 @@ function buyNow() {
   });
 }
 
+// ── Cart Drawer
 function openCartDrawer() {
   document.getElementById('cart-drawer').classList.add('open');
   document.getElementById('cart-overlay').classList.add('open');
@@ -341,10 +334,16 @@ function renderCart() {
     body.innerHTML = '<div style="text-align:center;padding:40px"><div style="font-size:48px;margin-bottom:12px">🛒</div><p style="color:#888;font-weight:700;margin-bottom:16px">Your cart is empty</p><a href="/" style="display:inline-block;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Continue Shopping</a></div>';
     return;
   }
+
+  // Calculate shipping using unit price + qty (same as dashboard)
   const sub = cart.reduce((s,i) => s + parseFloat(i.price||0), 0);
-  const tQty = cart.reduce((s,i) => s + (i.qty||1), 0);
-  const sg = Math.ceil(tQty/6)||1;
-  const ship = Math.max(cart.reduce((s,i) => s + parseFloat(i.shippingCost || calcShipping(i.price, i.qty||1)), 0), 3).toFixed(2);
+  const ship = Math.max(
+    cart.reduce((s,i) => {
+      const unitPrice = parseFloat(i.price||0) / (i.qty||1);
+      return s + parseFloat(calcShipping(unitPrice, i.qty||1));
+    }, 0),
+    3
+  ).toFixed(2);
   const total = (sub + parseFloat(ship)).toFixed(2);
 
   let h = '';
@@ -369,7 +368,7 @@ function renderCart() {
 
   h += `<div style="border-top:1.5px solid var(--border);padding-top:14px;margin-top:6px">
     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:#888">Subtotal</span><span style="font-weight:700">$${sub.toFixed(2)}</span></div>
-    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:12px"><span style="color:#888">Shipping</span><span style="font-weight:700">$${ship}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:12px"><span style="color:#888">Shipping (USA)</span><span style="font-weight:700">$${ship}</span></div>
     <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:900;margin-bottom:16px"><span>Total</span><span style="color:var(--orange)">$${total}</span></div>
     <button onclick="showShippingPopup(doCheckout)" style="width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Continue to Checkout →</button>
     <button onclick="closeCartDrawer()" style="width:100%;margin-top:8px;padding:11px;background:transparent;color:#888;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Continue Shopping</button>
@@ -383,82 +382,72 @@ function removeItem(key) {
 }
 
 function cartChangeQty(key, delta) {
-  const item = cart.find(i => (i.cartKey || i.pid) === key);
+  const item = cart.find(i => (i.cartKey||i.pid) === key);
   if (!item) return;
-  const newQty = Math.max(1, (item.qty || 1) + delta);
-  const unitPrice = parseFloat(item.price || 0) / (item.qty || 1);
-  item.qty = newQty;
-  item.price = (unitPrice * newQty).toFixed(2);
-  item.shippingCost = calcShipping(item.price, item.qty||1);
-  saveCart();
-  renderCart();
+  const unitPrice = parseFloat(item.price||0) / (item.qty||1);
+  item.qty = Math.max(1, (item.qty||1) + delta);
+  item.price = (unitPrice * item.qty).toFixed(2);
+  item.shippingCost = calcShipping(unitPrice, item.qty);
+  saveCart(); renderCart();
 }
 
-
+// ── Shipping Popup
 function showShippingPopup(onContinue) {
-  const checked = cart.filter(i => (window._checked || window._chk || {})[i.cartKey||i.pid] !== false);
-  if (!checked.length) { onContinue(); return; }
-  const canSave = checked.some(i => {
+  const canSave = cart.some(i => {
     const qty = i.qty || 1;
     if (qty >= 5) return false;
     const unitPrice = parseFloat(i.price||0) / qty;
-    const current = parseFloat(calcShipping(unitPrice * qty, qty));
-    const next = parseFloat(calcShipping(unitPrice * (qty+1), qty+1));
-    return current > 3 && next < current;
+    return parseFloat(calcShipping(unitPrice, qty)) > 3 &&
+           parseFloat(calcShipping(unitPrice, qty+1)) < parseFloat(calcShipping(unitPrice, qty));
   });
   if (!canSave) { onContinue(); return; }
-  const totalCurrentShip = checked.reduce((s,i) => s + parseFloat(i.shippingCost || calcShipping(i.price, i.qty||1)), 0);
-  const totalNextShip = checked.reduce((s,i) => {
-    const qty = i.qty || 1;
-    const unitPrice = parseFloat(i.price||0) / qty;
-    return s + parseFloat(calcShipping(unitPrice * (qty+1), qty+1));
+
+  const totalNow = cart.reduce((s,i) => {
+    const up = parseFloat(i.price||0) / (i.qty||1);
+    return s + parseFloat(calcShipping(up, i.qty||1));
   }, 0);
-  const saving = Math.max(totalCurrentShip - totalNextShip, 0).toFixed(2);
+  const totalNext = cart.reduce((s,i) => {
+    const up = parseFloat(i.price||0) / (i.qty||1);
+    return s + parseFloat(calcShipping(up, (i.qty||1)+1));
+  }, 0);
+  const saving = Math.max(totalNow - totalNext, 0).toFixed(2);
+
   const el = document.getElementById('popup-current-ship');
   const nextEl = document.getElementById('popup-next-ship');
-  if (el) el.textContent = '$' + totalCurrentShip.toFixed(2);
+  if (el) el.textContent = '$' + totalNow.toFixed(2);
   if (nextEl) nextEl.textContent = parseFloat(saving) > 0
     ? '➕ Add 1 more item → save $' + saving + ' on shipping'
     : '🎉 You have reached the lowest shipping rate!';
+
   window._checkoutCallback = onContinue;
-  const popup = document.getElementById('shipping-popup');
-  if (popup) popup.style.display = 'flex';
+  document.getElementById('shipping-popup').style.display = 'flex';
 }
 
 function popupContinue() {
-  const popup = document.getElementById('shipping-popup');
-  if (popup) popup.style.display = 'none';
+  document.getElementById('shipping-popup').style.display = 'none';
   if (window._checkoutCallback) window._checkoutCallback();
 }
-
 function popupAddMore() {
-  const popup = document.getElementById('shipping-popup');
-  if (popup) popup.style.display = 'none';
+  document.getElementById('shipping-popup').style.display = 'none';
 }
 
+// ── Checkout
 async function doCheckout() {
   if (!session?.id) {
-    localStorage.setItem('mova_cart', JSON.stringify(cart));
     document.getElementById('auth-login-btn').href = '/login?redirect=product&pid=' + _p.pid;
     document.getElementById('auth-signup-btn').href = '/signup?redirect=product&pid=' + _p.pid;
     document.getElementById('auth-overlay').classList.add('open');
     return;
   }
-  const btn = document.querySelector('#cart-items-drawer button[onclick="doCheckout()"]');
-  if (btn) { btn.textContent = 'Processing...'; btn.disabled = true; }
   try {
-    const grouped = cart.map(i => ({...i, _gid: i.pid+'|'+(i.vid||'')+'|'+(i.color||'')+'|'+(i.size||'')}));
     const r = await fetch('/api/create-checkout', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ cart: grouped, userId: session.id, checkedItems: grouped.map(i=>i.pid) })
+      body: JSON.stringify({ cart, userId: session.id, checkedItems: cart.map(i=>i.pid) })
     });
     const d = await r.json();
     if (d.clientSecret) showStripe(d.clientSecret);
     else throw new Error(d.error||'Checkout failed');
-  } catch(e) {
-    alert(e.message);
-    if (btn) { btn.textContent = 'Secure Checkout →'; btn.disabled = false; }
-  }
+  } catch(e) { alert(e.message); }
 }
 
 async function showStripe(clientSecret) {
@@ -471,17 +460,12 @@ async function showStripe(clientSecret) {
   if (!window.Stripe) {
     const s = document.createElement('script');
     s.src = 'https://js.stripe.com/v3/';
-    s.onload = async () => {
-      const stripe = Stripe(stripeKey);
-      const co = await stripe.initEmbeddedCheckout({clientSecret});
-      document.getElementById('stripe-container').innerHTML = '';
-      co.mount('#stripe-container');
-    };
+    s.onload = async () => { const stripe = Stripe(stripeKey); const co = await stripe.initEmbeddedCheckout({clientSecret}); document.getElementById('stripe-container').innerHTML=''; co.mount('#stripe-container'); };
     document.head.appendChild(s);
   } else {
     const stripe = Stripe(stripeKey);
     const co = await stripe.initEmbeddedCheckout({clientSecret});
-    document.getElementById('stripe-container').innerHTML = '';
+    document.getElementById('stripe-container').innerHTML='';
     co.mount('#stripe-container');
   }
 }
@@ -498,6 +482,7 @@ async function loadProduct(pid) {
     const variants = d.variants || [];
     const gallery = d.productGallery || [];
 
+    // Unit price — use listed price first, then variant price
     let basePrice = parseFloat(d.sellPrice) || 0;
     let mainImage = d.productImage || '';
 
@@ -507,24 +492,14 @@ async function loadProduct(pid) {
       if (variants[0].variantImage) mainImage = variants[0].variantImage;
     }
 
-    // Shipping = 10% of sell price — stored for after HTML renders
-    const shipCost = calcShipping(d.sellPrice || 0);
-    window._productShipping = parseFloat(shipCost);
-
+    // Was price always higher than sell price (40-70% above)
     const listedPrice = parseFloat(d.sellPrice) || basePrice;
-    const fakeOld = (listedPrice * (1.4 + Math.random() * 0.3)).toFixed(2); // always 40-70% above listed price
+    const fakeOld = (listedPrice * (1.4 + Math.random() * 0.3)).toFixed(2);
 
+    // Initial shipping at qty 1 using unit price
+    const initShip = calcShipping(basePrice, 1);
 
-    // Update shipping badge after HTML is rendered
-    const shipBadge = document.getElementById('shipping-badge');
-    if (shipBadge) {
-      if (parseFloat(window._productShipping) === 0) {
-        shipBadge.textContent = '📦 Free Shipping — USA 🎉';
-      } else {
-        shipBadge.textContent = '📦 Shipping: $' + window._productShipping.toFixed(2) + ' — USA';
-      }
-    }
-
+    // Set _p state
     _p = { pid, name, basePrice, image: mainImage, qty: 1, vid: variants[0]?.vid||'', color: variants[0]?.color||'', size: variants[0]?.size||'' };
 
     const seen = {};
@@ -570,10 +545,10 @@ async function loadProduct(pid) {
       <div class="product-layout">
         <div>
           <div class="gallery-main">
-            <img id="main-img" src="${imgUrl(mainImage)}" alt="${name}">
+            <img id="main-img" src="${imgUrl(mainImage)}" alt="${name}" loading="eager">
           </div>
           <div class="gallery-thumbs">
-            ${imgs.map((img,i) => `<img class="thumb${i===0?' active':''}" src="${imgUrl(img)}" onclick="switchImg(this,'${imgUrl(img)}')">`).join('')}
+            ${imgs.map((img,i) => `<img class="thumb${i===0?' active':''}" src="${imgUrl(img)}" loading="eager" onclick="switchImg(this,'${imgUrl(img)}')">`).join('')}
           </div>
         </div>
         <div>
@@ -581,7 +556,7 @@ async function loadProduct(pid) {
             <h1 class="product-title">${name}</h1>
             <div id="prod-price" class="product-price">$${basePrice.toFixed(2)}</div>
             <div class="product-old">Was $${fakeOld}</div>
-            <div class="shipping-badge" id="shipping-badge">📦 Shipping: $${calcShipping(listedPrice, 1)} — USA</div>
+            <div class="shipping-badge" id="shipping-badge">📦 Shipping: $${initShip} — USA (add more to save)</div>
             <div class="delivery-info">
               <div class="delivery-chip"><span>1-2</span>Processing Days</div>
               <div class="delivery-chip"><span>3-8</span>Delivery Days</div>
@@ -605,6 +580,7 @@ async function loadProduct(pid) {
           ${desc ? `<div class="desc-section"><div class="desc-title">Product Details</div><p class="desc-text">${desc}</p></div>` : ''}
         </div>
       </div>`;
+
   } catch(e) {
     container.innerHTML = `<div class="error-state"><div class="error-icon">😕</div><p style="font-size:16px;font-weight:700;margin-bottom:8px">Product not found</p><p style="color:#888;font-size:13px;margin-bottom:20px">This product may no longer be available.</p><a href="/" style="display:inline-block;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Browse Products</a></div>`;
   }
@@ -625,88 +601,33 @@ if (pid) {
   document.getElementById('product-container').innerHTML = '<div class="error-state"><div class="error-icon">🛍️</div><p style="font-size:16px;font-weight:700;margin-bottom:20px">No product specified</p><a href="/" style="display:inline-block;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Browse Products</a></div>';
 }
 </script>
+
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
-  <script>
+<script>
 (function(){
   if(!('serviceWorker' in navigator)||!('PushManager' in window)) return;
   if(Notification.permission==='denied') return;
-  
   async function registerSub(){
     try{
       var reg=await navigator.serviceWorker.ready;
       var existing=await reg.pushManager.getSubscription();
-      
-      // If subscription exists verify it is still valid
       if(existing){
-        // Re-register to keep token fresh
-        fetch('/api/push-notification?action=register',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            token:JSON.stringify(existing),
-            userId:(JSON.parse(localStorage.getItem('foundry_session')||'null'))?.id||''
-          })
-        });
+        fetch('/api/push-notification?action=register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:JSON.stringify(existing),userId:(JSON.parse(localStorage.getItem('foundry_session')||'null'))?.id||''})});
         return;
       }
-      
-      // No subscription — ask permission if not decided
-      if(Notification.permission!=='granted'){
-        var p=await Notification.requestPermission();
-        if(p!=='granted') return;
-      }
-      
-      // Subscribe fresh
+      if(Notification.permission!=='granted'){var p=await Notification.requestPermission();if(p!=='granted')return;}
       function u(b){var p='='.repeat((4-b.length%4)%4),s=(b+p).replace(/-/g,'+').replace(/_/g,'/'),r=atob(s),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;}
-      var sub=await reg.pushManager.subscribe({
-        userVisibleOnly:true,
-        applicationServerKey:u('BKDaWm4VMC4Gz8UZH4MZNCUgeXDBY3mEnhy9YKhxZxpRf0JpNhLQwn8fwKxqzN_4Qq4yUXKcoMJXJie9iEgrkoI')
-      });
+      var sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u('BKDaWm4VMC4Gz8UZH4MZNCUgeXDBY3mEnhy9YKhxZxpRf0JpNhLQwn8fwKxqzN_4Qq4yUXKcoMJXJie9iEgrkoI')});
       var ses=JSON.parse(localStorage.getItem('foundry_session')||'null');
-      fetch('/api/push-notification?action=register',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({token:JSON.stringify(sub),userId:ses?.id||''})
-      });
+      fetch('/api/push-notification?action=register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:JSON.stringify(sub),userId:ses?.id||''})});
     }catch(e){console.log('Push:',e.message);}
   }
-
-  // Run on load
-  window.addEventListener('load', function(){
-    if(Notification.permission==='granted'){
-      registerSub();
-    } else {
-      // Ask on first tap
-      document.addEventListener('click',function f(){
-        document.removeEventListener('click',f);
-        registerSub();
-      },{once:true});
-    }
+  window.addEventListener('load',function(){
+    if(Notification.permission==='granted'){registerSub();}
+    else{document.addEventListener('click',function f(){document.removeEventListener('click',f);registerSub();},{once:true});}
   });
 })();
 </script>
 
-
-
-<div id="shipping-popup" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:16px">
-  <div style="background:#fff;border-radius:16px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-    <div style="background:linear-gradient(135deg,#ff6100,#ff8533);padding:20px;text-align:center">
-      <div style="font-size:32px;margin-bottom:8px">💡</div>
-      <div style="color:#fff;font-size:16px;font-weight:900">Save on Shipping!</div>
-      <div style="color:rgba(255,255,255,.85);font-size:12px;margin-top:4px">Increase quantity to reduce your shipping cost</div>
-    </div>
-    <div style="padding:20px">
-      <div style="background:#fff3ed;border-radius:10px;padding:14px;margin-bottom:16px;text-align:center">
-        <div style="font-size:12px;color:#888;margin-bottom:4px">Current shipping cost</div>
-        <div id="popup-current-ship" style="font-size:24px;font-weight:900;color:#ff6100">$0.00</div>
-        <div id="popup-next-ship" style="font-size:12px;color:#22c55e;font-weight:700;margin-top:4px"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <button onclick="popupAddMore()" style="padding:14px;background:#fff;color:#ff6100;border:2px solid #ff6100;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">+ Add More Items</button>
-        <button onclick="popupContinue()" style="padding:14px;background:#ff6100;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Continue to Checkout →</button>
-      </div>
-    </div>
-  </div>
-</div>
 </body>
 </html>
