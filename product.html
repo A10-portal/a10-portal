@@ -486,24 +486,18 @@ async function loadProduct(pid) {
     // Unit price — use listed price first, then variant price
     // listedPrice = the actual sell price shown (from d.sellPrice)
     // basePrice = display price (may use variant price for display)
+    // Always use d.sellPrice as the unit price for shipping
     const listedPrice = parseFloat(d.sellPrice) || 0;
-    let basePrice = listedPrice;
     let mainImage = d.productImage || '';
-
-    if (variants[0]) {
-      const vp = parseFloat(variants[0].variantSellPrice);
-      // Only use variant price for display if it makes sense (not less than half of listed)
-      if (!isNaN(vp) && vp > 0 && vp >= listedPrice * 0.8) basePrice = vp;
-      if (variants[0].variantImage) mainImage = variants[0].variantImage;
-    }
+    if (variants[0] && variants[0].variantImage) mainImage = variants[0].variantImage;
 
     // Was price always 40-70% above listed price
     const fakeOld = (listedPrice * (1.4 + Math.random() * 0.3)).toFixed(2);
 
-    // Shipping always calculated on listedPrice (actual product price)
+    // Shipping uses listedPrice (d.sellPrice) — never variant price
     const initShip = calcShipping(listedPrice, 1);
 
-    // _p.basePrice stores listedPrice for consistent shipping calculation
+    // _p.basePrice = listedPrice always — never changes from variant
     _p = { pid, name, basePrice: listedPrice, image: mainImage, qty: 1, vid: variants[0]?.vid||'', color: variants[0]?.color||'', size: variants[0]?.size||'' };
 
     const seen = {};
@@ -558,7 +552,7 @@ async function loadProduct(pid) {
         <div>
           <div class="product-info">
             <h1 class="product-title">${name}</h1>
-            <div id="prod-price" class="product-price">$${basePrice.toFixed(2)}</div>
+            <div id="prod-price" class="product-price">$${listedPrice.toFixed(2)}</div>
             <div class="product-old">Was $${fakeOld}</div>
             <div class="shipping-badge" id="shipping-badge">📦 Shipping: $${initShip} — USA (add more to save)</div>
             <div class="delivery-info">
