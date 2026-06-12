@@ -26,10 +26,17 @@ export default async function handler(req, res) {
 
         if (!itemsToCheckout || itemsToCheckout.length === 0) return res.status(400).json({ error: 'Cart is empty' });
 
-        // Calculate total quantity for dynamic shipping
-        const totalQty = itemsToCheckout.reduce((sum, item) => sum + (item.qty || 1), 0);
-        const shippingGroups = Math.ceil(totalQty / 6);
-        const shippingAmount = Math.round(241 * shippingGroups); // $2.41 base * groups
+        // Calculate real shipping — use shippingCost from cart items if available
+        // Each item carries its real CJ shipping cost fetched at product page load
+        const totalShipping = itemsToCheckout.reduce((sum, item) => {
+            const itemShip = parseFloat(item.shippingCost || 0);
+            const qty = item.qty || 1;
+            // Cap per-item shipping at qty * shippingCost (don't multiply full rate for each unit)
+            return sum + (itemShip * Math.min(qty, 1));
+        }, 0);
+        // Minimum $2.41 shipping, round up to cents
+        const shippingAmount = Math.round(Math.max(totalShipping, 2.41) * 100);
+        const shippingGroups = 1; // kept for label compatibility
 
         const lineItems = itemsToCheckout.map(item => {
             const qty = item.qty || 1;
@@ -86,10 +93,8 @@ export default async function handler(req, res) {
         if (cartStr.length > 490) cartStr = buildCartStr(itemsToCheckout.slice(0, 5), 2);
         if (cartStr.length > 490) cartStr = buildCartStr(itemsToCheckout.slice(0, 3), 2);
 
-        // Build shipping label based on quantity
-        const shippingLabel = shippingGroups > 1
-            ? `Standard Shipping x${shippingGroups} ($${(shippingAmount/100).toFixed(2)})`
-            : 'Standard Shipping (3-8 business days)';
+        // Build shipping label
+        const shippingLabel = `Standard Shipping — USA ($${(shippingAmount/100).toFixed(2)})`;
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
