@@ -113,7 +113,8 @@ export default async function handler(req, res) {
         // Apply 2.1x markup and 10% shipping fee
         let result = products.map(p => {
             const sellPrice = (parseFloat(p.sellPrice || 0) * 2.4).toFixed(2);
-            const shippingCost = (parseFloat(sellPrice) * 0.1).toFixed(2);
+            const sp = parseFloat(sellPrice) || 0;
+            const shippingCost = sp <= 50 ? (sp * 0.1).toFixed(2) : sp <= 100 ? '6.00' : '5.00';
             return {
                 ...p,
                 sellPrice,
