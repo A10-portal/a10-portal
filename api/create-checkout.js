@@ -30,10 +30,10 @@ export default async function handler(req, res) {
         function calcShip(price, qty) {
             const p = parseFloat(price) || 0;
             const q = parseInt(qty) || 1;
-            const base = p >= 101 ? 5 : 7 + (p * 0.1);
-            const discounts = [0, 0, 0.15, 0.25, 0.35, 0.50];
-            const discounted = base * (1 - (discounts[Math.min(q, 5)] || 0.50));
-            return Math.max(discounted, 3);
+            const base = p >= 101 ? 5.0 : 7 + (p * 0.1);
+            if (q <= 1) return Math.max(base, 3);
+            const step = Math.max((base - 3) / 4, 0);
+            return Math.max(base - (step * (q - 1)), 3);
         }
         const totalShipping = itemsToCheckout.reduce((sum, item) => {
             const itemPrice = parseFloat(item.price || 0);
