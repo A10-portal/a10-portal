@@ -517,7 +517,7 @@ async function loadProduct(pid) {
             <h1 class="product-title">${name}</h1>
             <div id="prod-price" class="product-price">$${basePrice.toFixed(2)}</div>
             <div class="product-old">Was $${fakeOld}</div>
-            <div class="shipping-badge" id="shipping-badge">📦 Shipping: $${(basePrice * 0.1).toFixed(2)} — USA</div>
+            <div class="shipping-badge" id="shipping-badge">📦 Shipping: $${basePrice <= 50 ? (basePrice * 0.1).toFixed(2) : basePrice <= 100 ? '6.00' : '5.00'} — USA</div>
             <div class="delivery-info">
               <div class="delivery-chip"><span>1-2</span>Processing Days</div>
               <div class="delivery-chip"><span>3-8</span>Delivery Days</div>
