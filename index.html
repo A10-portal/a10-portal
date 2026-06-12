@@ -738,9 +738,9 @@ function renderCartDrawer() {
   const sub  = checked.reduce((s,i)=>s+parseFloat(i.price||0),0);
   const tQty = checked.reduce((s,i)=>s+(i.qty||1),0);
   const sg   = Math.ceil(tQty/6)||1;
-  // Use real shipping cost from cart items
-  const totalShip = checked.reduce((s,i) => s + parseFloat(i.shippingCost||2.41), 0);
-  const ship = Math.max(totalShip, 2.41).toFixed(2);
+  // Shipping = 10% of each item price
+  const totalShip = checked.reduce((s,i) => s + parseFloat(i.shippingCost || (parseFloat(i.price||0) * 0.1)), 0);
+  const ship = Math.max(totalShip, 1).toFixed(2);
   const total= (sub+parseFloat(ship)).toFixed(2);
 
   let h = `<div style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--bg);border-radius:8px;margin-bottom:10px">
