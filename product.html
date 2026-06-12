@@ -419,7 +419,7 @@ async function loadProduct(pid) {
     const shipBadge = document.getElementById('shipping-badge');
     if (shipBadge) {
       if (d.shippingCost === null || d.shippingCost === undefined) {
-        shipBadge.textContent = '📦 Standard Shipping — USA';
+        shipBadge.textContent = '📦 Shipping calculated at checkout';
       } else if (parseFloat(d.shippingCost) === 0) {
         shipBadge.textContent = '📦 Free Shipping — USA 🎉';
       } else {
