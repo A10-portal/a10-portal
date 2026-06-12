@@ -141,7 +141,7 @@ export default async function handler(req, res) {
             availableColors: hasColorVariants ? [] : attrColors,
             availableSizes:  hasSizeVariants  ? [] : attrSizes,
             // Shipping = 10% of sell price
-            shippingCost:    product.sellPrice ? (parseFloat(product.sellPrice) * 2.1 * 0.1).toFixed(2) : null,
+            shippingCost:    product.sellPrice ? (function(p){ return p <= 50 ? (p * 0.1).toFixed(2) : p <= 100 ? '6.00' : '5.00'; })(parseFloat(product.sellPrice) * 2.4) : null,
             shippingName:    'Standard Shipping',
             shippingDays:    '3-8',
             variants
