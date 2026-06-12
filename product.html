@@ -1,7 +1,5 @@
 <!DOCTY
     // Update shipping badge after HTML is rendered
-      if (parseFloat(shipCost) === 0) {
-      } else {
       }
     }PE html>
 <html lang="en">
@@ -316,7 +314,7 @@ function renderCart() {
   const sub = cart.reduce((s,i) => s + parseFloat(i.price||0), 0);
   const tQty = cart.reduce((s,i) => s + (i.qty||1), 0);
   const sg = Math.ceil(tQty/6)||1;
-  const ship = (Math.max(window._productShipping || 2.41, 2.41) * sg).toFixed(2);
+  const ship = (parseFloat(document.getElementById('prod-price')?.textContent?.replace('$','') || 0) * 0.1 * sg || 2.41).toFixed(2);
   const total = (sub + parseFloat(ship)).toFixed(2);
 
   let h = '';
@@ -493,7 +491,7 @@ async function loadProduct(pid) {
             <h1 class="product-title">${name}</h1>
             <div id="prod-price" class="product-price">$${basePrice.toFixed(2)}</div>
             <div class="product-old">Was $${fakeOld}</div>
-            <div class="shipping-badge" id="shipping-badge">📦 Calculating shipping...</div>
+            <div class="shipping-badge" id="shipping-badge">📦 Shipping: $${(basePrice * 0.1).toFixed(2)} — USA</div>
             <div class="delivery-info">
               <div class="delivery-chip"><span>1-2</span>Processing Days</div>
               <div class="delivery-chip"><span>3-8</span>Delivery Days</div>
