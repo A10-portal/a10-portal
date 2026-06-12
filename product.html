@@ -415,19 +415,17 @@ async function loadProduct(pid) {
       if (variants[0].variantImage) mainImage = variants[0].variantImage;
     }
 
-    // Update shipping badge with real cost
+    // Shipping = 10% of sell price
+    const shipCost = (parseFloat(d.sellPrice || 0) * 0.1).toFixed(2);
+    window._productShipping = parseFloat(shipCost);
     const shipBadge = document.getElementById('shipping-badge');
     if (shipBadge) {
-      if (d.shippingCost === null || d.shippingCost === undefined) {
-        shipBadge.textContent = '📦 Shipping calculated at checkout';
-      } else if (parseFloat(d.shippingCost) === 0) {
+      if (parseFloat(shipCost) === 0) {
         shipBadge.textContent = '📦 Free Shipping — USA 🎉';
       } else {
-        shipBadge.textContent = '📦 Shipping: $' + parseFloat(d.shippingCost).toFixed(2) + ' — USA';
+        shipBadge.textContent = '📦 Shipping: $' + shipCost + ' — USA';
       }
     }
-    // Store shipping cost for checkout
-    window._productShipping = d.shippingCost ? parseFloat(d.shippingCost) : 2.41;
 
     const fakeOld = (basePrice * (1.3 + Math.random() * 0.3)).toFixed(2);
 
