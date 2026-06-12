@@ -39,9 +39,32 @@ async function fetchFromCJ(keyword, params, token) {
     return {};
 }
 
+// Fetch real shipping cost from CJ for a product
+async function fetchShippingCost(pid, token) {
+    try {
+        const r = await axios.get('https://developers.cjdropshipping.com/api2.0/v1/logistic/freightCalculate', {
+            headers: { 'CJ-Access-Token': token },
+            params: {
+                startCountryCode: 'CN',
+                endCountryCode: 'US',
+                quantity: 1,
+                pid
+            },
+            timeout: 8000
+        });
+        const list = r.data?.data || [];
+        if (!list.length) return null;
+        // Get cheapest shipping option
+        const cheapest = list.reduce((min, s) => 
+            parseFloat(s.logisticPrice || 999) < parseFloat(min.logisticPrice || 999) ? s : min
+        , list[0]);
+        return parseFloat(cheapest.logisticPrice || 0);
+    } catch (e) {
+        return null;
+    }
+}
+
 export default async function handler(req, res) {
-    // NO server-side cache — always fetch fresh from CJ so products vary every request
-    // Browser cache also disabled so refresh always gets new products
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
 
     const {
@@ -52,25 +75,21 @@ export default async function handler(req, res) {
         minPrice  = '',
         maxPrice  = '',
         countryCode = '',
-        seed      = ''   // client sends a random seed to vary results
+        seed      = ''
     } = req.query;
 
     const q = (keyword || search || '').trim();
     const token = process.env.PRODUCTS_API_KEY;
 
-    // For browse (no search), use the seed from the client to pick a keyword.
-    // Each page load the dashboard sends a different random seed → different keyword → different products.
     let browseKeyword = q;
     if (!q) {
         const seedNum = parseInt(seed) || Math.floor(Math.random() * KEYWORDS.length * 10);
         browseKeyword = KEYWORDS[seedNum % KEYWORDS.length];
     }
 
-    // Pick a random page within a safe range (1-8) so results vary even for same keyword
     const requestedPage = parseInt(page) || 1;
-    // For fresh browse loads (page=1), randomise the actual CJ page to get variety
     const cjPage = (!q && requestedPage === 1)
-        ? (Math.floor(Math.random() * 6) + 1)  // random page 1-6 for browsing
+        ? (Math.floor(Math.random() * 6) + 1)
         : requestedPage;
 
     const base = {
@@ -79,25 +98,22 @@ export default async function handler(req, res) {
         countryCode: countryCode || 'US'
     };
 
-    if (minPrice) base.priceFrom = (parseFloat(minPrice) / 2.4).toFixed(2);
-    if (maxPrice) base.priceTo   = (parseFloat(maxPrice) / 2.4).toFixed(2);
+    if (minPrice) base.priceFrom = (parseFloat(minPrice) / 2.1).toFixed(2);
+    if (maxPrice) base.priceTo   = (parseFloat(maxPrice) / 2.1).toFixed(2);
 
     try {
         let products = [], total = 0;
 
-        // Primary fetch
         let d = await fetchFromCJ(browseKeyword, base, token);
         products = d.list || [];
         total    = d.total || 0;
 
-        // If no results (e.g. page too high), retry on page 1 with same keyword
         if (!products.length && cjPage > 1) {
             d = await fetchFromCJ(browseKeyword, { ...base, pageNum: 1 }, token);
             products = d.list || [];
             total    = d.total || 0;
         }
 
-        // Fallback keyword chain if still empty
         if (!products.length && !q) {
             for (const fallback of ['women dress', 'sneakers', 'phone case', 'jewelry']) {
                 d = await fetchFromCJ(fallback, { ...base, pageNum: 1 }, token);
@@ -105,7 +121,6 @@ export default async function handler(req, res) {
             }
         }
 
-        // For user search: try progressively shorter terms
         if (!products.length && q) {
             const stop = new Set(['for','the','and','with','a','an','in','on','of','to']);
             const words = q.toLowerCase().split(/\s+/).filter(w => w.length > 1 && !stop.has(w));
@@ -115,25 +130,62 @@ export default async function handler(req, res) {
             }
         }
 
-        // Apply 2.4x markup
+        // Apply 2.1x markup
         let result = products.map(p => ({
             ...p,
-            sellPrice:     (parseFloat(p.sellPrice || 0) * 2.4).toFixed(2),
-            originalPrice: p.sellPrice
+            sellPrice:     (parseFloat(p.sellPrice || 0) * 2.1).toFixed(2),
+            originalPrice: p.sellPrice,
+            shippingCost:  null // will be calculated below
         }));
 
-        // Shuffle the result so the order itself varies on every load
+        // Shuffle
         for (let i = result.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [result[i], result[j]] = [result[j], result[i]];
         }
 
-        // Price filter after markup — minimum $15 always enforced
-        result = result.filter(p => parseFloat(p.sellPrice) >= 15);
+        // Price filter
         if (minPrice) result = result.filter(p => parseFloat(p.sellPrice) >= parseFloat(minPrice));
         if (maxPrice) result = result.filter(p => parseFloat(p.sellPrice) <= parseFloat(maxPrice));
 
-        return res.status(200).json({ products: result, total, page: cjPage, pageSize: base.pageSize, keyword: browseKeyword });
+        // Fetch shipping costs in parallel for up to 10 products
+        // Filter out products where shipping > 40% of product price
+        const shippingResults = await Promise.allSettled(
+            result.slice(0, 10).map(p => fetchShippingCost(p.pid, token))
+        );
+
+        const finalResult = [];
+        result.forEach((p, i) => {
+            if (i < 10) {
+                const shipCost = shippingResults[i].status === 'fulfilled' 
+                    ? shippingResults[i].value 
+                    : null;
+                
+                const sellPrice = parseFloat(p.sellPrice);
+                
+                // If we got shipping cost, check 40% rule
+                if (shipCost !== null) {
+                    const maxAllowedShipping = sellPrice * 0.4;
+                    if (shipCost > maxAllowedShipping) return; // skip product
+                    p.shippingCost = shipCost.toFixed(2);
+                } else {
+                    // No shipping data — include product but flag as unknown
+                    p.shippingCost = null;
+                }
+                finalResult.push(p);
+            } else {
+                // Beyond 10 — include without shipping check
+                finalResult.push(p);
+            }
+        });
+
+        return res.status(200).json({ 
+            products: finalResult, 
+            total, 
+            page: cjPage, 
+            pageSize: base.pageSize, 
+            keyword: browseKeyword 
+        });
     } catch (e) {
         console.error('Products handler error:', e.message);
         return res.status(500).json({ error: 'Failed to fetch products', products: [] });
