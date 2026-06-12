@@ -25,12 +25,10 @@ function isColor(s) {
     return COLORS.has(s.toLowerCase().trim());
 }
 
-// Parse variantNameEn → {color, size}
 function parseVariantName(raw) {
     if (!raw) return { color: '', size: '' };
     let color = '', size = '';
 
-    // Format: "Color:Red-Size:XL"
     if (raw.includes(':')) {
         raw.split(/[-\/]+/).forEach(part => {
             const [k, v] = part.split(':').map(s => s.trim());
@@ -42,14 +40,12 @@ function parseVariantName(raw) {
         if (color || size) return { color, size };
     }
 
-    // Split on separators, check each part
     const parts = raw.split(/[\-\/\|,_ ]+/).map(p => p.trim()).filter(p => p);
     parts.forEach(p => {
         if (!size  && isSize(p))  size  = p.toUpperCase();
         if (!color && isColor(p)) color = p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
     });
 
-    // Single unmatched part — assign by type
     if (!color && !size && parts.length > 0) {
         const last = parts[parts.length - 1];
         if (isSize(last)) size = last.toUpperCase();
@@ -58,26 +54,53 @@ function parseVariantName(raw) {
     return { color, size };
 }
 
+// Fetch real shipping cost from CJ
+async function fetchShippingCost(pid, token) {
+    try {
+        const r = await axios.get('https://developers.cjdropshipping.com/api2.0/v1/logistic/freightCalculate', {
+            headers: H(token),
+            params: {
+                startCountryCode: 'CN',
+                endCountryCode: 'US',
+                quantity: 1,
+                pid
+            },
+            timeout: 8000
+        });
+        const list = r.data?.data || [];
+        if (!list.length) return null;
+        // Get cheapest shipping option
+        const cheapest = list.reduce((min, s) =>
+            parseFloat(s.logisticPrice || 999) < parseFloat(min.logisticPrice || 999) ? s : min
+        , list[0]);
+        return {
+            cost: parseFloat(cheapest.logisticPrice || 0).toFixed(2),
+            name: cheapest.logisticName || 'Standard Shipping',
+            days: cheapest.logisticAging || '3-8'
+        };
+    } catch (e) {
+        return null;
+    }
+}
+
 export default async function handler(req, res) {
     const { pid } = req.query;
     const TOKEN = process.env.PRODUCTS_API_KEY;
     if (!pid) return res.status(400).json({ error: 'Missing pid' });
 
     try {
-        const [varRes, prodRes] = await Promise.allSettled([
+        const [varRes, prodRes, shipRes] = await Promise.allSettled([
             axios.get('https://developers.cjdropshipping.com/api2.0/v1/product/variant/query',
                 { headers: H(TOKEN), params: { pid } }),
             axios.get('https://developers.cjdropshipping.com/api2.0/v1/product/query',
-                { headers: H(TOKEN), params: { pid } })
+                { headers: H(TOKEN), params: { pid } }),
+            fetchShippingCost(pid, TOKEN)
         ]);
 
         const rawVariants = varRes.status === 'fulfilled' ? (varRes.value.data?.data || []) : [];
         const product     = prodRes.status === 'fulfilled' ? (prodRes.value.data?.data || {}) : {};
+        const shipping    = shipRes.status === 'fulfilled' ? shipRes.value : null;
 
-        // ── Get color/size from productAttributes (most reliable) ──
-        // productAttributes is an array like:
-        // [{ attrEnName: "Color", attrEnValue: "Black,Red,Blue" },
-        //  { attrEnName: "Size",  attrEnValue: "S,M,L,XL,XXL" }]
         const attrs = product.productAttributes || product.productAttribute || [];
         let attrColors = [], attrSizes = [];
         attrs.forEach(a => {
@@ -87,16 +110,12 @@ export default async function handler(req, res) {
             else if (name.includes('size')) attrSizes = vals;
         });
 
-        // ── Build variants with color/size ────────────────────────
         const variants = rawVariants.map((v, i) => {
-            // First try parsing variantNameEn
             const parsed = parseVariantName(v.variantNameEn || v.variantName || '');
             let color = parsed.color;
             let size  = parsed.size;
 
-            // If parser failed AND we have productAttributes, match by position or name
             if (!color && !size) {
-                // Try matching variant name against known colors/sizes from attributes
                 const vn = (v.variantNameEn || '').toLowerCase();
                 if (!color) {
                     const matchedColor = attrColors.find(c => vn.includes(c.toLowerCase()) || c.toLowerCase().includes(vn));
@@ -118,15 +137,13 @@ export default async function handler(req, res) {
                 variantImage:     v.variantImage  || '',
                 variantStock:     v.variantStock  > 0 ? v.variantStock : 999,
                 variantSellPrice: v.variantSellPrice
-                    ? (parseFloat(v.variantSellPrice) * 2.4).toFixed(2) : '',
+                    ? (parseFloat(v.variantSellPrice) * 2.1).toFixed(2) : '',
                 productSku:       v.productSku  || '',
                 variantSku:       v.variantSku  || '',
                 color, size, displayName
             };
         });
 
-        // ── If ALL variants have no color/size, expose attrColors/attrSizes ──
-        // so the dashboard can show them as separate rows from product attributes
         const hasColorVariants = variants.some(v => v.color);
         const hasSizeVariants  = variants.some(v => v.size);
 
@@ -135,7 +152,7 @@ export default async function handler(req, res) {
         return res.status(200).json({
             pid:             product.pid || pid,
             productNameEn:   product.productNameEn || product.productName || '',
-            sellPrice:       product.sellPrice ? (parseFloat(product.sellPrice) * 2.4).toFixed(2) : '',
+            sellPrice:       product.sellPrice ? (parseFloat(product.sellPrice) * 2.1).toFixed(2) : '',
             productImage:    product.productImage  || '',
             productGallery:  product.productGallery || [],
             productSku:      product.productSku    || '',
@@ -152,6 +169,10 @@ export default async function handler(req, res) {
             productAttributes:  (product.productAttributes || []).map(a => ({ name: a.attrEnName||a.attrName||'', value: a.attrEnValue||a.attrValue||'' })).filter(a => a.name && a.value),
             availableColors: hasColorVariants ? [] : attrColors,
             availableSizes:  hasSizeVariants  ? [] : attrSizes,
+            // Real shipping info
+            shippingCost:    shipping ? shipping.cost : null,
+            shippingName:    shipping ? shipping.name : 'Standard Shipping',
+            shippingDays:    shipping ? shipping.days : '3-8',
             variants
         });
 
