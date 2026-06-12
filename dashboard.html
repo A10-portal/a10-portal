@@ -13,6 +13,8 @@
   if (!localStorage.getItem('foundry_session')) window.location.replace('/login');
 </script>
 
+<link rel="preconnect" href="https://cf.cjdropshipping.com">
+<link rel="dns-prefetch" href="https://cf.cjdropshipping.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -110,8 +112,10 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 }
 .pcard:hover { box-shadow: 0 4px 20px rgba(0,0,0,.1); border-color: var(--orange); transform: translateY(-2px); }
 .pcard-img { aspect-ratio: 1; background: #f8f8f8; overflow: hidden; position: relative; }
-.pcard-img img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .3s, transform .3s; }
+.pcard-img img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: transform .3s; }
 .pcard-img img.loaded { opacity: 1; }
+.pcard-img { background: linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%); background-size: 200% 100%; animation: shimmer .8s infinite; }
+.pcard-img img[style*='opacity: 1'] { animation: none; }
 .pcard:hover .pcard-img img { transform: scale(1.04); }
 .hot-tag { position: absolute; top: 7px; left: 7px; background: var(--orange); color: white; font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 4px; }
 .pcard-body { padding: 8px 10px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
@@ -131,6 +135,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 /* ── SKELETON ── */
 .skeleton { background: linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 8px; }
 @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+@keyframes flashIn { 0%{opacity:0;transform:scale(1.04)} 100%{opacity:1;transform:scale(1)} }
 .skel-card { background: var(--white); border-radius: 12px; overflow: hidden; border: 1.5px solid var(--border); }
 
 /* ── MODAL ── */
@@ -701,7 +706,7 @@ function appendProductCard(grid, p) {
   div.innerHTML = `
     <div class="pcard-img pcard-open" data-pid="${pid}">
       ${fire ? '<div class="hot-tag">🔥 HOT</div>' : ''}
-      <img src="${imgUrl(p.productImage)}" alt="" loading="lazy" onload="this.classList.add('loaded')" onerror="this.style.opacity='.2'">
+      <img src="${imgUrl(p.productImage)}" alt="" loading="eager" onload="this.style.animation='flashIn .25s ease forwards';this.style.opacity='1'" onerror="this.style.opacity='.2'">
     </div>
     <div class="pcard-body pcard-open" data-pid="${pid}">
       <div class="pcard-name">${p.productNameEn || p.productName}</div>
