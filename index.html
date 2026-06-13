@@ -559,6 +559,8 @@ document.addEventListener('click', function(e) {
   btn._busy = true;
   btn.textContent = '✓ Added to Cart!';
   btn.style.cssText += ';background:#22c55e !important;';
+  // Show notification prompt after add to cart
+  if (typeof window._showNotifAfterCart === 'function') setTimeout(window._showNotifAfterCart, 1500);
   clearTimeout(btn._timer);
   btn._timer = setTimeout(() => {
     btn.textContent = '🛒 Add to Cart';
@@ -964,65 +966,7 @@ setTimeout(function() {
   <script src="/extras.js"></script>
 
 
-<script>
-(function(){
-  if(!('serviceWorker' in navigator)||!('PushManager' in window)) return;
-  if(Notification.permission==='denied') return;
-  
-  async function registerSub(){
-    try{
-      var reg=await navigator.serviceWorker.ready;
-      var existing=await reg.pushManager.getSubscription();
-      
-      // If subscription exists verify it is still valid
-      if(existing){
-        // Re-register to keep token fresh
-        fetch('/api/push-notification?action=register',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            token:JSON.stringify(existing),
-            userId:(JSON.parse(localStorage.getItem('foundry_session')||'null'))?.id||''
-          })
-        });
-        return;
-      }
-      
-      // No subscription — ask permission if not decided
-      if(Notification.permission!=='granted'){
-        var p=await Notification.requestPermission();
-        if(p!=='granted') return;
-      }
-      
-      // Subscribe fresh
-      function u(b){var p='='.repeat((4-b.length%4)%4),s=(b+p).replace(/-/g,'+').replace(/_/g,'/'),r=atob(s),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;}
-      var sub=await reg.pushManager.subscribe({
-        userVisibleOnly:true,
-        applicationServerKey:u('BKDaWm4VMC4Gz8UZH4MZNCUgeXDBY3mEnhy9YKhxZxpRf0JpNhLQwn8fwKxqzN_4Qq4yUXKcoMJXJie9iEgrkoI')
-      });
-      var ses=JSON.parse(localStorage.getItem('foundry_session')||'null');
-      fetch('/api/push-notification?action=register',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({token:JSON.stringify(sub),userId:ses?.id||''})
-      });
-    }catch(e){console.log('Push:',e.message);}
-  }
 
-  // Run on load
-  window.addEventListener('load', function(){
-    if(Notification.permission==='granted'){
-      registerSub();
-    } else {
-      // Ask on first tap
-      document.addEventListener('click',function f(){
-        document.removeEventListener('click',f);
-        registerSub();
-      },{once:true});
-    }
-  });
-})();
-</script>
 
 
 
@@ -1046,5 +990,98 @@ setTimeout(function() {
     </div>
   </div>
 </div>
+
+<!-- CUSTOM NOTIFICATION PROMPT -->
+<div id="notif-prompt" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9998;width:calc(100% - 32px);max-width:380px">
+  <div style="background:#111;border-radius:16px;padding:18px 20px;box-shadow:0 8px 40px rgba(0,0,0,.4);border:1px solid #2a2a2a;position:relative">
+    <button onclick="dismissNotifPrompt()" style="position:absolute;top:10px;right:12px;background:none;border:none;color:#555;font-size:18px;cursor:pointer;line-height:1">×</button>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="width:44px;height:44px;background:var(--orange);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px">🔔</div>
+      <div style="flex:1">
+        <div style="color:#fff;font-size:13px;font-weight:800;margin-bottom:3px">Get Exclusive Deals!</div>
+        <div style="color:#888;font-size:11px;line-height:1.5">Be first to know about new products and special offers from Mova99</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
+      <button onclick="dismissNotifPrompt()" style="padding:10px;background:#1a1a1a;color:#888;border:1px solid #2a2a2a;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Not Now</button>
+      <button onclick="enableNotifications()" style="padding:10px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit">Turn On 🔔</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)) return;
+  if(Notification.permission==='denied') return;
+  if(Notification.permission==='granted') { registerSub(); return; }
+
+  // Show custom prompt after 8 seconds if not yet decided
+  var shown = sessionStorage.getItem('notif_prompt_shown');
+  if (!shown) {
+    setTimeout(function() {
+      var p = document.getElementById('notif-prompt');
+      if (p && Notification.permission === 'default') {
+        p.style.display = 'block';
+        sessionStorage.setItem('notif_prompt_shown', '1');
+      }
+    }, 8000);
+  }
+
+  window.enableNotifications = async function() {
+    var p = document.getElementById('notif-prompt');
+    if (p) p.style.display = 'none';
+    try {
+      var perm = await Notification.requestPermission();
+      if (perm === 'granted') registerSub();
+    } catch(e) {}
+  };
+
+  window.dismissNotifPrompt = function() {
+    var p = document.getElementById('notif-prompt');
+    if (p) p.style.display = 'none';
+    // Remember dismissed — show again next visit (not same session)
+    sessionStorage.setItem('notif_prompt_shown', '1');
+  };
+
+  // Also show custom prompt after Add to Cart if not yet granted
+  window._showNotifAfterCart = function() {
+    if (Notification.permission !== 'default') return;
+    var p = document.getElementById('notif-prompt');
+    if (p) {
+      p.style.display = 'block';
+      sessionStorage.setItem('notif_prompt_shown', '1');
+    }
+  };
+
+  async function registerSub() {
+    try {
+      var reg = await navigator.serviceWorker.ready;
+      var existing = await reg.pushManager.getSubscription();
+      if (existing) {
+        fetch('/api/push-notification?action=register', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({
+            token: JSON.stringify(existing),
+            userId: (JSON.parse(localStorage.getItem('foundry_session')||'null'))?.id||''
+          })
+        });
+        return;
+      }
+      function u(b){var p='='.repeat((4-b.length%4)%4),s=(b+p).replace(/-/g,'+').replace(/_/g,'/'),r=atob(s),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;}
+      var sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: u('BKDaWm4VMC4Gz8UZH4MZNCUgeXDBY3mEnhy9YKhxZxpRf0JpNhLQwn8fwKxqzN_4Qq4yUXKcoMJXJie9iEgrkoI')
+      });
+      var ses = JSON.parse(localStorage.getItem('foundry_session')||'null');
+      fetch('/api/push-notification?action=register', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({token: JSON.stringify(sub), userId: ses?.id||''})
+      });
+    } catch(e) { console.log('Push:', e.message); }
+  }
+})();
+</script>
 </body>
 </html>
