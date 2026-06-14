@@ -1016,31 +1016,43 @@ setTimeout(function() {
   if(Notification.permission==='granted') { registerSub(); return; }
 
   // Show custom prompt after 8 seconds if not yet decided
-  var shown = sessionStorage.getItem('notif_prompt_shown');
+  var shown = localStorage.getItem('notif_prompt_shown');
   if (!shown) {
     setTimeout(function() {
       var p = document.getElementById('notif-prompt');
       if (p && Notification.permission === 'default') {
         p.style.display = 'block';
-        sessionStorage.setItem('notif_prompt_shown', '1');
+        localStorage.setItem('notif_prompt_shown', '1');
       }
-    }, 1000);
+    }, 8000);
   }
 
-  window.enableNotifications = async function() {
+  window.enableNotifications = function() {
     var p = document.getElementById('notif-prompt');
     if (p) p.style.display = 'none';
+    // Must call requestPermission directly in click handler — no async/await
+    // so Edge/Safari keep the user gesture chain intact
     try {
-      var perm = await Notification.requestPermission();
-      if (perm === 'granted') registerSub();
-    } catch(e) {}
+      var result = Notification.requestPermission();
+      // Handle both old callback style and new Promise style
+      if (result && typeof result.then === 'function') {
+        result.then(function(perm) {
+          if (perm === 'granted') registerSub();
+        });
+      }
+    } catch(e) {
+      // Fallback for older browsers
+      Notification.requestPermission(function(perm) {
+        if (perm === 'granted') registerSub();
+      });
+    }
   };
 
   window.dismissNotifPrompt = function() {
     var p = document.getElementById('notif-prompt');
     if (p) p.style.display = 'none';
     // Remember dismissed — show again next visit (not same session)
-    sessionStorage.setItem('notif_prompt_shown', '1');
+    localStorage.setItem('notif_prompt_shown', '1');
   };
 
   // Also show custom prompt after Add to Cart if not yet granted
@@ -1049,7 +1061,7 @@ setTimeout(function() {
     var p = document.getElementById('notif-prompt');
     if (p) {
       p.style.display = 'block';
-      sessionStorage.setItem('notif_prompt_shown', '1');
+      localStorage.setItem('notif_prompt_shown', '1');
     }
   };
 
