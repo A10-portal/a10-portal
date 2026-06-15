@@ -84,7 +84,7 @@ export default async function handler(req, res) {
                         <div style="background:#fff3ed;border-left:4px solid #FF6100;padding:20px;margin:24px 0">
                             <p style="font-size:10px;font-weight:800;text-transform:uppercase;color:#FF6100;letter-spacing:.12em;margin:0 0 6px">Your Referral Code</p>
                             <p style="font-size:28px;font-weight:900;color:#1a1a1a;letter-spacing:4px;margin:0">${finalReferralCode}</p>
-                            <p style="font-size:11px;color:#888;margin:8px 0 0">Share this code — earn 5% cash commission on every order your referrals place</p>
+                            <p style="font-size:11px;color:#888;margin:8px 0 0">Share this code — earn 10% cash commission on every order your referrals place</p>
                         </div>
                         <a href="https://www.mova99.com/dashboard" style="display:inline-block;background:#FF6100;color:#ffffff;padding:14px 32px;text-decoration:none;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;border-radius:8px">Start Shopping →</a>
                     </div>
