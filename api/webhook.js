@@ -162,12 +162,12 @@ export default async function handler(req, res) {
         const inserted = await db.collection('orders').insertOne(orderDoc);
         const orderId = inserted.insertedId.toString();
 
-        // Auto referral 5% balance
+        // Auto referral 10% balance
         try {
             if (userId) {
                 const buyer = await db.collection('users').findOne({ uniqueID: userId });
                 if (buyer && buyer.referredBy) {
-                    const commission = parseFloat(((amountTotal / 100) * 0.05).toFixed(2));
+                    const commission = parseFloat(((amountTotal / 100) * 0.10).toFixed(2));
                     await db.collection('users').updateOne(
                         { referralCode: buyer.referredBy },
                         { $inc: { referralBalance: commission } }
