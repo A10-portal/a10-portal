@@ -97,13 +97,35 @@ export default async function handler(req, res) {
         const titleColor = COLOR_NAMES.find(c => productTitle.includes(c.toLowerCase()));
 
         const variants = rawVariants.map((v, i) => {
-            const parsed = parseVariantName(v.variantNameEn || v.variantName || '');
-            let color = parsed.color;
-            let size  = parsed.size;
+            let color = '';
+            let size  = '';
 
-            // Try matching against productAttributes
+            // ── PRIMARY METHOD: productKeyEn (CJ official field)
+            // Format: "Color-Size" e.g. "Red-XL" or "Black-M"
+            const productKeyEn = (v.productKeyEn || '').trim();
+            if (productKeyEn) {
+                const parts = productKeyEn.split('-').map(p => p.trim()).filter(Boolean);
+                parts.forEach(part => {
+                    if (!size && isSize(part)) size = part.toUpperCase();
+                    else if (!color && part) color = part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+                });
+                // If only one part — determine if it's color or size
+                if (parts.length === 1) {
+                    if (isSize(parts[0])) size = parts[0].toUpperCase();
+                    else color = parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase();
+                }
+            }
+
+            // ── FALLBACK 1: variantNameEn
             if (!color && !size) {
-                const vn = (v.variantNameEn || '').replace(/[\u4e00-\u9fff]+/g, '').toLowerCase().trim();
+                const parsed = parseVariantName(v.variantNameEn || v.variantName || '');
+                color = parsed.color;
+                size  = parsed.size;
+            }
+
+            // ── FALLBACK 2: productAttributes match
+            if (!color && !size) {
+                const vn = (v.variantNameEn || '').replace(/[一-鿿]+/g, '').toLowerCase().trim();
                 if (vn) {
                     const mc = attrColors.find(c => vn.includes(c.toLowerCase()) || c.toLowerCase().includes(vn));
                     if (mc) color = mc;
@@ -112,7 +134,7 @@ export default async function handler(req, res) {
                 }
             }
 
-            // Try extracting size from SKU suffix (e.g. CJXXX0001 = S, 0002 = M)
+            // ── FALLBACK 3: SKU suffix (e.g. CJXXX0001 = S, 0002 = M)
             if (!size) {
                 const sku = v.variantSku || v.productSku || '';
                 const m = sku.match(/(\d{4})$/);
@@ -122,10 +144,10 @@ export default async function handler(req, res) {
                 }
             }
 
-            // Use color from product title if nothing found
+            // ── FALLBACK 4: Color from product title
             if (!color && titleColor) color = titleColor;
 
-            // Absolute last resort — use position-based size
+            // ── FALLBACK 5: Position-based size as last resort
             if (!size) size = SIZE_MAP[i] || ('Size ' + (i + 1));
 
             const displayName = color && size ? color + ' / ' + size : color || size || ('Option ' + (i + 1));
