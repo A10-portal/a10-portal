@@ -86,34 +86,45 @@ export default async function handler(req, res) {
             let color = parsed.color;
             let size  = parsed.size;
 
-            if (!color && !size) {
-                const vn = (v.variantNameEn || '').toLowerCase();
-                if (!color) {
-                    const matchedColor = attrColors.find(c => vn.includes(c.toLowerCase()) || c.toLowerCase().includes(vn));
-                    if (matchedColor) color = matchedColor;
-                }
-                if (!size) {
-                    const matchedSize = attrSizes.find(s => vn.includes(s.toLowerCase()) || s.toLowerCase() === vn);
-                    if (matchedSize) size = matchedSize.toUpperCase();
-                }
-            }
-
-            // Clean variant name — strip Chinese, use as fallback display
+            // Strip Chinese characters from variant name for clean display
             const cleanName = (v.variantNameEn || v.variantName || '')
-                .replace(/[\u4e00-\u9fff]+/g, '')
+                .replace(/[一-鿿　-〿＀-￯]+/g, '')
                 .replace(/\s+/g, ' ')
                 .trim()
                 .substring(0, 30);
+
+            // Match against productAttributes if no color/size detected yet
+            if (!color && !size) {
+                const vn = cleanName.toLowerCase();
+                // Try color
+                const mc = attrColors.find(c =>
+                    vn === c.toLowerCase() ||
+                    vn.includes(c.toLowerCase()) ||
+                    c.toLowerCase().includes(vn)
+                );
+                if (mc) color = mc;
+                // Try size
+                const ms = attrSizes.find(s =>
+                    vn === s.toLowerCase() ||
+                    vn.includes(s.toLowerCase())
+                );
+                if (ms) size = ms.toUpperCase();
+            }
+
+            // Last resort: use cleanName as color label so buttons always show
+            if (!color && !size && cleanName) {
+                const firstPart = cleanName.split(/[-\/,]/)[0].trim();
+                if (isSize(firstPart)) {
+                    size = firstPart.toUpperCase();
+                } else {
+                    color = cleanName.charAt(0).toUpperCase() + cleanName.slice(1).toLowerCase();
+                }
+            }
 
             const displayName = color && size ? color + ' / ' + size
                 : color || size
                 || cleanName
                 || ('Option ' + (i + 1));
-
-            // If still no color/size but we have a clean name, use it as color
-            if (!color && !size && cleanName) {
-                color = cleanName;
-            }
 
             return {
                 vid:              v.vid || '',
