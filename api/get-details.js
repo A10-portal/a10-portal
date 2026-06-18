@@ -72,6 +72,10 @@ export default async function handler(req, res) {
         const rawVariants = varRes.status === 'fulfilled' ? (varRes.value.data?.data || []) : [];
         const product     = prodRes.status === 'fulfilled' ? (prodRes.value.data?.data || {}) : {};
 
+        // DEBUG — log raw variant data so we can see what CJ actually returns
+        console.log('RAW VARIANTS SAMPLE:', JSON.stringify(rawVariants.slice(0,3), null, 2));
+        console.log('PRODUCT ATTRS:', JSON.stringify(product.productAttributes || [], null, 2));
+
         const attrs = product.productAttributes || product.productAttribute || [];
         let attrColors = [], attrSizes = [];
         attrs.forEach(a => {
@@ -86,45 +90,21 @@ export default async function handler(req, res) {
             let color = parsed.color;
             let size  = parsed.size;
 
-            // Strip Chinese characters from variant name for clean display
-            const cleanName = (v.variantNameEn || v.variantName || '')
-                .replace(/[一-鿿　-〿＀-￯]+/g, '')
-                .replace(/\s+/g, ' ')
-                .trim()
-                .substring(0, 30);
-
-            // Match against productAttributes if no color/size detected yet
             if (!color && !size) {
-                const vn = cleanName.toLowerCase();
-                // Try color
-                const mc = attrColors.find(c =>
-                    vn === c.toLowerCase() ||
-                    vn.includes(c.toLowerCase()) ||
-                    c.toLowerCase().includes(vn)
-                );
-                if (mc) color = mc;
-                // Try size
-                const ms = attrSizes.find(s =>
-                    vn === s.toLowerCase() ||
-                    vn.includes(s.toLowerCase())
-                );
-                if (ms) size = ms.toUpperCase();
-            }
-
-            // Last resort: use cleanName as color label so buttons always show
-            if (!color && !size && cleanName) {
-                const firstPart = cleanName.split(/[-\/,]/)[0].trim();
-                if (isSize(firstPart)) {
-                    size = firstPart.toUpperCase();
-                } else {
-                    color = cleanName.charAt(0).toUpperCase() + cleanName.slice(1).toLowerCase();
+                const vn = (v.variantNameEn || '').toLowerCase();
+                if (!color) {
+                    const matchedColor = attrColors.find(c => vn.includes(c.toLowerCase()) || c.toLowerCase().includes(vn));
+                    if (matchedColor) color = matchedColor;
+                }
+                if (!size) {
+                    const matchedSize = attrSizes.find(s => vn.includes(s.toLowerCase()) || s.toLowerCase() === vn);
+                    if (matchedSize) size = matchedSize.toUpperCase();
                 }
             }
 
             const displayName = color && size ? color + ' / ' + size
                 : color || size
-                || cleanName
-                || ('Option ' + (i + 1));
+                || (v.variantNameEn || v.variantName || ('Option ' + (i + 1)));
 
             return {
                 vid:              v.vid || '',
