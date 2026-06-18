@@ -72,10 +72,6 @@ export default async function handler(req, res) {
         const rawVariants = varRes.status === 'fulfilled' ? (varRes.value.data?.data || []) : [];
         const product     = prodRes.status === 'fulfilled' ? (prodRes.value.data?.data || {}) : {};
 
-        // DEBUG — log raw variant data so we can see what CJ actually returns
-        console.log('RAW VARIANTS SAMPLE:', JSON.stringify(rawVariants.slice(0,3), null, 2));
-        console.log('PRODUCT ATTRS:', JSON.stringify(product.productAttributes || [], null, 2));
-
         const attrs = product.productAttributes || product.productAttribute || [];
         let attrColors = [], attrSizes = [];
         attrs.forEach(a => {
@@ -84,6 +80,17 @@ export default async function handler(req, res) {
             if (name.includes('color') || name.includes('colour')) attrColors = vals;
             else if (name.includes('size')) attrSizes = vals;
         });
+
+        // Size labels to map against SKU suffix index (0001=S, 0002=M, etc)
+        const SIZE_MAP = ['S','M','L','XL','2XL','3XL','4XL','5XL','6XL'];
+
+        // Try to extract color from product name
+        const COLOR_NAMES = ['Black','White','Red','Blue','Green','Yellow','Pink','Purple',
+            'Gray','Grey','Brown','Orange','Beige','Navy','Gold','Silver','Rose','Khaki',
+            'Camel','Wine','Cream','Ivory','Nude','Coral','Turquoise','Lavender','Mint',
+            'Teal','Leopard','Floral','Striped','Plaid','Tie Dye','Camo'];
+        const productNameUpper = (product.productNameEn || product.productName || '').toLowerCase();
+        const nameColor = COLOR_NAMES.find(c => productNameUpper.includes(c.toLowerCase()));
 
         const variants = rawVariants.map((v, i) => {
             const parsed = parseVariantName(v.variantNameEn || v.variantName || '');
