@@ -17,6 +17,16 @@ const COLORS = new Set([
     'dark gray','hot pink','sky blue','olive','charcoal','slate','off white'
 ]);
 
+// Color names to scan from product title
+const COLOR_NAMES = [
+    'Black','White','Red','Blue','Green','Yellow','Pink','Purple','Gray','Grey','Brown',
+    'Orange','Beige','Navy','Gold','Silver','Rose','Khaki','Camel','Wine','Cream','Ivory',
+    'Nude','Coral','Turquoise','Lavender','Mint','Teal','Leopard','Floral','Striped','Plaid'
+];
+
+// Size labels mapped from SKU suffix index
+const SIZE_MAP = ['S','M','L','XL','2XL','3XL','4XL','5XL','6XL'];
+
 function isSize(s) {
     const l = s.toLowerCase().trim();
     return SIZES.has(l) || /^\d?xl$/i.test(l) || /^[sml]$/i.test(l);
@@ -40,7 +50,9 @@ function parseVariantName(raw) {
         if (color || size) return { color, size };
     }
 
-    const parts = raw.split(/[\-\/\|,_ ]+/).map(p => p.trim()).filter(p => p);
+    // Strip Chinese before parsing
+    const cleaned = raw.replace(/[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]+/g, '').trim();
+    const parts = cleaned.split(/[\-\/\|,_ ]+/).map(p => p.trim()).filter(p => p);
     parts.forEach(p => {
         if (!size  && isSize(p))  size  = p.toUpperCase();
         if (!color && isColor(p)) color = p.charAt(0).toUpperCase() + p.slice(1).toLowerCase();
@@ -49,12 +61,10 @@ function parseVariantName(raw) {
     if (!color && !size && parts.length > 0) {
         const last = parts[parts.length - 1];
         if (isSize(last)) size = last.toUpperCase();
-        else color = last.charAt(0).toUpperCase() + last.slice(1).toLowerCase();
+        else if (last) color = last.charAt(0).toUpperCase() + last.slice(1).toLowerCase();
     }
     return { color, size };
 }
-
-
 
 export default async function handler(req, res) {
     const { pid } = req.query;
@@ -72,6 +82,7 @@ export default async function handler(req, res) {
         const rawVariants = varRes.status === 'fulfilled' ? (varRes.value.data?.data || []) : [];
         const product     = prodRes.status === 'fulfilled' ? (prodRes.value.data?.data || {}) : {};
 
+        // Extract color/size from productAttributes
         const attrs = product.productAttributes || product.productAttribute || [];
         let attrColors = [], attrSizes = [];
         attrs.forEach(a => {
@@ -81,37 +92,43 @@ export default async function handler(req, res) {
             else if (name.includes('size')) attrSizes = vals;
         });
 
-        // Size labels to map against SKU suffix index (0001=S, 0002=M, etc)
-        const SIZE_MAP = ['S','M','L','XL','2XL','3XL','4XL','5XL','6XL'];
-
-        // Try to extract color from product name
-        const COLOR_NAMES = ['Black','White','Red','Blue','Green','Yellow','Pink','Purple',
-            'Gray','Grey','Brown','Orange','Beige','Navy','Gold','Silver','Rose','Khaki',
-            'Camel','Wine','Cream','Ivory','Nude','Coral','Turquoise','Lavender','Mint',
-            'Teal','Leopard','Floral','Striped','Plaid','Tie Dye','Camo'];
-        const productNameUpper = (product.productNameEn || product.productName || '').toLowerCase();
-        const nameColor = COLOR_NAMES.find(c => productNameUpper.includes(c.toLowerCase()));
+        // Try to extract color from product name as fallback
+        const productTitle = (product.productNameEn || product.productName || '').toLowerCase();
+        const titleColor = COLOR_NAMES.find(c => productTitle.includes(c.toLowerCase()));
 
         const variants = rawVariants.map((v, i) => {
             const parsed = parseVariantName(v.variantNameEn || v.variantName || '');
             let color = parsed.color;
             let size  = parsed.size;
 
+            // Try matching against productAttributes
             if (!color && !size) {
-                const vn = (v.variantNameEn || '').toLowerCase();
-                if (!color) {
-                    const matchedColor = attrColors.find(c => vn.includes(c.toLowerCase()) || c.toLowerCase().includes(vn));
-                    if (matchedColor) color = matchedColor;
-                }
-                if (!size) {
-                    const matchedSize = attrSizes.find(s => vn.includes(s.toLowerCase()) || s.toLowerCase() === vn);
-                    if (matchedSize) size = matchedSize.toUpperCase();
+                const vn = (v.variantNameEn || '').replace(/[\u4e00-\u9fff]+/g, '').toLowerCase().trim();
+                if (vn) {
+                    const mc = attrColors.find(c => vn.includes(c.toLowerCase()) || c.toLowerCase().includes(vn));
+                    if (mc) color = mc;
+                    const ms = attrSizes.find(s => vn.includes(s.toLowerCase()) || s.toLowerCase() === vn);
+                    if (ms) size = ms.toUpperCase();
                 }
             }
 
-            const displayName = color && size ? color + ' / ' + size
-                : color || size
-                || (v.variantNameEn || v.variantName || ('Option ' + (i + 1)));
+            // Try extracting size from SKU suffix (e.g. CJXXX0001 = S, 0002 = M)
+            if (!size) {
+                const sku = v.variantSku || v.productSku || '';
+                const m = sku.match(/(\d{4})$/);
+                if (m) {
+                    const idx = parseInt(m[1], 10) - 1;
+                    if (idx >= 0 && idx < SIZE_MAP.length) size = SIZE_MAP[idx];
+                }
+            }
+
+            // Use color from product title if nothing found
+            if (!color && titleColor) color = titleColor;
+
+            // Absolute last resort — use position-based size
+            if (!size) size = SIZE_MAP[i] || ('Size ' + (i + 1));
+
+            const displayName = color && size ? color + ' / ' + size : color || size || ('Option ' + (i + 1));
 
             return {
                 vid:              v.vid || '',
@@ -145,14 +162,19 @@ export default async function handler(req, res) {
                 product.description        ||
                 product.productIntro       ||
                 product.remark             || ''
-            ),
+            ) || `${product.productNameEn || product.productName || ''} — Available in multiple sizes. Fast 3-8 day delivery to the USA. Secure checkout powered by Stripe.`,
             productMaterial:    strip(product.productMaterial || ''),
             packingList:        strip(product.packingList || product.packageList || ''),
-            productAttributes:  (product.productAttributes || []).map(a => ({ name: a.attrEnName||a.attrName||'', value: a.attrEnValue||a.attrValue||'' })).filter(a => a.name && a.value),
+            productAttributes:  (product.productAttributes || []).map(a => ({
+                name:  a.attrEnName  || a.attrName  || '',
+                value: a.attrEnValue || a.attrValue || ''
+            })).filter(a => a.name && a.value),
             availableColors: hasColorVariants ? [] : attrColors,
             availableSizes:  hasSizeVariants  ? [] : attrSizes,
-            // Shipping = 10% of sell price
-            shippingCost:    product.sellPrice ? (function(p){ const base = p >= 101 ? 5 : 7 + (p * 0.1); return Math.max(base, 3).toFixed(2); })(parseFloat(product.sellPrice) * 2.4) : null,
+            shippingCost:    product.sellPrice ? (function(p){
+                const base = p >= 101 ? 5 : 7 + (p * 0.1);
+                return Math.max(base, 3).toFixed(2);
+            })(parseFloat(product.sellPrice) * 2.4) : null,
             shippingName:    'Standard Shipping',
             shippingDays:    '3-8',
             variants
