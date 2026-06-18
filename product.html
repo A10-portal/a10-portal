@@ -80,6 +80,9 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
 .auth-overlay.open{display:flex}
 .auth-box{background:#fff;border-radius:16px;max-width:380px;width:100%;overflow:hidden}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes flashIn{0%{opacity:0;transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.gallery-main{background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer .8s infinite;}
 .product-layout{animation:fadeIn .4s ease}
 @media(max-width:480px){
   .page{padding:12px}.product-title{font-size:14px}.product-price{font-size:24px}
@@ -523,18 +526,12 @@ async function loadProduct(pid) {
       varHtml += '</div>';
     }
     if (otherVars.length) {
-      varHtml += '<div class="var-label">Select Option</div><div class="var-btns">';
-      otherVars.slice(0,12).forEach((v,i) => {
-        const raw = v.displayName || v.variantNameEn || v.variantName || '';
-        // Strip Chinese characters for display
-        const lbl = raw.replace(/[一-鿿]+/g,'').replace(/\s+/g,' ').trim().substring(0,22).replace(/'/g,'') || ('Option ' + (i+1));
+      varHtml += '<div class="var-label">Options</div><div class="var-btns">';
+      otherVars.slice(0,8).forEach((v,i) => {
+        const lbl = (v.displayName||v.variantNameEn||`Option ${i+1}`).substring(0,22).replace(/'/g,'');
         varHtml += `<button class="vbtn${i===0?' sel':''}" onclick="pickV(this,'${v.vid}','${lbl}','','${v.variantSellPrice||''}','${v.variantImage||''}')">${lbl}</button>`;
       });
       varHtml += '</div>';
-    }
-    // If no variants at all, show nothing
-    if (!colorVars.length && !sizeVars.length && !otherVars.length) {
-      varHtml = '';
     }
 
     const strip = s => (s||'').replace(/<[^>]*>/g,' ').replace(/[\u4e00-\u9fff]+/g,'').replace(/https?:\/\/\S+/g,'').replace(/\s+/g,' ').trim().substring(0,600);
@@ -547,10 +544,10 @@ async function loadProduct(pid) {
       <div class="product-layout">
         <div>
           <div class="gallery-main">
-            <img id="main-img" src="${imgUrl(mainImage)}" alt="${name}" loading="eager">
+            <img id="main-img" src="${imgUrl(mainImage)}" alt="${name}" loading="eager" style="opacity:0" onload="this.style.animation='flashIn .2s ease forwards';this.style.opacity='1'" onerror="this.style.opacity='.2'">
           </div>
           <div class="gallery-thumbs">
-            ${imgs.map((img,i) => `<img class="thumb${i===0?' active':''}" src="${imgUrl(img)}" loading="eager" onclick="switchImg(this,'${imgUrl(img)}')">`).join('')}
+            ${imgs.map((img,i) => `<img class="thumb${i===0?' active':''}" src="${imgUrl(img)}" loading="eager" style="opacity:0" onload="this.style.animation='flashIn .2s ease forwards';this.style.opacity='1'" onclick="switchImg(this,'${imgUrl(img)}')">`).join('')}
           </div>
         </div>
         <div>
