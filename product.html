@@ -523,12 +523,18 @@ async function loadProduct(pid) {
       varHtml += '</div>';
     }
     if (otherVars.length) {
-      varHtml += '<div class="var-label">Options</div><div class="var-btns">';
-      otherVars.slice(0,8).forEach((v,i) => {
-        const lbl = (v.displayName||v.variantNameEn||`Option ${i+1}`).substring(0,22).replace(/'/g,'');
+      varHtml += '<div class="var-label">Select Option</div><div class="var-btns">';
+      otherVars.slice(0,12).forEach((v,i) => {
+        const raw = v.displayName || v.variantNameEn || v.variantName || '';
+        // Strip Chinese characters for display
+        const lbl = raw.replace(/[一-鿿]+/g,'').replace(/\s+/g,' ').trim().substring(0,22).replace(/'/g,'') || ('Option ' + (i+1));
         varHtml += `<button class="vbtn${i===0?' sel':''}" onclick="pickV(this,'${v.vid}','${lbl}','','${v.variantSellPrice||''}','${v.variantImage||''}')">${lbl}</button>`;
       });
       varHtml += '</div>';
+    }
+    // If no variants at all, show nothing
+    if (!colorVars.length && !sizeVars.length && !otherVars.length) {
+      varHtml = '';
     }
 
     const strip = s => (s||'').replace(/<[^>]*>/g,' ').replace(/[\u4e00-\u9fff]+/g,'').replace(/https?:\/\/\S+/g,'').replace(/\s+/g,' ').trim().substring(0,600);
