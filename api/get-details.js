@@ -98,9 +98,22 @@ export default async function handler(req, res) {
                 }
             }
 
+            // Clean variant name — strip Chinese, use as fallback display
+            const cleanName = (v.variantNameEn || v.variantName || '')
+                .replace(/[\u4e00-\u9fff]+/g, '')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .substring(0, 30);
+
             const displayName = color && size ? color + ' / ' + size
                 : color || size
-                || (v.variantNameEn || v.variantName || ('Option ' + (i + 1)));
+                || cleanName
+                || ('Option ' + (i + 1));
+
+            // If still no color/size but we have a clean name, use it as color
+            if (!color && !size && cleanName) {
+                color = cleanName;
+            }
 
             return {
                 vid:              v.vid || '',
