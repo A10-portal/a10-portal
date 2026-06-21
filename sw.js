@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mova99-v3';
+const CACHE_NAME = 'mova99-v4';
 const STATIC_ASSETS = ['/', '/dashboard', '/login', '/signup', '/image/logo.PNG'];
 
 self.addEventListener('install', event => {
@@ -14,6 +14,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   if (event.request.url.includes('/api/')) return;
+  if (!event.request.url.startsWith(self.location.origin)) return; // let cross-origin requests (Stripe.js, fonts, analytics, etc.) go straight to network, untouched by the SW
   event.respondWith(
     fetch(event.request).then(response => {
       if (response && response.status === 200) {
