@@ -970,15 +970,20 @@ async function showStripe(clientSecret) {
   container.innerHTML = '<div style="text-align:center;padding:40px"><div style="width:28px;height:28px;border:3px solid var(--orange);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:auto"></div></div>';
   closeCartDrawer();
 
+  let stage = 'waiting for Stripe.js';
   try {
     await waitForStripe();
+    stage = 'creating Stripe instance';
     const stripe = Stripe(stripeKey);
+    stage = 'initializing embedded checkout';
     const co = await stripe.initEmbeddedCheckout({clientSecret});
+    stage = 'mounting checkout';
     container.innerHTML = '';
     co.mount('#stripe-container');
   } catch (e) {
-    console.error('Stripe checkout error:', e);
-    container.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:#888;font-size:13px;margin-bottom:8px">Could not load checkout.</p><button onclick="showStripe(\'' + clientSecret.replace(/'/g,"\\'") + '\')" style="padding:10px 20px;background:var(--orange);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit;margin-right:8px">Retry</button><button onclick="document.getElementById(\'stripe-modal\').classList.remove(\'open\')" style="padding:10px 20px;background:transparent;color:#888;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">Close</button></div>';
+    console.error('Stripe checkout error at stage [' + stage + ']:', e);
+    const msg = (e && e.message) ? e.message : 'Unknown error';
+    container.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:#888;font-size:13px;margin-bottom:6px">Could not load checkout.</p><p style="color:#c00;font-size:11px;margin-bottom:14px;word-break:break-word">Stage: ' + stage.replace(/</g,'&lt;') + '<br>' + msg.replace(/</g,'&lt;') + '</p><button onclick="showStripe(\'' + clientSecret.replace(/'/g,"\\'") + '\')" style="padding:10px 20px;background:var(--orange);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit;margin-right:8px">Retry</button><button onclick="document.getElementById(\'stripe-modal\').classList.remove(\'open\')" style="padding:10px 20px;background:transparent;color:#888;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">Close</button></div>';
   }
 }
 
