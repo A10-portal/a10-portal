@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     try {
-        const { cart, userId, checkedItems } = req.body;
+        const { cart, userId, checkedItems, orderNotes } = req.body;
 
         // Use only checked items if provided, otherwise use all cart items
         const itemsToCheckout = checkedItems && checkedItems.length > 0
@@ -121,7 +121,7 @@ export default async function handler(req, res) {
                     }
                 }
             }],
-            metadata: { userId: userId || '', userEmail: userEmail || '', cart: cartStr },
+            metadata: { userId: userId || '', userEmail: userEmail || '', cart: cartStr, orderNotes: (orderNotes || '').substring(0, 500) },
             return_url: (req.headers.origin || 'https://www.mova99.com') + '/success.html?session_id={CHECKOUT_SESSION_ID}',
         });
 
