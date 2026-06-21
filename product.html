@@ -209,6 +209,10 @@ function saveCart() {
   updateCartBadge();
 }
 
+function saveCartNotes(val) {
+  localStorage.setItem('mova_cart_notes', val);
+}
+
 // Called when variant is picked
 function pickV(btn, vid, color, size, price, img) {
   btn.closest('.var-btns').querySelectorAll('.vbtn').forEach(b=>b.classList.remove('sel'));
@@ -318,7 +322,7 @@ function runCheckout(userId) {
 
   fetch('/api/create-checkout', {
     method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ cart: singleItem, userId: userId, checkedItems: [_p.pid] })
+    body: JSON.stringify({ cart: singleItem, userId: userId, checkedItems: [_p.pid], orderNotes: (localStorage.getItem('mova_cart_notes')||'').substring(0,500) })
   })
   .then(r => r.json())
   .then(d => {
@@ -382,7 +386,12 @@ function renderCart() {
     </div>`;
   });
 
-  h += `<div style="border-top:1.5px solid var(--border);padding-top:14px;margin-top:6px">
+  h += `<div style="margin-top:14px">
+    <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Order Notes (optional)</label>
+    <textarea id="cart-notes" placeholder="Color, size in cm, gift message, or any special request..." oninput="saveCartNotes(this.value)" style="width:100%;min-height:60px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;resize:vertical;outline:none">${(localStorage.getItem('mova_cart_notes')||'').replace(/</g,'&lt;')}</textarea>
+  </div>`;
+
+  h += `<div style="border-top:1.5px solid var(--border);padding-top:14px;margin-top:14px">
     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:#888">Subtotal</span><span style="font-weight:700">$${sub.toFixed(2)}</span></div>
     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:12px"><span style="color:#888">Shipping (USA)</span><span style="font-weight:700">$${ship}</span></div>
     <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:900;margin-bottom:16px"><span>Total</span><span style="color:var(--orange)">$${total}</span></div>
@@ -463,7 +472,7 @@ async function runCartCheckout(userId) {
   try {
     const r = await fetch('/api/create-checkout', {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ cart, userId: userId, checkedItems: cart.map(i=>i.pid) })
+      body: JSON.stringify({ cart, userId: userId, checkedItems: cart.map(i=>i.pid), orderNotes: (localStorage.getItem('mova_cart_notes')||'').substring(0,500) })
     });
     const d = await r.json();
     if (d.clientSecret) showStripe(d.clientSecret);
