@@ -166,6 +166,15 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
 <script>
 const ORANGE = '#ff6100';
 let cart = JSON.parse(localStorage.getItem('mova_cart') || '[]');
+
+// ── Keep cart in sync across tabs/pages — fires when another tab changes localStorage ──
+window.addEventListener('storage', (e) => {
+  if (e.key === 'mova_cart') {
+    cart = JSON.parse(e.newValue || '[]');
+    updateCartBadge();
+    if (document.getElementById('cart-drawer')?.classList.contains('open')) renderCart();
+  }
+});
 let stripeKey = '';
 // _p holds the current product state — unit price only
 let _p = { pid:'', name:'', basePrice:0, image:'', qty:1, vid:'', color:'', size:'' };
@@ -480,6 +489,29 @@ async function runCartCheckout(userId) {
   } catch(e) { alert(e.message); }
 }
 
+// ── Robust Stripe script loader — preloads early, retries on failure ──
+let _stripeLoadPromise = null;
+function loadStripeScript(retries = 2) {
+  if (window.Stripe) return Promise.resolve();
+  if (_stripeLoadPromise) return _stripeLoadPromise;
+
+  _stripeLoadPromise = new Promise((resolve, reject) => {
+    function attempt(attemptsLeft) {
+      const existing = document.querySelector('script[data-stripe-js]');
+      if (existing) existing.remove();
+      const s = document.createElement('script');
+      s.src = 'https://js.stripe.com/v3/?_=' + Date.now();
+      s.setAttribute('data-stripe-js', '1');
+      s.onload = () => { if (window.Stripe) resolve(); else if (attemptsLeft > 0) setTimeout(()=>attempt(attemptsLeft-1), 600); else reject(new Error('Payment system unavailable')); };
+      s.onerror = () => { if (attemptsLeft > 0) setTimeout(()=>attempt(attemptsLeft-1), 600); else reject(new Error('Payment system unavailable')); };
+      document.head.appendChild(s);
+    }
+    attempt(retries);
+  });
+  return _stripeLoadPromise;
+}
+loadStripeScript().catch(()=>{});
+
 async function showStripe(clientSecret) {
   closeCartDrawer();
   const wrap = document.createElement('div');
@@ -494,15 +526,7 @@ async function showStripe(clientSecret) {
   }, 15000);
 
   try {
-    if (!window.Stripe) {
-      await new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = 'https://js.stripe.com/v3/';
-        s.onload = resolve;
-        s.onerror = () => reject(new Error('Failed to load payment system'));
-        document.head.appendChild(s);
-      });
-    }
+    await loadStripeScript();
     const stripe = Stripe(stripeKey);
     const co = await stripe.initEmbeddedCheckout({clientSecret});
     clearTimeout(mountTimeout);
@@ -511,7 +535,7 @@ async function showStripe(clientSecret) {
   } catch (e) {
     clearTimeout(mountTimeout);
     console.error('Stripe checkout error:', e);
-    container.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:#888;font-size:13px;margin-bottom:8px">Could not load checkout. Please try again.</p><p style="color:#c00;font-size:10px;margin-bottom:14px;word-break:break-all">' + (e?.message || 'Unknown error').replace(/</g,'&lt;') + '</p><button onclick="document.getElementById(\'stripe-wrap\').remove()" style="padding:10px 20px;background:#ff6100;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">Close</button></div>';
+    container.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:#888;font-size:13px;margin-bottom:8px">Could not load checkout.</p><button onclick="showStripe(\'' + clientSecret.replace(/'/g,"\\'") + '\')" style="padding:10px 20px;background:#ff6100;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit;margin-right:8px">Retry</button><button onclick="document.getElementById(\'stripe-wrap\').remove()" style="padding:10px 20px;background:transparent;color:#888;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">Close</button></div>';
   }
 }
 
