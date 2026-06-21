@@ -403,6 +403,22 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
   </div>
 </div>
 
+<!-- Auth Modal -->
+<div class="auth-overlay" id="auth-overlay" style="position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;padding:16px">
+  <div class="auth-box" style="background:#fff;border-radius:16px;max-width:380px;width:100%;overflow:hidden">
+    <div style="background:#111;padding:20px;text-align:center;border-bottom:3px solid #ff6100">
+      <div style="font-size:20px;font-weight:900;font-style:italic;color:#ff6100">Mova99</div>
+      <div style="font-size:12px;color:#fff;margin-top:4px;opacity:.7">Sign in to complete your order</div>
+    </div>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:10px">
+      <button onclick="proceedAsGuestIndex()" id="auth-guest-btn" style="display:block;padding:13px;background:#22c55e;color:#fff;border-radius:10px;font-size:14px;font-weight:800;text-align:center;text-decoration:none;border:none;cursor:pointer;font-family:inherit">Checkout as Guest</button>
+      <a href="/login?redirect=index" id="auth-login-btn" style="display:block;padding:13px;background:#ff6100;color:#fff;border-radius:10px;font-size:14px;font-weight:800;text-align:center;text-decoration:none">Login to My Account</a>
+      <a href="/signup?redirect=index" id="auth-signup-btn" style="display:block;padding:13px;background:#111;color:#fff;border-radius:10px;font-size:14px;font-weight:800;text-align:center;text-decoration:none">Create Free Account</a>
+      <button onclick="document.getElementById('auth-overlay').style.display='none'" style="padding:10px;background:transparent;color:#aaa;border:none;font-size:12px;cursor:pointer;font-family:inherit">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- CART OVERLAY + DRAWER -->
 <div class="cart-overlay" id="cart-overlay" onclick="closeCartDrawer()"></div>
 <div class="cart-drawer" id="cart-drawer">
@@ -868,8 +884,19 @@ function popupAddMore() {
 
 async function doCheckout() {
   const session = JSON.parse(localStorage.getItem('foundry_session') || 'null');
-  if (!session?.id) { closeCartDrawer(); window.location.href = '/login'; return; }
+  if (!session?.id) {
+    document.getElementById('auth-overlay').style.display = 'flex';
+    return;
+  }
+  runIndexCheckout(session.id);
+}
 
+function proceedAsGuestIndex() {
+  document.getElementById('auth-overlay').style.display = 'none';
+  runIndexCheckout('');
+}
+
+async function runIndexCheckout(userId) {
   const checkedKeys = Object.keys(window._chk||{}).filter(k=>window._chk[k]!==false);
   const items = cart.filter(i=>checkedKeys.includes(i.cartKey||i.pid));
   if (!items.length) { alert('Select at least one item.'); return; }
@@ -890,7 +917,7 @@ async function doCheckout() {
   try {
     const r = await fetch('/api/create-checkout', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ cart:grouped, userId:session.id, checkedItems:grouped.map(i=>i.pid) })
+      body: JSON.stringify({ cart:grouped, userId:userId, checkedItems:grouped.map(i=>i.pid) })
     });
     const d = await r.json();
     if (d.clientSecret) showStripe(d.clientSecret);
