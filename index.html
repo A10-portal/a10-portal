@@ -17,6 +17,7 @@
 <link rel="canonical" href="https://www.mova99.com">
 <title>Mova99 — Premium USA Marketplace</title>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TK7Y07K9VH"></script>
+<script src="https://js.stripe.com/v3/"></script>
 <script>
   window.dataLayer=window.dataLayer||[];
   function gtag(){dataLayer.push(arguments);}
@@ -950,29 +951,17 @@ async function runIndexCheckout(userId) {
   }
 }
 
-// ── Robust Stripe script loader — preloads early, retries on failure ──
-let _stripeLoadPromise = null;
-function loadStripeScript(retries = 2) {
+// ── Wait for Stripe (loaded via static <script> tag in <head>) to be ready ──
+function waitForStripe(maxWaitMs = 10000) {
   if (window.Stripe) return Promise.resolve();
-  if (_stripeLoadPromise) return _stripeLoadPromise;
-
-  _stripeLoadPromise = new Promise((resolve, reject) => {
-    function attempt(attemptsLeft) {
-      const existing = document.querySelector('script[data-stripe-js]');
-      if (existing) existing.remove();
-      const s = document.createElement('script');
-      s.src = 'https://js.stripe.com/v3/?_=' + Date.now();
-      s.setAttribute('data-stripe-js', '1');
-      s.onload = () => { if (window.Stripe) resolve(); else if (attemptsLeft > 0) setTimeout(()=>attempt(attemptsLeft-1), 600); else reject(new Error('Payment system unavailable')); };
-      s.onerror = () => { if (attemptsLeft > 0) setTimeout(()=>attempt(attemptsLeft-1), 600); else reject(new Error('Payment system unavailable')); };
-      document.head.appendChild(s);
-    }
-    attempt(retries);
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const check = setInterval(() => {
+      if (window.Stripe) { clearInterval(check); resolve(); }
+      else if (Date.now() - start > maxWaitMs) { clearInterval(check); reject(new Error('Payment system unavailable')); }
+    }, 100);
   });
-  return _stripeLoadPromise;
 }
-// Preload immediately on page load so it's likely cached/ready before checkout is clicked
-loadStripeScript().catch(()=>{});
 
 async function showStripe(clientSecret) {
   const modal = document.getElementById('stripe-modal');
@@ -981,19 +970,13 @@ async function showStripe(clientSecret) {
   container.innerHTML = '<div style="text-align:center;padding:40px"><div style="width:28px;height:28px;border:3px solid var(--orange);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:auto"></div></div>';
   closeCartDrawer();
 
-  const mountTimeout = setTimeout(() => {
-    container.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:#888;font-size:13px;margin-bottom:14px">Checkout is taking longer than expected. Please check your connection and try again.</p><button onclick="document.getElementById(\'stripe-modal\').classList.remove(\'open\')" style="padding:10px 20px;background:var(--orange);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">Close</button></div>';
-  }, 15000);
-
   try {
-    await loadStripeScript();
+    await waitForStripe();
     const stripe = Stripe(stripeKey);
     const co = await stripe.initEmbeddedCheckout({clientSecret});
-    clearTimeout(mountTimeout);
     container.innerHTML = '';
     co.mount('#stripe-container');
   } catch (e) {
-    clearTimeout(mountTimeout);
     console.error('Stripe checkout error:', e);
     container.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:#888;font-size:13px;margin-bottom:8px">Could not load checkout.</p><button onclick="showStripe(\'' + clientSecret.replace(/'/g,"\\'") + '\')" style="padding:10px 20px;background:var(--orange);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit;margin-right:8px">Retry</button><button onclick="document.getElementById(\'stripe-modal\').classList.remove(\'open\')" style="padding:10px 20px;background:transparent;color:#888;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">Close</button></div>';
   }
