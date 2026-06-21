@@ -382,7 +382,7 @@ input:focus, select:focus, textarea:focus { outline: none; }
 <!-- ── STRIPE CHECKOUT MODAL ── -->
 <div class="modal-bg" id="stripe-modal">
   <div class="modal-box" style="max-width:520px">
-    <button class="modal-close" onclick="document.getElementById('stripe-modal').classList.remove('open')">×</button>
+    <button class="modal-close" onclick="closeStripeModal()">×</button>
     <div id="stripe-container" style="padding:24px"></div>
   </div>
 </div>
@@ -476,6 +476,7 @@ let productPage = 1;
 let productLoading = false;
 let productKeyword = '';
 let stripeKey = '';
+let _stripeCheckout = null; // tracks the active Stripe Embedded Checkout instance so it can be destroyed before re-init
 
 // Products are randomised server-side — API picks keyword + page randomly on every request
 
@@ -1066,6 +1067,14 @@ function closeCart() {
 function renderCart() {
   const body = document.getElementById('cart-body');
   if (!body) return;
+
+  // Preserve the notes textarea while the user is typing — re-rendering cart-body
+  // recreates the textarea from scratch, which otherwise steals focus/cursor mid-keystroke.
+  const notesEl = document.getElementById('cart-notes');
+  const notesFocused = notesEl && document.activeElement === notesEl;
+  const notesCaret = notesFocused ? notesEl.selectionStart : null;
+  if (notesEl) localStorage.setItem('mova_cart_notes', notesEl.value);
+
   if (!cart.length) {
     body.innerHTML = `<div style="text-align:center;padding:40px 20px">
       <div style="font-size:48px;margin-bottom:12px">🛒</div>
@@ -1137,6 +1146,11 @@ function renderCart() {
   </div>`;
 
   body.innerHTML = h;
+
+  if (notesFocused) {
+    const newNotesEl = document.getElementById('cart-notes');
+    if (newNotesEl) { newNotesEl.focus(); newNotesEl.setSelectionRange(notesCaret, notesCaret); }
+  }
 }
 
 function toggleItem(key, val) { window._checked = window._checked||{}; window._checked[key]=val; renderCart(); }
@@ -1276,16 +1290,26 @@ async function showStripeCheckout(clientSecret) {
   container.innerHTML = '<div class="spinner"></div>';
   closeCart();
 
+  // A previous embedded checkout instance must be destroyed before creating a new one,
+  // otherwise re-opening checkout after going back to the cart fails to load.
+  if (_stripeCheckout) { try { _stripeCheckout.destroy(); } catch(e) {} _stripeCheckout = null; }
+
   try {
     await waitForStripe();
     const stripe = Stripe(stripeKey);
     const checkout = await stripe.initEmbeddedCheckout({ clientSecret });
     container.innerHTML = '';
     checkout.mount('#stripe-container');
+    _stripeCheckout = checkout;
   } catch (e) {
     console.error('Stripe checkout error:', e);
-    container.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:var(--muted);font-size:13px;margin-bottom:8px">Could not load checkout.</p><button onclick="showStripeCheckout(\'' + clientSecret.replace(/'/g,"\\'") + '\')" style="padding:10px 20px;background:var(--orange);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit;margin-right:8px">Retry</button><button onclick="document.getElementById(\'stripe-modal\').classList.remove(\'open\')" style="padding:10px 20px;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">Close</button></div>';
+    container.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:var(--muted);font-size:13px;margin-bottom:8px">Could not load checkout.</p><button onclick="showStripeCheckout(\'' + clientSecret.replace(/'/g,"\\'") + '\')" style="padding:10px 20px;background:var(--orange);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit;margin-right:8px">Retry</button><button onclick="closeStripeModal()" style="padding:10px 20px;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">Close</button></div>';
   }
+}
+
+function closeStripeModal() {
+  document.getElementById('stripe-modal').classList.remove('open');
+  if (_stripeCheckout) { try { _stripeCheckout.destroy(); } catch(e) {} _stripeCheckout = null; }
 }
 
 // ══════════════════════════════════════════════════
