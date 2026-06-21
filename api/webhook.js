@@ -45,6 +45,7 @@ export default async function handler(req, res) {
 
     const userId    = session.metadata?.userId    || '';
     const userEmail = session.metadata?.userEmail || '';
+    const orderNotes = session.metadata?.orderNotes || '';
     const stripeSessionId = session.id;
     const paymentIntentId = session.payment_intent || '';
     const amountTotal = session.amount_total || 0;
@@ -156,6 +157,7 @@ export default async function handler(req, res) {
             userId, stripeSessionId, paymentIntentId, amountTotal,
             customerEmail, customerName: realName, customerPhone,
             shippingName, shippingAddress, items: enrichedItems,
+            orderNotes,
             status: 'payment_received', createdAt: new Date()
         };
 
@@ -245,6 +247,10 @@ export default async function handler(req, res) {
                     <tr><td style="padding:10px 14px;color:#888;border-bottom:1px solid #1a1a1a">Amount Paid</td><td style="padding:10px 14px;font-weight:900;font-size:18px;color:#c9a84c;border-bottom:1px solid #1a1a1a">$${(amountTotal/100).toFixed(2)}</td></tr>
                     <tr><td style="padding:10px 14px;color:#888">Ship To</td><td style="padding:10px 14px;color:#fafafa;line-height:1.6">${shippingName}<br>${addrHtml}</td></tr>
                 </table>
+                ${orderNotes ? `<div style="margin-bottom:20px;padding:14px 18px;background:#2a1f00;border-left:4px solid #ff6100">
+                    <p style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#ff8533;margin:0 0 6px">Customer Order Note</p>
+                    <p style="font-size:13px;color:#fafafa;line-height:1.6;margin:0;white-space:pre-wrap">${orderNotes.replace(/</g,'&lt;')}</p>
+                </div>` : ''}
                 <h3 style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#c9a84c;margin-bottom:12px;border-top:1px solid #222;padding-top:20px">Items (${enrichedItems.length})</h3>
                 <table style="width:100%;border-collapse:collapse;background:#111;border:1px solid #222">
                     <tr style="background:#1a1a1a">
