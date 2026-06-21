@@ -969,7 +969,8 @@ async function showStripe(clientSecret) {
     co.mount('#stripe-container');
   } catch (e) {
     clearTimeout(mountTimeout);
-    container.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:#888;font-size:13px;margin-bottom:14px">Could not load checkout. Please try again.</p><button onclick="document.getElementById(\'stripe-modal\').classList.remove(\'open\')" style="padding:10px 20px;background:var(--orange);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">Close</button></div>';
+    console.error('Stripe checkout error:', e);
+    container.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:#888;font-size:13px;margin-bottom:8px">Could not load checkout. Please try again.</p><p style="color:#c00;font-size:10px;margin-bottom:14px;word-break:break-all">' + (e?.message || 'Unknown error').replace(/</g,'&lt;') + '</p><button onclick="document.getElementById(\'stripe-modal\').classList.remove(\'open\')" style="padding:10px 20px;background:var(--orange);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">Close</button></div>';
   }
 }
 
