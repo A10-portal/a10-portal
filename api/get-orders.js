@@ -130,6 +130,22 @@ export default async function handler(req, res) {
                 return res.status(404).json({ error: 'No order found matching that Order ID and email.' });
             }
 
+            // ── Pull live carrier tracking events if a tracking number exists ──
+            let trackingEvents = [];
+            let liveStatus = order.trackingStatus || null;
+            if (order.trackingNumber) {
+                try {
+                    await register17track(order.trackingNumber);
+                    const trackData = await fetch17trackEvents(order.trackingNumber);
+                    if (trackData) {
+                        trackingEvents = trackData.events || [];
+                        if (trackData.latestStatus) liveStatus = trackData.latestStatus;
+                    }
+                } catch (e) {
+                    console.error('17track lookup error (guest track):', e.message);
+                }
+            }
+
             return res.status(200).json({
                 orderId: order._id.toString().slice(-6).toUpperCase(),
                 status: order.status || 'Processing',
@@ -138,7 +154,8 @@ export default async function handler(req, res) {
                 amountTotal: order.amountTotal || 0,
                 shippingAddress: order.shippingAddress || null,
                 trackingNumber: order.trackingNumber || null,
-                trackingStatus: order.trackingStatus || null,
+                trackingStatus: liveStatus,
+                trackingEvents: trackingEvents,
                 customerEmail: order.customerEmail || ''
             });
         } catch (e) {
