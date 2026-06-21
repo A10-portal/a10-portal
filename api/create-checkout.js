@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
         let userEmail = '';
         if (userId) {
-            const _mc = new MongoClient(process.env.MONGODB_URI);
+            const _mc = new MongoClient(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 3000, connectTimeoutMS: 3000 });
             try {
                 await _mc.connect();
                 const _u = await _mc.db('foundry_db').collection('users').findOne({ uniqueID: userId });
