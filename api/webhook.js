@@ -296,7 +296,7 @@ export default async function handler(req, res) {
                     </div>
                     <div style="background:white;padding:32px;border:1px solid #eee">
                         <h2 style="font-size:22px;font-weight:900;margin:0 0 6px;color:#0a0a0a">Order Confirmed ✓</h2>
-                        <p style="color:#888;font-size:13px;border-bottom:1px solid #eee;padding-bottom:16px;margin-bottom:24px">Order Reference: <strong style="color:#0a0a0a">#${orderId.slice(-6).toUpperCase()}</strong></p>
+                        <p style="color:#888;font-size:13px;border-bottom:1px solid #eee;padding-bottom:16px;margin-bottom:24px">Order ID: <strong style="color:#0a0a0a">#${orderId.slice(-6).toUpperCase()}</strong></p>
                         <p style="font-size:15px;margin-bottom:8px">Dear <strong>${firstName}</strong>,</p>
                         <p style="font-size:14px;color:#555;line-height:1.7;margin-bottom:24px">Thank you for your order! Your payment has been received and we are now processing your items.</p>
                         <div style="background:#f8f8f8;border-left:4px solid #c9a84c;padding:16px 20px;margin-bottom:24px">
