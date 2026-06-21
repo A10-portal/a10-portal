@@ -124,7 +124,15 @@ const CATEGORY_MAP = {
     'mens-underwear': { name: "Men's Underwear", keyword: 'men underwear socks' }
 };
 
-let cart = JSON.parse(localStorage.getItem('mova_cart')) || {};
+let cart = JSON.parse(localStorage.getItem('mova_cart')) || [];
+
+// ── Keep cart in sync across tabs/pages — fires when another tab changes localStorage ──
+window.addEventListener('storage', (e) => {
+    if (e.key === 'mova_cart') {
+        cart = JSON.parse(e.newValue || '[]');
+        updateCartBadge();
+    }
+});
 let currentPage = 1;
 let isLoading = false;
 let categorySlug = '';
