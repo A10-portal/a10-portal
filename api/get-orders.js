@@ -103,6 +103,52 @@ async function fetch17trackEvents(trackingNumber) {
 export default async function handler(req, res) {
     if (req.query.img) return handleImageProxy(req, res);
 
+    // ── Guest order tracking — lookup by order ID (last 6 chars) + email ──
+    if (req.query.action === 'track') {
+        const orderIdInput = (req.query.orderId || '').trim().toUpperCase();
+        const emailInput = (req.query.email || '').trim().toLowerCase();
+
+        if (!orderIdInput || !emailInput) {
+            return res.status(400).json({ error: 'Order ID and email are required' });
+        }
+
+        const client = new MongoClient(uri);
+        try {
+            await client.connect();
+            const orders = client.db('foundry_db').collection('orders');
+
+            // Match orders whose Mongo _id ends with the entered 6-char code
+            const allMatches = await orders.find({
+                customerEmail: { $regex: `^${emailInput}$`, $options: 'i' }
+            }).sort({ createdAt: -1 }).toArray();
+
+            const order = allMatches.find(o =>
+                o._id.toString().slice(-6).toUpperCase() === orderIdInput
+            );
+
+            if (!order) {
+                return res.status(404).json({ error: 'No order found matching that Order ID and email.' });
+            }
+
+            return res.status(200).json({
+                orderId: order._id.toString().slice(-6).toUpperCase(),
+                status: order.status || 'Processing',
+                createdAt: order.createdAt,
+                items: order.items || [],
+                amountTotal: order.amountTotal || 0,
+                shippingAddress: order.shippingAddress || null,
+                trackingNumber: order.trackingNumber || null,
+                trackingStatus: order.trackingStatus || null,
+                customerEmail: order.customerEmail || ''
+            });
+        } catch (e) {
+            console.error('Track order error:', e.message);
+            return res.status(500).json({ error: 'Something went wrong looking up your order.' });
+        } finally {
+            await client.close();
+        }
+    }
+
     const { userId } = req.query;
     if (!userId) return res.status(400).json({ error: 'Missing userId' });
 
