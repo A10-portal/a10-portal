@@ -510,6 +510,7 @@ async function loadCartFromServer() {
     }
 
     updateCartBadge();
+    if (document.getElementById('cart-panel')?.classList.contains('open')) renderCart();
   } catch(e) { /* keep local cart on error */ }
 }
 let session = JSON.parse(localStorage.getItem('foundry_session') || 'null');
@@ -1838,13 +1839,19 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge();
 
   // After login/signup redirect: open cart immediately — items are already in localStorage
-  if (window.location.hash === '#opencart') {
+  const _wantsCartOpen = window.location.hash === '#opencart';
+  if (_wantsCartOpen) {
     history.replaceState(null, '', '/dashboard');
     if (cart.length > 0) openCart();
   }
 
   // Load + merge server cart in background (won't close the drawer if already open)
-  loadCartFromServer();
+  // After merge, open cart if #opencart was requested but local was empty (server-only items)
+  loadCartFromServer().then(() => {
+    if (_wantsCartOpen && !document.getElementById('cart-panel')?.classList.contains('open') && cart.length > 0) {
+      openCart();
+    }
+  }).catch(() => {});
 
   setActiveNav('market');
   renderMarket();
