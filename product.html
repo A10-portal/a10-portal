@@ -735,6 +735,11 @@ if (pid) {
 } else {
   document.getElementById('product-container').innerHTML = '<div class="error-state"><div class="error-icon">🛍️</div><p style="font-size:16px;font-weight:700;margin-bottom:20px">No product specified</p><a href="/" style="display:inline-block;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Browse Products</a></div>';
 }
+// After returning from login/signup with items in cart, auto-open the cart drawer
+if (window.location.hash === '#opencart' && cart.length > 0) {
+  history.replaceState(null, '', window.location.pathname + window.location.search);
+  openCartDrawer();
+}
 </script>
 
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
