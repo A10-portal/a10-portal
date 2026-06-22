@@ -540,7 +540,15 @@ function imgUrl(url) {
   return '/api/get-orders?img=' + encodeURIComponent(url);
 }
 function esc(s) { return String(s||'').replace(/'/g,"&#39;").replace(/"/g,"&quot;"); }
-function logout() { localStorage.clear(); sessionStorage.clear(); window.location.replace('/login'); }
+function logout() {
+  const savedCart = localStorage.getItem('mova_cart');
+  const savedNotes = localStorage.getItem('mova_cart_notes');
+  localStorage.clear();
+  sessionStorage.clear();
+  if (savedCart) localStorage.setItem('mova_cart', savedCart);
+  if (savedNotes) localStorage.setItem('mova_cart_notes', savedNotes);
+  window.location.replace('/login');
+}
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
 // ══════════════════════════════════════════════════
@@ -1828,14 +1836,16 @@ async function loadTransactions() {
 // ══════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge();
-  // Load server cart on every page load — merges with any local items
-  loadCartFromServer().then(() => {
-    // After login/signup redirect: open cart drawer so user sees their pre-login items
-    if (window.location.hash === '#opencart' && cart.length > 0) {
-      history.replaceState(null, '', '/dashboard');
-      openCart();
-    }
-  });
+
+  // After login/signup redirect: open cart immediately — items are already in localStorage
+  if (window.location.hash === '#opencart') {
+    history.replaceState(null, '', '/dashboard');
+    if (cart.length > 0) openCart();
+  }
+
+  // Load + merge server cart in background (won't close the drawer if already open)
+  loadCartFromServer();
+
   setActiveNav('market');
   renderMarket();
 
