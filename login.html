@@ -250,7 +250,12 @@ async function verifyAndLogin(){
         const data=await r.json();
         if(data.token){
             localStorage.setItem('foundry_session',JSON.stringify({token:data.token,id:data.id,expiry:Date.now()+24*60*60*1000}));
-            window.location.href='/dashboard';
+            const redirectParam = new URLSearchParams(window.location.search).get('redirect') || '';
+            if (redirectParam === 'index') { window.location.href = '/#opencart'; }
+            else if (redirectParam === 'product') {
+                const pid = new URLSearchParams(window.location.search).get('pid') || '';
+                window.location.href = pid ? '/product?pid=' + encodeURIComponent(pid) + '#opencart' : '/#opencart';
+            } else { window.location.href = '/dashboard'; }
         }else{errEl.textContent=data.error||'Invalid code.';errEl.style.display='block';}
     }catch(e){errEl.textContent='Connection error.';errEl.style.display='block';}
 }
