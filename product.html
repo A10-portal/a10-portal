@@ -319,8 +319,9 @@ function runCheckout(userId) {
   btn.textContent = 'Processing...';
   btn.disabled = true;
 
+  const truncPid = (_p.pid||'').substring(0,20);
   const singleItem = [{
-    pid: (_p.pid||'').substring(0,20),
+    pid: truncPid,
     name: (_p.name||'').substring(0,25),
     price: (_p.basePrice * _p.qty).toFixed(2),
     qty: _p.qty || 1,
@@ -333,7 +334,7 @@ function runCheckout(userId) {
 
   fetch('/api/create-checkout', {
     method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ cart: singleItem, userId: userId, checkedItems: [_p.pid], orderNotes: (localStorage.getItem('mova_cart_notes')||'').substring(0,500) })
+    body: JSON.stringify({ cart: singleItem, userId: userId, checkedItems: [truncPid], orderNotes: (localStorage.getItem('mova_cart_notes')||'').substring(0,500) })
   })
   .then(r => r.json())
   .then(d => {
