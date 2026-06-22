@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff6100">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" type="image/png" href="/image/logo.png">
+<meta name="description" content="Shop millions of products at unbeatable prices. Fast 3-8 day delivery across the USA. Secure checkout powered by Stripe.">
+<meta property="og:title" content="Mova99 — Premium USA Marketplace">
+<meta property="og:description" content="Shop millions of products across every category. Fast delivery, secure checkout and unbeatable prices across the United States.">
+<meta property="og:url" content="https://www.mova99.com">
+<meta property="og:type" content="website">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://www.mova99.com">
+<title>Mova99 — Premium USA Marketplace</title>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+// ── Analytics — only loads after explicit cookie consent ──
+function loadAnalytics() {
+  if (document.querySelector('script[data-gtm]')) return;
+  const s = document.createElement('script');
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=G-TK7Y07K9VH';
+  s.async = true;
+  s.setAttribute('data-gtm', '1');
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  window.gtag = gtag;
+  gtag('js', new Date());
+  gtag('config', 'G-TK7Y07K9VH');
+}
+// If already consented in a previous session, load immediately
+if (localStorage.getItem('mova_cookie_consent') === 'accepted') loadAnalytics();
+</script>
+<link rel="preconnect" href="https://cf.cjdropshipping.com">
+<link rel="dns-prefetch" href="https://cf.cjdropshipping.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #ff6100;
+  --orange-light: #ff8533;
+  --orange-pale: #fff3ed;
+  --text: #1a1a1a;
+  --border: #f0f0f0;
+  --bg: #f5f5f5;
+  --white: #ffffff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color: var(--text); overflow-x: hidden; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 2px; }
+
+/* ── NAV ── */
+.nav { position: sticky; top: 0; z-index: 200; background: rgba(255,255,255,.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 24px; }
+.nav-inner { max-width: 1280px; margin: auto; height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.nav-logo { font-size: 22px; font-weight: 900; font-style: italic; color: var(--orange); text-decoration: none; letter-spacing: -1px; }
+.nav-logo span { color: var(--text); }
+.nav-links { display: flex; align-items: center; gap: 8px; }
+.nav-btn { padding: 9px 20px; border-radius: 24px; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; transition: all .18s; font-family: inherit; }
+.nav-btn-outline { background: transparent; border: 2px solid var(--orange); color: var(--orange); }
+.nav-btn-solid { background: var(--orange); border: 2px solid var(--orange); color: #fff; }
+.nav-btn:hover { opacity: .85; transform: translateY(-1px); }
+.nav-cart-btn { position: relative; width: 40px; height: 40px; border-radius: 50%; background: var(--orange); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform .2s; }
+.nav-cart-btn:hover { transform: scale(1.08); }
+.nav-cart-badge { position: absolute; top: -3px; right: -3px; background: #ef4444; color: #fff; font-size: 8px; font-weight: 900; border-radius: 50%; width: 16px; height: 16px; display: none; align-items: center; justify-content: center; }
+.nav-cart-badge.show { display: flex; }
+@media(max-width:640px) { .nav-btn-outline { display: none; } }
+
+/* ── MARQUEE ── */
+.marquee-wrap { background: var(--orange); overflow: hidden; padding: 7px 0; }
+.marquee-track { display: flex; animation: marquee 28s linear infinite; white-space: nowrap; }
+.marquee-track span { font-size: 12px; font-weight: 700; color: #fff; padding: 0 28px; letter-spacing: .02em; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ── HERO ── */
+.hero { background: linear-gradient(135deg, #0a0a0a 0%, #1a0800 50%, #0a0a0a 100%); min-height: 520px; display: flex; align-items: center; position: relative; overflow: hidden; padding: 60px 24px; }
+.hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 50%, rgba(255,97,0,.28) 0%, transparent 60%); pointer-events: none; }
+.hero::after  { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 75% 50%, rgba(255,97,0,.15) 0%, transparent 60%); pointer-events: none; }
+.hero-inner { max-width: 1280px; margin: auto; width: 100%; position: relative; z-index: 2; }
+.hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,97,0,.15); border: 1px solid rgba(255,97,0,.35); border-radius: 24px; padding: 6px 16px; font-size: 11px; font-weight: 700; color: #ff8533; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 20px; }
+.hero h1 { font-size: clamp(36px, 5vw, 68px); font-weight: 900; color: #fff; line-height: 1.05; margin-bottom: 20px; letter-spacing: -2px; }
+.hero h1 span { color: var(--orange); }
+.hero p { font-size: clamp(15px, 2vw, 18px); color: rgba(255,255,255,.65); line-height: 1.7; max-width: 520px; margin-bottom: 32px; }
+.hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-btn-primary { background: var(--orange); color: #fff; padding: 15px 32px; border-radius: 12px; font-size: 14px; font-weight: 800; text-decoration: none; text-transform: uppercase; letter-spacing: .07em; transition: all .2s; border: none; cursor: pointer; font-family: inherit; }
+.hero-btn-primary:hover { background: var(--orange-light); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,97,0,.4); }
+.hero-btn-secondary { background: transparent; color: #fff; padding: 15px 32px; border-radius: 12px; font-size: 14px; font-weight: 800; text-decoration: none; text-transform: uppercase; letter-spacing: .07em; transition: all .2s; border: 2px solid rgba(255,255,255,.2); }
+.hero-btn-secondary:hover { border-color: #fff; transform: translateY(-2px); }
+.hero-stats { display: flex; gap: 32px; margin-top: 40px; flex-wrap: wrap; }
+.hero-stat-num { font-size: 28px; font-weight: 900; color: #fff; }
+.hero-stat-label { font-size: 11px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+
+/* ── SECTIONS ── */
+.section { padding: 60px 24px; }
+.section-inner { max-width: 1280px; margin: auto; }
+.section-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 10px; }
+.section-title { font-size: clamp(22px, 3vw, 32px); font-weight: 900; color: var(--text); letter-spacing: -1px; }
+.section-title span { color: var(--orange); }
+.section-sub { font-size: 13px; color: #888; margin-top: 5px; }
+.section-link { font-size: 13px; font-weight: 700; color: var(--orange); text-decoration: none; white-space: nowrap; }
+.section-link:hover { text-decoration: underline; }
+
+/* ── CATEGORIES ── */
+.cat-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; -ms-overflow-style: none; }
+.cat-scroll::-webkit-scrollbar { display: none; }
+.cat-chip { display: inline-flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; min-width: 76px; text-decoration: none; transition: transform .2s; flex-shrink: 0; }
+.cat-chip:hover { transform: translateY(-3px); }
+.cat-chip-img { width: 70px; height: 70px; border-radius: 50%; background: var(--orange-pale); border: 2px solid var(--border); overflow: hidden; display: flex; align-items: center; justify-content: center; transition: border-color .18s; font-size: 28px; }
+.cat-chip:hover .cat-chip-img { border-color: var(--orange); }
+.cat-chip-label { font-size: 10px; font-weight: 600; color: var(--text); text-align: center; max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── PRODUCT GRID ── */
+.product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+@media(min-width:480px)  { .product-grid { grid-template-columns: repeat(3,1fr); } }
+@media(min-width:768px)  { .product-grid { grid-template-columns: repeat(4,1fr); gap: 12px; } }
+@media(min-width:1024px) { .product-grid { grid-template-columns: repeat(5,1fr); } }
+@media(min-width:1280px) { .product-grid { grid-template-columns: repeat(6,1fr); } }
+
+/* ── PRODUCT CARD ── */
+.product-card { background: #fff; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; cursor: pointer; transition: all .22s; display: flex; flex-direction: column; }
+.product-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,.1); transform: translateY(-3px); border-color: var(--orange); }
+.product-img-wrap { aspect-ratio: 1; background: #f8f8f8; overflow: hidden; position: relative; }
+.product-img-wrap img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .4s, transform .4s; }
+.product-img-wrap img.loaded { opacity: 1; }
+.product-card:hover .product-img-wrap img { transform: scale(1.05); }
+.hot-badge { position: absolute; top: 8px; left: 8px; background: var(--orange); color: #fff; font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 4px; z-index: 2; }
+.product-info { padding: 10px 12px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.product-name { font-size: 11px; line-height: 14px; height: 28px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: var(--text); }
+.product-price { font-size: 15px; font-weight: 800; color: var(--orange); }
+.product-old { font-size: 10px; color: #bbb; text-decoration: line-through; }
+.pcard-add-btn { margin: 0 10px 10px; padding: 9px; background: var(--orange); color: #fff; border: none; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all .2s; font-family: inherit; }
+.pcard-add-btn:hover { background: var(--orange-light); transform: translateY(-1px); }
+
+/* ── SKELETON ── */
+.skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 12px; }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+@keyframes flashIn { 0%{opacity:0;transform:scale(1.04)} 100%{opacity:1;transform:scale(1)} }
+
+/* ── FEATURES ── */
+.features-section { background: var(--bg); }
+.features-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
+@media(min-width:640px) { .features-grid { grid-template-columns: repeat(4,1fr); } }
+.feature-card { background: #fff; border-radius: 14px; padding: 22px 18px; text-align: center; border: 1px solid var(--border); transition: all .2s; }
+.feature-card:hover { border-color: var(--orange); transform: translateY(-3px); }
+.feature-icon { font-size: 30px; margin-bottom: 10px; }
+.feature-title { font-size: 12px; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+.feature-desc { font-size: 11px; color: #888; line-height: 1.6; }
+
+/* ── REFERRAL ── */
+.referral-section { background: linear-gradient(135deg, #0a0a0a, #1a0800); padding: 64px 24px; }
+.referral-inner { max-width: 600px; margin: auto; text-align: center; }
+.referral-inner h2 { font-size: clamp(24px, 4vw, 40px); font-weight: 900; color: #fff; margin-bottom: 12px; letter-spacing: -1px; }
+.referral-inner h2 span { color: var(--orange); }
+.referral-inner p { font-size: 14px; color: rgba(255,255,255,.65); line-height: 1.7; margin-bottom: 28px; }
+
+/* ── FOOTER ── */
+.footer { background: #0a0a0a; padding: 48px 24px 32px; border-top: 1px solid #1a1a1a; }
+.footer-inner { max-width: 1280px; margin: auto; }
+.footer-grid { display: grid; grid-template-columns: 1fr; gap: 32px; margin-bottom: 40px; }
+@media(min-width:640px) { .footer-grid { grid-template-columns: 2fr 1fr 1fr; } }
+.footer-logo { font-size: 24px; font-weight: 900; font-style: italic; color: #fff; margin-bottom: 10px; letter-spacing: -1px; }
+.footer-logo span { color: var(--orange); }
+.footer-desc { font-size: 12px; color: #555; line-height: 1.7; }
+.footer-heading { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: #888; margin-bottom: 14px; }
+.footer-link { display: block; font-size: 12px; color: #555; text-decoration: none; margin-bottom: 10px; transition: color .15s; }
+.footer-link:hover { color: var(--orange); }
+.footer-bottom { border-top: 1px solid #1a1a1a; padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.footer-copy { font-size: 11px; color: #333; }
+
+/* ── FLOATING CART ── */
+.cart-float { position: fixed; bottom: 24px; right: 20px; z-index: 500; background: var(--orange); border-radius: 50%; width: 56px; height: 56px; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(255,97,0,.4); cursor: pointer; transition: transform .2s; border: none; }
+.cart-float.visible { display: flex; }
+.cart-float:hover { transform: scale(1.1); }
+.cart-float-badge { position: absolute; top: -4px; right: -4px; background: #ef4444; color: #fff; font-size: 8px; font-weight: 900; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
+
+/* ── PRODUCT MODAL ── */
+.modal-bg { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.65); display: none; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
+.modal-bg.open { display: flex; }
+.modal-box { background: #fff; border-radius: 16px; width: 100%; max-width: 520px; margin: auto; position: relative; overflow: hidden; }
+.modal-close { position: absolute; top: 12px; right: 12px; z-index: 10; background: #f0f0f0; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+/* ── CART DRAWER ── */
+.cart-overlay { position: fixed; inset: 0; z-index: 800; background: rgba(0,0,0,.5); display: none; }
+.cart-overlay.open { display: block; }
+.cart-drawer { position: fixed; right: -100%; top: 0; bottom: 0; width: 100%; max-width: 420px; background: #fff; z-index: 900; box-shadow: -4px 0 30px rgba(0,0,0,.12); transition: right .3s ease; overflow-y: auto; padding: 20px; }
+.cart-drawer.open { right: 0; }
+.auth-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.65); display: none; align-items: center; justify-content: center; padding: 20px; }
+.auth-overlay.open { display: flex; }
+.auth-box { background: #fff; border-radius: 16px; max-width: 380px; width: 100%; overflow: hidden; }
+
+/* ── STRIPE MODAL ── */
+.stripe-modal-bg { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.8); display: none; align-items: center; justify-content: center; padding: 16px; }
+.stripe-modal-bg.open { display: flex; }
+.stripe-modal-box { background: #fff; border-radius: 16px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; position: relative; }
+
+/* ── ANIMATIONS ── */
+.fade-up { opacity: 0; transform: translateY(20px); transition: opacity .55s ease, transform .55s ease; }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+/* ── Cookie Consent System (GDPR/CCPA Compliant) ── */
+.cookie-banner {
+  position: fixed; bottom: -400px; left: 0; right: 0; z-index: 99999;
+  background: #111; border-top: 2px solid #ff6100;
+  box-shadow: 0 -4px 40px rgba(0,0,0,.6);
+  transition: bottom .5s cubic-bezier(.16,1,.3,1);
+}
+.cookie-banner.show { bottom: 0; }
+.cookie-banner-inner {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 20px; padding: 20px 28px; flex-wrap: wrap; max-width: 1200px; margin: 0 auto;
+}
+.cookie-banner-text { flex: 1; min-width: 260px; }
+.cookie-banner-text strong { color: #fff; font-size: 14px; font-weight: 900; display: block; margin-bottom: 6px; }
+.cookie-banner-text p { font-size: 11px; color: #aaa; line-height: 1.7; margin: 0 0 10px; }
+.cookie-cats { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.cookie-cat { display: flex; gap: 8px; align-items: flex-start; }
+.cookie-cat-label { font-size: 11px; font-weight: 800; color: #fff; white-space: nowrap; min-width: 90px; }
+.cookie-cat-desc { font-size: 10px; color: #777; line-height: 1.5; }
+.cookie-links { font-size: 10px; color: #555; }
+.cookie-links a { color: #ff6100; text-decoration: none; }
+.cookie-links a:hover { text-decoration: underline; }
+.cookie-banner-btns { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; min-width: 160px; padding-top: 4px; }
+.cookie-accept {
+  padding: 12px 22px; background: #ff6100; color: #fff;
+  border: none; border-radius: 8px; font-size: 12px; font-weight: 800;
+  cursor: pointer; font-family: inherit; letter-spacing: .04em;
+  transition: background .2s; text-align: center;
+}
+.cookie-accept:hover { background: #e55500; }
+.cookie-decline {
+  padding: 12px 22px; background: transparent; color: #888;
+  border: 1.5px solid #2a2a2a; border-radius: 8px; font-size: 12px;
+  font-weight: 700; cursor: pointer; font-family: inherit;
+  transition: border-color .2s, color .2s; text-align: center;
+}
+.cookie-decline:hover { border-color: #555; color: #ccc; }
+
+/* Preferences Modal */
+.cookie-pref-overlay {
+  position: fixed; inset: 0; z-index: 100000;
+  background: rgba(0,0,0,.75); display: flex;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.cookie-pref-box {
+  background: #111; border: 1.5px solid #222; border-radius: 16px;
+  width: 100%; max-width: 480px; overflow: hidden;
+}
+.cookie-pref-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 22px; border-bottom: 1px solid #1e1e1e; background: #0a0a0a;
+}
+.cookie-pref-body { padding: 18px 22px; display: flex; flex-direction: column; gap: 18px; }
+.cookie-pref-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.cookie-pref-name { font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.cookie-pref-desc { font-size: 11px; color: #777; line-height: 1.6; }
+.cookie-pref-footer { padding: 14px 22px; border-top: 1px solid #1e1e1e; }
+.cookie-toggle-wrap { flex-shrink: 0; }
+.active-always { font-size: 10px; font-weight: 700; color: #22c55e; background: rgba(34,197,94,.1); padding: 5px 10px; border-radius: 20px; white-space: nowrap; }
+.cookie-toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.cookie-toggle-switch input { opacity: 0; width: 0; height: 0; }
+.cookie-toggle-slider {
+  position: absolute; inset: 0; background: #333; border-radius: 24px;
+  cursor: pointer; transition: background .2s;
+}
+.cookie-toggle-slider:before {
+  content: ''; position: absolute; width: 18px; height: 18px;
+  left: 3px; bottom: 3px; background: #fff; border-radius: 50%;
+  transition: transform .2s;
+}
+.cookie-toggle-switch input:checked + .cookie-toggle-slider { background: #ff6100; }
+.cookie-toggle-switch input:checked + .cookie-toggle-slider:before { transform: translateX(20px); }
+</style>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Mova99",
+  "alternateName": "Mova99 Marketplace",
+  "url": "https://www.mova99.com"
+}
+</script>
+  <script type="text/javascript" src="https://api.goaffpro.com/loader.js?shop=ennuikskcu"></script>
+</head>
+<body>
+<body>
+
+
+
+
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Mova<span>99</span></a>
+    <div class="nav-links">
+      <a href="/signup" class="nav-btn nav-btn-outline">Sign Up</a>
+      <a href="/login"  class="nav-btn nav-btn-solid">Sign In</a>
+      <button class="nav-cart-btn" onclick="openCartDrawer()">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2.3 2.3c-.63.63-.18 1.7.71 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        <span class="nav-cart-badge" id="nav-cart-badge">0</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>🛒 Millions of Products</span>
+    <span>🚚 Fast 3-8 Day USA Delivery</span>
+    <span>🔒 Secure Checkout — Stripe</span>
+    <span>💰 Unbeatable Prices</span>
+    <span>🎁 Earn 10% Referral Rewards</span>
+    <span>🏪 Shop Every Category</span>
+    <span>📦 1-2 Day Processing</span>
+    <span>⭐ Trusted by Thousands</span>
+    <span>🛒 Millions of Products</span>
+    <span>🚚 Fast 3-8 Day USA Delivery</span>
+    <span>🔒 Secure Checkout — Stripe</span>
+    <span>💰 Unbeatable Prices</span>
+    <span>🎁 Earn 10% Referral Rewards</span>
+    <span>🏪 Shop Every Category</span>
+    <span>📦 1-2 Day Processing</span>
+    <span>⭐ Trusted by Thousands</span>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">🔥 Premium USA Marketplace</div>
+    <h1>Shop <span>Millions</span> of<br>Products Online</h1>
+    <p>Fast delivery across the United States. Unbeatable prices on fashion, electronics, home goods, beauty and everything in between.</p>
+    <div class="hero-btns">
+      <a href="/signup" class="hero-btn-primary">Start Shopping Free →</a>
+      <a href="/login"  class="hero-btn-secondary">Sign In</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="hero-stat-num">1M+</div><div class="hero-stat-label">Products</div></div>
+      <div><div class="hero-stat-num">3-8</div><div class="hero-stat-label">Day Delivery</div></div>
+      <div><div class="hero-stat-num">100%</div><div class="hero-stat-label">USA Delivery</div></div>
+      <div><div class="hero-stat-num">10%</div><div class="hero-stat-label">Referral Earn</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="section fade-up" style="padding-top:40px;padding-bottom:32px">
+  <div class="section-inner">
+    <div class="section-header">
+      <div><h2 class="section-title">Shop by <span>Category</span></h2></div>
+      <a href="/signup" class="section-link">Browse All →</a>
+    </div>
+    <div class="cat-scroll">
+      <a href="/signup" class="cat-chip"><div class="cat-chip-img">👗</div><span class="cat-chip-label">Women's</span></a>
+      <a href="/signup" class="cat-chip"><div class="cat-chip-img">👕</div><span class="cat-chip-label">Men's</span></a>
+      <a href="/signup" class="cat-chip"><div class="cat-chip-img">👟</div><span class="cat-chip-label">Sneakers</span></a>
+      <a href="/signup" class="cat-chip"><div class="cat-chip-img">💍</div><span class="cat-chip-label">Jewelry</span></a>
+      <a href="/signup" class="cat-chip"><div class="cat-chip-img">💄</div><span class="cat-chip-label">Beauty</span></a>
+      <a href="/signup" class="cat-chip"><div class="cat-chip-img">📱</div><span class="cat-chip-label">Electronics</span></a>
+      <a href="/signup" class="cat-chip"><div class="cat-chip-img">🏠</div><span class="cat-chip-label">Home</span></a>
+      <a href="/signup" class="cat-chip"><div class="cat-chip-img">👜</div><span class="cat-chip-label">Bags</span></a>
+      <a href="/signup" class="cat-chip"><div class="cat-chip-img">🧒</div><span class="cat-chip-label">Kids</span></a>
+      <a href="/signup" class="cat-chip"><div class="cat-chip-img">🏋️</div><span class="cat-chip-label">Sports</span></a>
+      <a href="/signup" class="cat-chip"><div class="cat-chip-img">🐾</div><span class="cat-chip-label">Pets</span></a>
+      <a href="/signup" class="cat-chip"><div class="cat-chip-img">🌿</div><span class="cat-chip-label">Garden</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- TRENDING PRODUCTS -->
+<section class="section fade-up" style="background:var(--bg);padding-top:40px;padding-bottom:48px">
+  <div class="section-inner">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Trending <span>Products</span></h2>
+        <p class="section-sub">Real products — tap to add to cart and checkout instantly</p>
+      </div>
+      <a href="/signup" class="section-link">Shop All →</a>
+    </div>
+    <div class="product-grid" id="grid-trending">
+      <div class="skeleton" style="height:260px"></div>
+      <div class="skeleton" style="height:260px"></div>
+      <div class="skeleton" style="height:260px"></div>
+      <div class="skeleton" style="height:260px"></div>
+      <div class="skeleton" style="height:260px"></div>
+      <div class="skeleton" style="height:260px"></div>
+    </div>
+    <div style="text-align:center;margin-top:28px">
+      <a href="/signup" class="hero-btn-primary" style="display:inline-block;text-decoration:none">View All Products →</a>
+    </div>
+  </div>
+</section>
+
+<!-- WHY MOVA99 -->
+<section class="section features-section fade-up">
+  <div class="section-inner">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Why <span>Mova99</span>?</h2>
+        <p class="section-sub">Everything you need in one place</p>
+      </div>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-icon">🛒</div><div class="feature-title">Millions of Products</div><div class="feature-desc">Every category covered — fashion, electronics, home goods, beauty and more</div></div>
+      <div class="feature-card"><div class="feature-icon">🚚</div><div class="feature-title">Fast USA Delivery</div><div class="feature-desc">3-8 business day delivery across the entire United States</div></div>
+      <div class="feature-card"><div class="feature-icon">🔒</div><div class="feature-title">Secure Checkout</div><div class="feature-desc">Powered by Stripe — the most trusted payment platform in the world</div></div>
+      <div class="feature-card"><div class="feature-icon">💰</div><div class="feature-title">Best Prices</div><div class="feature-desc">Unbeatable prices on millions of products updated daily</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- NEW ARRIVALS -->
+<section class="section fade-up" style="padding-top:40px;padding-bottom:48px">
+  <div class="section-inner">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">New <span>Arrivals</span></h2>
+        <p class="section-sub">Fresh products added daily</p>
+      </div>
+      <a href="/signup" class="section-link">Shop Now →</a>
+    </div>
+    <div class="product-grid" id="grid-arrivals">
+      <div class="skeleton" style="height:260px"></div>
+      <div class="skeleton" style="height:260px"></div>
+      <div class="skeleton" style="height:260px"></div>
+      <div class="skeleton" style="height:260px"></div>
+      <div class="skeleton" style="height:260px"></div>
+      <div class="skeleton" style="height:260px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- REFERRAL -->
+<section class="referral-section fade-up">
+  <div class="referral-inner">
+    <div style="font-size:48px;margin-bottom:16px">🎁</div>
+    <h2>Earn With <span>Mova99</span></h2>
+    <p>Share your unique referral code and earn <strong style="color:var(--orange)">10% on every order</strong> your friends place. No limit on how much you can earn.</p>
+    <a href="/signup" class="hero-btn-primary" style="display:inline-block;text-decoration:none">Sign Up Free & Start Earning →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">Mova<span>99</span></div>
+        <p class="footer-desc">Your premium online marketplace. Shop millions of products across every category with fast USA delivery and unbeatable prices.</p>
+        <p style="font-size:11px;color:#444;margin-top:12px">support@mova99.com</p>
+      </div>
+      <div>
+        <p class="footer-heading">Shop</p>
+        <a href="/signup"    class="footer-link">Create Account</a>
+        <a href="/login"     class="footer-link">Sign In</a>
+        <a href="/dashboard" class="footer-link">Marketplace</a>
+      </div>
+      <div>
+        <p class="footer-heading">Legal</p>
+        <a href="/docs/16_privacy_policy.pdf"      class="footer-link" target="_blank">Privacy Policy</a>
+        <a href="/docs/15_terms_of_service.pdf"    class="footer-link" target="_blank">Terms of Service</a>
+        <a href="/docs/06_return_refund_policy.pdf" class="footer-link" target="_blank">Returns & Refunds</a>
+        <a href="/docs/08_shipping_info.pdf"        class="footer-link" target="_blank">Shipping Info</a>
+        <a href="#" onclick="showCookiePreferences();return false;" class="footer-link">Manage Preferences</a>
+        <a href="#" onclick="showCookiePreferences();return false;" class="footer-link">Do Not Sell My Personal Information</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 Mova99 LLC · Premium USA Marketplace · www.mova99.com</p>
+      <p style="font-size:11px;color:#333">Powered by Stripe · Secure Payments</p>
+<p style="font-size:11px;color:#333;margin-top:6px">Mova99 LLC · United States · support@mova99.com</p>
+
+<a href="https://www.shipit.buzz/products/mova99?ref=badge" target="_blank" rel="noopener noreferrer"><img src="https://www.shipit.buzz/api/products/mova99/badge?theme=dark" alt="Featured on Shipit" /></a>
+    </div>
+  </div>
+</footer>
+
+<!-- FLOATING CART BUTTON -->
+<button class="cart-float" id="cart-float" onclick="openCartDrawer()">
+  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2.3 2.3c-.63.63-.18 1.7.71 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+  <span class="cart-float-badge" id="cart-float-badge">0</span>
+</button>
+
+<!-- PRODUCT DETAIL MODAL -->
+<div class="modal-bg" id="product-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modal-content" style="padding:20px"></div>
+  </div>
+</div>
+
+<!-- Auth Modal -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-box">
+    <div style="background:#111;padding:20px;text-align:center;border-bottom:3px solid #ff6100">
+      <div style="font-size:20px;font-weight:900;font-style:italic;color:#ff6100">Mova99</div>
+      <div style="font-size:12px;color:#fff;margin-top:4px;opacity:.7">Sign in to complete your order</div>
+    </div>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:10px">
+      <button onclick="proceedAsGuestIndex()" id="auth-guest-btn" style="display:block;padding:13px;background:#22c55e;color:#fff;border-radius:10px;font-size:14px;font-weight:800;text-align:center;text-decoration:none;border:none;cursor:pointer;font-family:inherit">Checkout as Guest</button>
+      <a href="/login?redirect=index" id="auth-login-btn" style="display:block;padding:13px;background:#ff6100;color:#fff;border-radius:10px;font-size:14px;font-weight:800;text-align:center;text-decoration:none">Login to My Account</a>
+      <a href="/signup?redirect=index" id="auth-signup-btn" style="display:block;padding:13px;background:#111;color:#fff;border-radius:10px;font-size:14px;font-weight:800;text-align:center;text-decoration:none">Create Free Account</a>
+      <button onclick="document.getElementById('auth-overlay').classList.remove('open')" style="padding:10px;background:transparent;color:#aaa;border:none;font-size:12px;cursor:pointer;font-family:inherit">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- CART OVERLAY + DRAWER -->
+<div class="cart-overlay" id="cart-overlay" onclick="closeCartDrawer()"></div>
+<div class="cart-drawer" id="cart-drawer">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)">
+    <span style="font-size:16px;font-weight:800">Your Cart</span>
+    <button onclick="closeCartDrawer()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888">×</button>
+  </div>
+  <div id="cart-items"></div>
+</div>
+
+<!-- STRIPE CHECKOUT MODAL -->
+<div class="stripe-modal-bg" id="stripe-modal">
+  <div class="stripe-modal-box">
+    <button class="modal-close" onclick="closeStripeModal()">×</button>
+    <div id="stripe-container" style="padding:24px"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let cart = JSON.parse(localStorage.getItem('mova_cart') || '[]');
+
+// ── Keep cart in sync across tabs/pages — fires when another tab changes localStorage ──
+window.addEventListener('storage', (e) => {
+  if (e.key === 'mova_cart') {
+    cart = JSON.parse(e.newValue || '[]');
+    updateCartBadge();
+    if (document.getElementById('cart-drawer')?.classList.contains('open')) renderCartDrawer();
+  }
+});
+let stripeKey = '';
+let _stripeCheckout = null; // tracks the active Stripe Embedded Checkout instance so it can be destroyed before re-init
+const PRODUCT_REG = {}; // pid → product data, avoids unsafe string escaping in onclick
+
+// Load Stripe key
+fetch('/api/get-config').then(r=>r.json()).then(d=>{ stripeKey=d.publishableKey||''; }).catch(()=>{});
+
+// ══════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════
+function imgUrl(url) {
+  if (!url) return '';
+  return '/api/get-orders?img=' + encodeURIComponent(url);
+}
+
+function updateCartBadge() {
+  const n = cart.length;
+  ['nav-cart-badge','cart-float-badge'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = n > 99 ? '99+' : n;
+    el.classList.toggle('show', n > 0);
+    el.style.display = n > 0 ? 'flex' : 'none';
+  });
+  const floatBtn = document.getElementById('cart-float');
+  if (floatBtn) floatBtn.classList.toggle('visible', n > 0);
+}
+
+function calcShipping(price, qty) {
+  const p = parseFloat(price) || 0;
+  const q = parseInt(qty) || 1;
+  const base = p >= 101 ? 5.0 : 7 + (p * 0.1);
+  if (q <= 1) return Math.max(base, 3).toFixed(2);
+  const step = Math.max((base - 3) / 4, 0);
+  const reduced = base - (step * (q - 1));
+  return Math.max(reduced, 3).toFixed(2);
+}
+
+
+function saveCart() {
+  localStorage.setItem('mova_cart', JSON.stringify(cart));
+  updateCartBadge();
+}
+
+function saveCartNotes(val) {
+  localStorage.setItem('mova_cart_notes', val);
+}
+
+// ══════════════════════════════════════════════════
+// PRODUCT GRIDS — each uses a different random seed
+// ══════════════════════════════════════════════════
+async function loadGrid(gridId, extraSeedOffset) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+
+  const seed = Math.floor(Math.random() * 1000) + (extraSeedOffset || 0);
+
+  try {
+    const r = await fetch(`/api/get-products?pageSize=12&seed=${seed}&_t=${Date.now()}`);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    const products = Array.isArray(d) ? d : (d.products || []);
+    if (!products.length) throw new Error('No products');
+
+    grid.innerHTML = '';
+    products.slice(0, 12).forEach(p => {
+      PRODUCT_REG[p.pid] = p; // store in registry — no unsafe strings in onclick
+      const fire = Math.random() < 0.74;
+      const fakeOld = fire ? (parseFloat(p.sellPrice) * (1.28 + Math.random()*.4)).toFixed(2) : null;
+      const pct  = fire ? Math.floor(15 + Math.random()*38) : 0;
+      const name = p.productNameEn || p.productName || '';
+
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.dataset.pid = p.pid;
+      card.innerHTML = `
+        <div class="product-img-wrap pcard-view" data-pid="${p.pid}">
+          ${fire ? '<div class="hot-badge">🔥 HOT</div>' : ''}
+          <img src="${imgUrl(p.productImage)}" alt="" loading="lazy"
+            onload="this.classList.add('loaded')"
+            onerror="this.style.opacity='.2'">
+        </div>
+        <div class="product-info pcard-view" data-pid="${p.pid}">
+          <p class="product-name">${name}</p>
+          <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">
+            <span class="product-price">$${p.sellPrice}</span>
+            ${fakeOld ? `<span class="product-old">$${fakeOld}</span>` : ''}
+            ${fire ? `<span style="font-size:9px;font-weight:800;color:var(--orange);background:var(--orange-pale);padding:2px 5px;border-radius:3px">${pct}% OFF</span>` : ''}
+          </div>
+        </div>
+        <button class="pcard-add-btn pcard-add" data-pid="${p.pid}">
+          🛒 Add to Cart
+        </button>`;
+      grid.appendChild(card);
+    });
+  } catch(e) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px">
+      <p style="color:#888;font-size:14px">Sign in to browse all products</p>
+      <a href="/signup" style="display:inline-block;margin-top:12px;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Get Started Free →</a>
+    </div>`;
+  }
+}
+
+// ── Tap image/name → open product page in new tab
+document.addEventListener('click', function(e) {
+  const el = e.target.closest('.pcard-view');
+  if (!el) return;
+  e.stopPropagation();
+  const pid = el.dataset.pid;
+  if (pid) window.open('/product?pid=' + pid, '_blank');
+});
+
+// ── Tap Add to Cart button → quick-add + 2s feedback + flip back
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.pcard-add');
+  if (!btn) return;
+  e.stopPropagation();
+  if (btn._busy) return;
+  const pid = btn.dataset.pid;
+  if (!pid || !PRODUCT_REG[pid]) return;
+
+  const p = PRODUCT_REG[pid];
+  cart.push({
+    pid,
+    cartKey: pid + '_' + Date.now(),
+    name: p.productNameEn || p.productName || '',
+    price: String(p.sellPrice),
+    image: p.productImage || '',
+    qty: 1, color: '', size: '', vid: '',
+    shippingCost: p.shippingCost || calcShipping(p.sellPrice, 1)
+  });
+  saveCart();
+  flyDot(btn);
+
+  btn._busy = true;
+  btn.textContent = '✓ Added to Cart!';
+  btn.style.cssText += ';background:#22c55e !important;';
+  clearTimeout(btn._timer);
+  btn._timer = setTimeout(() => {
+    btn.textContent = '🛒 Add to Cart';
+    btn.style.background = 'var(--orange)';
+    btn._busy = false;
+  }, 2000);
+});
+
+function flyDot(fromEl) {
+  const target = document.getElementById('cart-float') || document.querySelector('.nav-cart-btn');
+  if (!target) return;
+  const from = fromEl.getBoundingClientRect();
+  const to   = target.getBoundingClientRect();
+  const dot  = document.createElement('div');
+  dot.style.cssText = `position:fixed;width:11px;height:11px;background:var(--orange);border-radius:50%;pointer-events:none;z-index:9999;
+    left:${from.left+from.width/2-5}px;top:${from.top+from.height/2-5}px;transition:none`;
+  document.body.appendChild(dot);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    dot.style.transition = 'all .5s cubic-bezier(.25,.46,.45,.94)';
+    dot.style.left = (to.left+to.width/2-5)+'px';
+    dot.style.top  = (to.top+to.height/2-5)+'px';
+    dot.style.opacity = '0';
+    dot.style.transform = 'scale(.2)';
+  }));
+  setTimeout(() => dot.remove(), 550);
+}
+
+// ══════════════════════════════════════════════════
+// PRODUCT DETAIL MODAL
+// ══════════════════════════════════════════════════
+let _modal = {};
+
+async function openModal(pid) {
+  const modal   = document.getElementById('product-modal');
+  const content = document.getElementById('modal-content');
+  modal.classList.add('open');
+  content.innerHTML = '<div style="text-align:center;padding:40px"><div style="width:28px;height:28px;border:3px solid var(--orange);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:auto"></div><p style="margin-top:12px;font-size:13px;color:#888">Loading...</p></div>';
+
+  const reg = PRODUCT_REG[pid] || {};
+  _modal = { pid, name: reg.productNameEn||reg.productName||'', basePrice: parseFloat(reg.sellPrice)||0, image: reg.productImage||'', qty:1, vid:'', color:'', size:'' };
+
+  try {
+    const r = await fetch('/api/get-details?pid=' + encodeURIComponent(pid));
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+
+    const variants = d.variants || [];
+    const gallery  = d.productGallery || [];
+    const seen = {};
+    const imgs = [_modal.image, ...gallery, ...variants.map(v=>v.variantImage).filter(Boolean)]
+      .filter(i => { if(!i||seen[i]) return false; seen[i]=true; return true; }).slice(0, 7);
+
+    if (variants[0]) {
+      const vp = parseFloat(variants[0].variantSellPrice);
+      if (!isNaN(vp) && vp > 0) _modal.basePrice = vp;
+      _modal.vid   = variants[0].vid   || '';
+      _modal.color = variants[0].color || '';
+      _modal.size  = variants[0].size  || '';
+    }
+
+    const colorVars = variants.filter(v=>v.color?.trim());
+    const sizeVars  = variants.filter(v=>v.size?.trim());
+    const otherVars = !colorVars.length && !sizeVars.length ? variants : [];
+
+    let varHtml = '';
+    if (colorVars.length) {
+      varHtml += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#333;margin:12px 0 7px">Color</p><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">';
+      colorVars.slice(0,10).forEach((v,i) => {
+        const thumb = v.variantImage ? `<img src="${imgUrl(v.variantImage)}" style="width:18px;height:18px;object-fit:cover;border-radius:3px;margin-right:4px">` : '';
+        varHtml += `<button class="vbtn${i===0?' vsel':''}" onclick="pickV(this,'${v.vid}','${(v.color||'').replace(/'/g,'')}','','${v.variantSellPrice||''}','${v.variantImage||''}')">${thumb}${(v.color||'').trim()}</button>`;
+      });
+      varHtml += '</div>';
+    }
+    if (sizeVars.length) {
+      varHtml += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#333;margin:8px 0 7px">Size</p><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">';
+      sizeVars.slice(0,12).forEach((v,i) => {
+        varHtml += `<button class="vbtn${!colorVars.length&&i===0?' vsel':''}" onclick="pickV(this,'${v.vid}','','${(v.size||'').trim().replace(/'/g,'')}','${v.variantSellPrice||''}','')">${(v.size||'').trim().toUpperCase()}</button>`;
+      });
+      varHtml += '</div>';
+    }
+    if (otherVars.length) {
+      varHtml += '<p style="font-size:11px;font-weight:700;text-transform:uppercase;color:#333;margin:8px 0 7px">Options</p><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">';
+      otherVars.slice(0,8).forEach((v,i) => {
+        const lbl = (v.displayName||v.variantNameEn||`Option ${i+1}`).substring(0,22).replace(/'/g,'');
+        varHtml += `<button class="vbtn${i===0?' vsel':''}" onclick="pickV(this,'${v.vid}','${lbl}','','${v.variantSellPrice||''}','${v.variantImage||''}')">${lbl}</button>`;
+      });
+      varHtml += '</div>';
+    }
+
+    const strip = s => (s||'').replace(/<[^>]*>/g,' ').replace(/[\u4e00-\u9fff]+/g,'').replace(/https?:\/\/\S+/g,'').replace(/\s+/g,' ').trim().substring(0,400);
+    const desc = strip(d.productDescription||d.productIntro||d.remark||'');
+
+    content.innerHTML = `
+      <style>
+        .vbtn{padding:6px 12px;border:1.5px solid #ddd;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;background:#fff;display:inline-flex;align-items:center;transition:all .15s;font-family:inherit}
+        .vbtn.vsel,.vbtn:hover{border-color:var(--orange);background:var(--orange-pale);color:var(--orange)}
+      </style>
+      <div style="aspect-ratio:1;overflow:hidden;border-radius:12px;margin-bottom:10px;background:#f8f8f8">
+        <img id="mi" src="${imgUrl(_modal.image)}" style="width:100%;height:100%;object-fit:cover">
+      </div>
+      <div style="display:flex;gap:5px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none">
+        ${imgs.map(img=>`<img src="${imgUrl(img)}" onclick="document.getElementById('mi').src=this.src" style="width:44px;height:44px;object-fit:cover;border-radius:6px;cursor:pointer;border:1.5px solid var(--border);flex-shrink:0">`).join('')}
+      </div>
+      <h3 style="font-size:14px;font-weight:800;line-height:1.4;margin:0 0 8px">${_modal.name}</h3>
+      <div id="mprice" style="font-size:22px;font-weight:900;color:var(--orange);margin:0 0 4px">$${_modal.basePrice.toFixed(2)}</div>
+      ${varHtml}
+      <div style="display:flex;align-items:center;gap:10px;margin:12px 0 14px">
+        <span style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase">Qty</span>
+        <button onclick="mQty(-1)" style="width:28px;height:28px;border:1.5px solid #ddd;border-radius:6px;background:#fff;font-size:16px;cursor:pointer;font-weight:700">−</button>
+        <span id="mqty" style="font-size:14px;font-weight:800;min-width:24px;text-align:center">1</span>
+        <button onclick="mQty(1)"  style="width:28px;height:28px;border:1.5px solid #ddd;border-radius:6px;background:#fff;font-size:16px;cursor:pointer;font-weight:700">+</button>
+      </div>
+      <div style="background:#f8f8f8;border-radius:8px;padding:9px 13px;margin-bottom:14px;font-size:11px;display:flex;justify-content:space-between">
+        <span style="color:#888">Processing: <strong style="color:#333">1-2 Days</strong></span>
+        <span style="color:#888">Delivery: <strong style="color:#333">3-8 Days</strong></span>
+      </div>
+      ${desc ? `<p style="font-size:11px;color:#666;line-height:1.7;background:#f8f8f8;border-radius:8px;padding:10px 12px;margin-bottom:14px">${desc}</p>` : ''}
+      <button id="madd" onclick="addFromModal()"
+        style="width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;font-family:inherit">
+        Add to Cart 🛒
+      </button>`;
+
+  } catch(e) {
+    content.innerHTML = `<div style="text-align:center;padding:40px">
+      <p style="color:#888;font-size:13px">Could not load details. Please try again.</p>
+      <button onclick="closeModal()" style="margin-top:12px;padding:10px 20px;background:var(--orange);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">Close</button>
+    </div>`;
+  }
+}
+
+function pickV(btn, vid, color, size, price, img) {
+  btn.closest('div').querySelectorAll('.vbtn').forEach(b=>b.classList.remove('vsel'));
+  btn.classList.add('vsel');
+  _modal.vid = vid;
+  if (color) _modal.color = color;
+  if (size)  _modal.size  = size;
+  const p = parseFloat(price);
+  if (!isNaN(p) && p > 0) _modal.basePrice = p;
+  if (img) document.getElementById('mi').src = imgUrl(img);
+  mUpdatePrice();
+}
+function mQty(d) { _modal.qty = Math.max(1,(_modal.qty||1)+d); document.getElementById('mqty').textContent=_modal.qty; mUpdatePrice(); }
+function mUpdatePrice() { const el=document.getElementById('mprice'); if(el) el.textContent='$'+(_modal.basePrice*_modal.qty).toFixed(2); }
+
+function addFromModal() {
+  const {pid,name,basePrice,image,qty,vid,color,size} = _modal;
+  const label = [color,size].filter(Boolean).join(' / ');
+  const displayName = name.split(' — ')[0] + (label?' — '+label:'') + (qty>1?` (x${qty})`:'');
+  const entry = { pid, cartKey: pid+'_'+Date.now(), name:displayName, price:(basePrice*qty).toFixed(2), image, qty, color, size, vid };
+  // Replace existing same-pid entry or push new
+  const idx = cart.findIndex(i=>i.pid.split('-')[0]===pid||i.pid===pid);
+  if (idx>-1) cart[idx]=entry; else cart.push(entry);
+  saveCart();
+  const btn = document.getElementById('madd');
+  if (btn) { btn.textContent='✓ Added!'; btn.style.background='#22c55e'; }
+  setTimeout(closeModal, 700);
+}
+
+function closeModal() { document.getElementById('product-modal').classList.remove('open'); }
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+// ══════════════════════════════════════════════════
+// CART DRAWER
+// ══════════════════════════════════════════════════
+function openCartDrawer() {
+  document.getElementById('cart-drawer').classList.add('open');
+  document.getElementById('cart-overlay').classList.add('open');
+  renderCartDrawer();
+}
+function closeCartDrawer() {
+  document.getElementById('cart-drawer').classList.remove('open');
+  document.getElementById('cart-overlay').classList.remove('open');
+}
+
+function renderCartDrawer() {
+  const body = document.getElementById('cart-items');
+  if (!body) return;
+
+  // Preserve the notes textarea while the user is typing — re-rendering recreates
+  // the textarea from scratch, which otherwise steals focus/cursor mid-keystroke.
+  const notesEl = document.getElementById('cart-notes');
+  const notesFocused = notesEl && document.activeElement === notesEl;
+  const notesCaret = notesFocused ? notesEl.selectionStart : null;
+  if (notesEl) localStorage.setItem('mova_cart_notes', notesEl.value);
+
+  if (!cart.length) {
+    body.innerHTML = `<div style="text-align:center;padding:40px">
+      <div style="font-size:48px;margin-bottom:12px">🛒</div>
+      <p style="font-weight:700;color:#888;margin-bottom:16px">Your cart is empty</p>
+      <a href="/signup" style="display:inline-block;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Start Shopping</a>
+    </div>`;
+    return;
+  }
+
+  if (!window._chk) window._chk = {};
+  cart.forEach(i => { const k=i.cartKey||i.pid; if(window._chk[k]===undefined) window._chk[k]=true; });
+  const checked = cart.filter(i=>window._chk[i.cartKey||i.pid]!==false);
+  const allChk  = cart.every(i=>window._chk[i.cartKey||i.pid]!==false);
+  const sub  = checked.reduce((s,i)=>s+parseFloat(i.price||0),0);
+  const tQty = checked.reduce((s,i)=>s+(i.qty||1),0);
+  const sg   = Math.ceil(tQty/6)||1;
+  // Shipping = 10% of each item price
+  const totalShip = checked.reduce((s,i) => {
+    const up = parseFloat(i.price||0) / (i.qty||1);
+    return s + parseFloat(i.shippingCost || calcShipping(up, i.qty||1));
+  }, 0);
+  const ship = Math.max(totalShip, 1).toFixed(2);
+  const total= (sub+parseFloat(ship)).toFixed(2);
+
+  let h = `<div style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--bg);border-radius:8px;margin-bottom:10px">
+    <input type="checkbox" ${allChk?'checked':''} onchange="chkAll(this.checked)" style="width:16px;height:16px;accent-color:var(--orange);cursor:pointer">
+    <label style="font-size:12px;font-weight:700;cursor:pointer">Select All (${cart.length})</label>
+  </div>`;
+
+  cart.forEach(item => {
+    const key  = item.cartKey||item.pid;
+    const safe = key.replace(/['"\\]/g,'');
+    const chk  = window._chk[key]!==false;
+    h += `<div style="border:1.5px solid ${chk?'var(--orange)':'var(--border)'};border-radius:10px;padding:11px;margin-bottom:8px;opacity:${chk?1:.55}">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <input type="checkbox" ${chk?'checked':''} onchange="chkOne('${safe}',this.checked)" style="width:16px;height:16px;accent-color:var(--orange);cursor:pointer;flex-shrink:0;margin-top:3px">
+        <img src="${imgUrl(item.image||'')}" onclick="window.open('/product?pid=${item.pid}','_blank')" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#f5f5f5;cursor:pointer">
+        <div style="flex:1;min-width:0">
+          <p onclick="window.open('/product?pid=${item.pid}','_blank')" style="font-size:11px;font-weight:700;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:3px;cursor:pointer;color:var(--orange)">${(item.name||'').split(' — ')[0]}</p>
+          ${item.color||item.size?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:3px">
+            ${item.color?`<span style="font-size:9px;font-weight:700;background:var(--orange-pale);color:var(--orange);padding:2px 7px;border-radius:10px">🎨 ${item.color}</span>`:''}
+            ${item.size?`<span style="font-size:9px;font-weight:700;background:#f0f0f0;color:#333;padding:2px 7px;border-radius:6px">📏 ${item.size}</span>`:''}
+          </div>`:''}
+          <p style="font-size:14px;font-weight:800;color:var(--orange)">$${parseFloat(item.price||0).toFixed(2)}</p>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <button onclick="changeQty('${safe}',-1)" style="width:22px;height:22px;border:1.5px solid #ddd;border-radius:4px;background:#fff;font-size:14px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center">−</button>
+            <span style="font-size:12px;font-weight:700">${item.qty||1}</span>
+            <button onclick="changeQty('${safe}',1)" style="width:22px;height:22px;border:1.5px solid #ddd;border-radius:4px;background:#fff;font-size:14px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center">+</button>
+          </div>
+        </div>
+        <button onclick="removeItem('${safe}')" style="color:#e02020;background:none;border:none;cursor:pointer;font-size:20px;line-height:1;padding:0 4px;flex-shrink:0">✕</button>
+      </div>
+    </div>`;
+  });
+
+  h += `<div style="margin-top:14px">
+    <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px">Order Notes (optional)</label>
+    <textarea id="cart-notes" placeholder="Color, size in cm, gift message, or any special request..." oninput="saveCartNotes(this.value)" style="width:100%;min-height:60px;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;resize:vertical;outline:none">${(localStorage.getItem('mova_cart_notes')||'').replace(/</g,'&lt;')}</textarea>
+  </div>`;
+
+  h += `<div style="border-top:1.5px solid var(--border);padding-top:14px;margin-top:14px">
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:#888">Subtotal (${checked.length})</span><span style="font-weight:700">$${sub.toFixed(2)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:12px"><span style="color:#888">Shipping (USA)</span><span style="font-weight:700">$${ship}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:900;margin-bottom:16px"><span>Total</span><span style="color:var(--orange)">$${total}</span></div>
+    <button onclick="showShippingPopup(doCheckout)" style="width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;font-family:inherit">Secure Checkout →</button>
+    <button onclick="closeCartDrawer()" style="width:100%;margin-top:8px;padding:11px;background:transparent;color:#888;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Continue Shopping</button>
+  </div>`;
+
+  body.innerHTML = h;
+
+  if (notesFocused) {
+    const newNotesEl = document.getElementById('cart-notes');
+    if (newNotesEl) { newNotesEl.focus(); newNotesEl.setSelectionRange(notesCaret, notesCaret); }
+  }
+}
+function chkOne(key, val) { window._chk=window._chk||{}; window._chk[key]=val; renderCartDrawer(); }
+function chkAll(val)       { cart.forEach(i=>{ window._chk[i.cartKey||i.pid]=val; }); renderCartDrawer(); }
+function removeItem(key) {
+  cart = cart.filter(i=>(i.cartKey||i.pid)!==key);
+  delete (window._chk||{})[key];
+  saveCart();
+  renderCartDrawer();
+}
+
+function changeQty(key, delta) {
+  const item = cart.find(i => (i.cartKey || i.pid) === key);
+  if (!item) return;
+  const newQty = Math.max(1, (item.qty || 1) + delta);
+  const unitPrice = parseFloat(item.price || 0) / (item.qty || 1);
+  item.qty = newQty;
+  item.price = (unitPrice * newQty).toFixed(2);
+  const unitP = parseFloat(item.price||0) / (item.qty||1);
+  item.shippingCost = calcShipping(unitP, item.qty);
+  saveCart();
+  renderCartDrawer();
+}
+
+
+function showShippingPopup(onContinue) {
+  const checked = cart.filter(i => (window._checked || window._chk || {})[i.cartKey||i.pid] !== false);
+  if (!checked.length) { onContinue(); return; }
+  const canSave = checked.some(i => {
+    const qty = i.qty || 1;
+    if (qty >= 5) return false;
+    const unitPrice = parseFloat(i.price||0) / qty;
+    const current = parseFloat(calcShipping(unitPrice, qty));
+    const next = parseFloat(calcShipping(unitPrice, qty+1));
+    return current > 3 && next < current;
+  });
+  if (!canSave) { onContinue(); return; }
+  const totalCurrentShip = checked.reduce((s,i) => s + parseFloat(i.shippingCost || calcShipping(i.price, i.qty||1)), 0);
+  const totalNextShip = checked.reduce((s,i) => {
+    const qty = i.qty || 1;
+    const unitPrice = parseFloat(i.price||0) / qty;
+    return s + parseFloat(calcShipping(unitPrice, qty+1));
+  }, 0);
+  const saving = Math.max(totalCurrentShip - totalNextShip, 0).toFixed(2);
+  const el = document.getElementById('popup-current-ship');
+  const nextEl = document.getElementById('popup-next-ship');
+  if (el) el.textContent = '$' + totalCurrentShip.toFixed(2);
+  if (nextEl) nextEl.textContent = parseFloat(saving) > 0
+    ? '➕ Add 1 more item → save $' + saving + ' on shipping'
+    : '🎉 You have reached the lowest shipping rate!';
+  window._checkoutCallback = onContinue;
+  const popup = document.getElementById('shipping-popup');
+  if (popup) popup.style.display = 'flex';
+}
+
+function popupContinue() {
+  const popup = document.getElementById('shipping-popup');
+  if (popup) popup.style.display = 'none';
+  if (window._checkoutCallback) window._checkoutCallback();
+}
+
+function popupAddMore() {
+  const popup = document.getElementById('shipping-popup');
+  if (popup) popup.style.display = 'none';
+}
+
+async function doCheckout() {
+  const session = JSON.parse(localStorage.getItem('foundry_session') || 'null');
+  if (!session?.id) {
+    closeCartDrawer();
+    document.getElementById('auth-overlay').classList.add('open');
+    return;
+  }
+  runIndexCheckout(session.id);
+}
+
+function proceedAsGuestIndex() {
+  document.getElementById('auth-overlay').classList.remove('open');
+  runIndexCheckout('');
+}
+
+async function runIndexCheckout(userId) {
+  const checkedKeys = Object.keys(window._chk||{}).filter(k=>window._chk[k]!==false);
+  const items = cart.filter(i=>checkedKeys.includes(i.cartKey||i.pid));
+  if (!items.length) { alert('Select at least one item.'); return; }
+
+  // Group duplicates by pid+vid into qty
+  const grouped = [];
+  items.forEach(item => {
+    const gid = item.pid+'|'+(item.vid||'')+'|'+(item.color||'')+'|'+(item.size||'');
+    const ex = grouped.find(g=>g._gid===gid);
+    if (ex) { ex.qty+=(item.qty||1); ex.price=(parseFloat(ex.price)+parseFloat(item.price||0)).toFixed(2); }
+    else grouped.push({...item, qty:item.qty||1, _gid:gid});
+  });
+  grouped.forEach(i=>delete i._gid);
+
+  const btn = document.querySelector('#cart-items button[onclick="doCheckout()"]');
+  if (btn) { btn.textContent='Processing...'; btn.disabled=true; }
+
+  try {
+    const r = await fetch('/api/create-checkout', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ cart:grouped, userId:userId, checkedItems:grouped.map(i=>i.pid), orderNotes: (localStorage.getItem('mova_cart_notes')||'').substring(0,500) })
+    });
+    const d = await r.json();
+    if (d.clientSecret) showStripe(d.clientSecret);
+    else throw new Error(d.error||'Checkout failed');
+  } catch(e) {
+    alert(e.message);
+    if (btn) { btn.textContent='Secure Checkout →'; btn.disabled=false; }
+  }
+}
+
+// ── Wait for Stripe (loaded via static <script> tag in <head>) to be ready ──
+function waitForStripe(maxWaitMs = 10000) {
+  if (window.Stripe) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const check = setInterval(() => {
+      if (window.Stripe) { clearInterval(check); resolve(); }
+      else if (Date.now() - start > maxWaitMs) { clearInterval(check); reject(new Error('Payment system unavailable')); }
+    }, 100);
+  });
+}
+
+async function showStripe(clientSecret) {
+  const modal = document.getElementById('stripe-modal');
+  const container = document.getElementById('stripe-container');
+  modal.classList.add('open');
+  container.innerHTML = '<div style="text-align:center;padding:40px"><div style="width:28px;height:28px;border:3px solid var(--orange);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:auto"></div></div>';
+  closeCartDrawer();
+
+  // A previous embedded checkout instance must be destroyed before creating a new one,
+  // otherwise re-opening checkout after going back to the cart fails to load.
+  if (_stripeCheckout) { try { _stripeCheckout.destroy(); } catch(e) {} _stripeCheckout = null; }
+
+  let stage = 'waiting for Stripe.js';
+  try {
+    await waitForStripe();
+    stage = 'creating Stripe instance';
+    const stripe = Stripe(stripeKey);
+    stage = 'initializing embedded checkout';
+    const co = await stripe.initEmbeddedCheckout({clientSecret});
+    stage = 'mounting checkout';
+    container.innerHTML = '';
+    co.mount('#stripe-container');
+    _stripeCheckout = co;
+  } catch (e) {
+    console.error('Stripe checkout error at stage [' + stage + ']:', e);
+    const msg = (e && e.message) ? e.message : 'Unknown error';
+    container.innerHTML = '<div style="text-align:center;padding:40px"><p style="color:#888;font-size:13px;margin-bottom:6px">Could not load checkout.</p><p style="color:#c00;font-size:11px;margin-bottom:14px;word-break:break-word">Stage: ' + stage.replace(/</g,'&lt;') + '<br>' + msg.replace(/</g,'&lt;') + '</p><button onclick="showStripe(\'' + clientSecret.replace(/'/g,"\\'") + '\')" style="padding:10px 20px;background:var(--orange);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit;margin-right:8px">Retry</button><button onclick="closeStripeModal()" style="padding:10px 20px;background:transparent;color:#888;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-family:inherit">Close</button></div>';
+  }
+}
+
+function closeStripeModal() {
+  document.getElementById('stripe-modal').classList.remove('open');
+  if (_stripeCheckout) { try { _stripeCheckout.destroy(); } catch(e) {} _stripeCheckout = null; }
+}
+
+// ══════════════════════════════════════════════════
+// INTERSECTION OBSERVER — fade-up sections
+// ══════════════════════════════════════════════════
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+  });
+}, { threshold: 0.05, rootMargin: '0px 0px 80px 0px' });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+// Fallback for mobile — force visible after 900ms
+setTimeout(() => document.querySelectorAll('.fade-up').forEach(el=>el.classList.add('visible')), 900);
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  updateCartBadge();
+  // Load both grids with different seeds so they show different products
+  loadGrid('grid-trending', 0);
+  loadGrid('grid-arrivals', 500);
+});
+</script>
+
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
+<script>
+setTimeout(function() {
+  if (localStorage.getItem('foundry_session')) return;
+  if (sessionStorage.getItem('popup_dismissed')) return;
+  var p = document.createElement('div');
+  p.id = 'signup-popup';
+  p.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;background:#111;border-radius:12px;padding:20px;max-width:300px;box-shadow:0 10px 40px rgba(0,0,0,.4);border-top:3px solid #ff6600';
+  p.innerHTML = '<style>@keyframes sUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}</style>'
+    + '<button onclick="document.getElementById(\'signup-popup\').remove();sessionStorage.setItem(\'popup_dismissed\',\'1\')" style="position:absolute;top:10px;right:12px;background:none;border:none;color:#888;font-size:20px;cursor:pointer;line-height:1">&#215;</button>'
+    + '<div style="font-size:22px;margin-bottom:8px">&#127873;</div>'
+    + '<div style="color:#ff6600;font-size:14px;font-weight:900;margin-bottom:6px">Get 10% Off Your First Order</div>'
+    + '<div style="color:#ccc;font-size:12px;line-height:1.6;margin-bottom:10px">Sign up free and get your referral code. Earn 10% on every referral &#8212; no investment required.</div>'
+    + '<div style="color:#ff6600;font-size:12px;font-weight:800;margin-bottom:14px">300 referrals &#215; $1,000 &#215; 10% = $30,000</div>'
+    + '<a href="/signup" style="display:block;background:#ff6600;color:#fff;padding:12px;border-radius:8px;text-align:center;font-size:13px;font-weight:800;text-decoration:none">Create Free Account &#8594;</a>';
+  p.style.animation = 'sUp .3s ease';
+  document.body.appendChild(p);
+}, 1000);
+</script>
+  <script src="/extras.js"></script>
+
+
+<script>
+(function(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)) return;
+  if(Notification.permission==='denied') return;
+  
+  async function registerSub(){
+    try{
+      var reg=await navigator.serviceWorker.ready;
+      var existing=await reg.pushManager.getSubscription();
+      
+      // If subscription exists verify it is still valid
+      if(existing){
+        // Re-register to keep token fresh
+        fetch('/api/push-notification?action=register',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            token:JSON.stringify(existing),
+            userId:(JSON.parse(localStorage.getItem('foundry_session')||'null'))?.id||''
+          })
+        });
+        return;
+      }
+      
+      // No subscription — ask permission if not decided
+      if(Notification.permission!=='granted'){
+        var p=await Notification.requestPermission();
+        if(p!=='granted') return;
+      }
+      
+      // Subscribe fresh
+      function u(b){var p='='.repeat((4-b.length%4)%4),s=(b+p).replace(/-/g,'+').replace(/_/g,'/'),r=atob(s),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;}
+      var sub=await reg.pushManager.subscribe({
+        userVisibleOnly:true,
+        applicationServerKey:u('BKDaWm4VMC4Gz8UZH4MZNCUgeXDBY3mEnhy9YKhxZxpRf0JpNhLQwn8fwKxqzN_4Qq4yUXKcoMJXJie9iEgrkoI')
+      });
+      var ses=JSON.parse(localStorage.getItem('foundry_session')||'null');
+      fetch('/api/push-notification?action=register',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({token:JSON.stringify(sub),userId:ses?.id||''})
+      });
+    }catch(e){console.log('Push:',e.message);}
+  }
+
+  // Run on load
+  window.addEventListener('load', function(){
+    if(Notification.permission==='granted'){
+      registerSub();
+    } else {
+      // Ask on first tap
+      document.addEventListener('click',function f(){
+        document.removeEventListener('click',f);
+        registerSub();
+      },{once:true});
+    }
+  });
+})();
+</script>
+
+
+
+<div id="shipping-popup" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="background:linear-gradient(135deg,#ff6100,#ff8533);padding:20px;text-align:center">
+      <div style="font-size:32px;margin-bottom:8px">💡</div>
+      <div style="color:#fff;font-size:16px;font-weight:900">Save on Shipping!</div>
+      <div style="color:rgba(255,255,255,.85);font-size:12px;margin-top:4px">Increase quantity to reduce your shipping cost</div>
+    </div>
+    <div style="padding:20px">
+      <div style="background:#fff3ed;border-radius:10px;padding:14px;margin-bottom:16px;text-align:center">
+        <div style="font-size:12px;color:#888;margin-bottom:4px">Current shipping cost</div>
+        <div id="popup-current-ship" style="font-size:24px;font-weight:900;color:#ff6100">$0.00</div>
+        <div id="popup-next-ship" style="font-size:12px;color:#22c55e;font-weight:700;margin-top:4px"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button onclick="popupAddMore()" style="padding:14px;background:#fff;color:#ff6100;border:2px solid #ff6100;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">+ Add More Items</button>
+        <button onclick="popupContinue()" style="padding:14px;background:#ff6100;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Continue to Checkout →</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ── Cookie Consent Banner (GDPR/CCPA Compliant) ── -->
+<div class="cookie-banner" id="cookie-banner" role="dialog" aria-label="Cookie consent" aria-live="polite">
+  <div class="cookie-banner-inner">
+    <div class="cookie-banner-text">
+      <strong>🍪 We value your privacy</strong>
+      <p>Mova99 uses cookies to keep you logged in, process payments securely, and (with your permission) analyze site traffic to improve your experience. Essential cookies are always active. You can accept or decline optional analytics cookies below.</p>
+      <div class="cookie-cats">
+        <div class="cookie-cat">
+          <span class="cookie-cat-label">✅ Essential</span>
+          <span class="cookie-cat-desc">Login sessions, payment security — always active, cannot be disabled</span>
+        </div>
+        <div class="cookie-cat" id="analytics-cat">
+          <span class="cookie-cat-label">📊 Analytics</span>
+          <span class="cookie-cat-desc">Google Analytics — helps us understand how visitors use Mova99</span>
+        </div>
+      </div>
+      <p class="cookie-links">
+        <a href="/docs/16_privacy_policy.pdf" target="_blank" rel="noopener">Privacy Policy</a> &nbsp;·&nbsp;
+        <a href="/docs/15_terms_of_service.pdf" target="_blank" rel="noopener">Terms of Service</a> &nbsp;·&nbsp;
+        <a href="#" onclick="showCookiePreferences();return false;">Manage Preferences</a> &nbsp;·&nbsp;
+        <a href="#" onclick="showCookiePreferences();return false;">Do Not Sell My Personal Information</a>
+      </p>
+    </div>
+    <div class="cookie-banner-btns">
+      <button class="cookie-decline" onclick="setCookieConsent('declined')">Decline Optional</button>
+      <button class="cookie-accept" onclick="setCookieConsent('accepted')">Accept All</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cookie Preferences Modal -->
+<div class="cookie-pref-overlay" id="cookie-pref-overlay" role="dialog" aria-label="Cookie preferences" style="display:none">
+  <div class="cookie-pref-box">
+    <div class="cookie-pref-header">
+      <span style="font-size:15px;font-weight:900;color:#fff">Cookie Preferences</span>
+      <button onclick="closeCookiePreferences()" style="background:none;border:none;color:#888;font-size:20px;cursor:pointer;padding:0;line-height:1">×</button>
+    </div>
+    <div class="cookie-pref-body">
+      <div class="cookie-pref-row">
+        <div>
+          <div class="cookie-pref-name">Essential Cookies</div>
+          <div class="cookie-pref-desc">Required for login, checkout, and core site functionality. Cannot be disabled.</div>
+        </div>
+        <div class="cookie-toggle-wrap">
+          <div class="cookie-toggle active-always">Always On</div>
+        </div>
+      </div>
+      <div class="cookie-pref-row">
+        <div>
+          <div class="cookie-pref-name">Analytics Cookies</div>
+          <div class="cookie-pref-desc">Google Analytics helps us understand traffic patterns and improve Mova99. No personal data is sold.</div>
+        </div>
+        <div class="cookie-toggle-wrap">
+          <label class="cookie-toggle-switch">
+            <input type="checkbox" id="analytics-toggle">
+            <span class="cookie-toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="cookie-pref-footer">
+      <button class="cookie-decline" onclick="saveCookiePreferences()" style="width:100%">Save Preferences</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Cookie Consent System ──
+(function() {
+  const consent = localStorage.getItem('mova_cookie_consent');
+  if (!consent) {
+    setTimeout(function() {
+      const b = document.getElementById('cookie-banner');
+      if (b) b.classList.add('show');
+    }, 1200);
+  }
+})();
+
+function setCookieConsent(choice) {
+  localStorage.setItem('mova_cookie_consent', choice);
+  localStorage.setItem('mova_cookie_analytics', choice === 'accepted' ? '1' : '0');
+  localStorage.setItem('mova_cookie_date', new Date().toISOString());
+  hideCookieBanner();
+  if (choice === 'accepted') loadAnalytics();
+}
+
+function hideCookieBanner() {
+  const b = document.getElementById('cookie-banner');
+  if (b) { b.style.bottom = '-300px'; setTimeout(function(){ b.remove(); }, 500); }
+}
+
+function showCookiePreferences() {
+  const overlay = document.getElementById('cookie-pref-overlay');
+  if (overlay) {
+    const toggle = document.getElementById('analytics-toggle');
+    if (toggle) toggle.checked = localStorage.getItem('mova_cookie_analytics') === '1';
+    overlay.style.display = 'flex';
+  }
+}
+
+function closeCookiePreferences() {
+  const overlay = document.getElementById('cookie-pref-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+function saveCookiePreferences() {
+  const analyticsOn = document.getElementById('analytics-toggle')?.checked;
+  const choice = analyticsOn ? 'accepted' : 'declined';
+  localStorage.setItem('mova_cookie_consent', choice);
+  localStorage.setItem('mova_cookie_analytics', analyticsOn ? '1' : '0');
+  localStorage.setItem('mova_cookie_date', new Date().toISOString());
+  closeCookiePreferences();
+  hideCookieBanner();
+  if (analyticsOn) loadAnalytics();
+}
+</script>
+</body>
+</html>
