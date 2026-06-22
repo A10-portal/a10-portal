@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff6100">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TK7Y07K9VH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TK7Y07K9VH');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="/image/logo.png">
+<meta name="description" content="Login to your Mova99 account and start shopping 10 million+ products delivered across the USA.">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="Login - Mova99">
+<meta property="og:url" content="https://www.mova99.com/login">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://www.mova99.com/login">
+<title>Sign In — Mova99</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+        /* ── Global White Theme Override ── */
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { background: #ffffff !important; color: #1a1a1a !important; }
+        body { background-color: #ffffff !important; }
+        
+        /* Dark backgrounds → white */
+        [style*="background:#ffffff"], [style*="background:#ffffff"],
+        [style*="background:#111"], [style*="background:#f0f0f0"] {
+            background: #ffffff !important;
+        }
+        /* White/light text → dark */
+        [style*="color:#1a1a1a"], [style*="color:#ffffff"],
+        [style*="color:#1a1a1a"], [style*="color:#f5f5f5"] {
+            color: #1a1a1a !important;
+        }
+        /* Inputs */
+        input, textarea, select {
+            background: #ffffff !important;
+            color: #1a1a1a !important;
+            border-color: #e0e0e0 !important;
+        }
+        input::placeholder, textarea::placeholder {
+            color: #aaaaaa !important;
+        }
+        /* Left panels on login/signup */
+        .left-panel, .panel { 
+            background: linear-gradient(135deg, #f5f5f5, #ececec) !important; 
+        }
+        .left-panel *, .panel * { color: #1a1a1a !important; }
+        /* Cards */
+        .card, .form-container { background: #ffffff !important; }
+        /* Dark nav/header bars → keep brand dark */
+        .top-bar, .header-bar, nav.dark { background: #f0f0f0 !important; }
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#ffffff;--white:#fafafa;--orange:#FF6100;--gray:#888}
+body{font-family:'DM Sans',sans-serif;background:#ffffff;color:#1a1a1a;min-height:100vh;display:grid;grid-template-columns:1fr 1fr;cursor:none}
+.cursor{width:8px;height:8px;background:var(--orange);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transition:transform .15s ease}
+.cursor-follower{width:32px;height:32px;border:1px solid rgba(255,97,0,.4);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transition:all .12s ease}
+.left-panel{background:linear-gradient(135deg,#f5f5f5,#ececec);display:flex;flex-direction:column;justify-content:space-between;padding:48px;position:relative;overflow:hidden}
+.left-panel::before{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(255,97,0,.12),transparent 70%);top:-100px;left:-100px}
+.panel-logo{color:#1a1a1a !important;font-family:'Playfair Display',serif;font-size:24px;font-weight:900;font-style:italic;color:#1a1a1a;text-decoration:none;position:relative;z-index:2}
+.panel-logo span{color:var(--orange)}
+.panel-content{position:relative;z-index:2}
+.panel-headline{font-family:'Playfair Display',serif;font-size:clamp(36px,4vw,56px);font-weight:900;line-height:1;letter-spacing:-1px;margin-bottom:20px}
+.panel-headline em{color:var(--orange);font-style:italic}
+.panel-sub{font-size:15px;color:var(--gray);line-height:1.6;max-width:340px}
+.panel-footer{font-size:11px;color:rgba(0,0,0,.3);letter-spacing:.05em;position:relative;z-index:2}
+.right-panel{background:#f5f5f5;display:flex;align-items:center;justify-content:center;padding:48px}
+.form-container{width:100%;max-width:380px;color:#1a1a1a}
+.form-title{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:#1a1a1a;margin-bottom:6px;letter-spacing:-.5px}
+.form-sub{font-size:13px;color:#888;margin-bottom:36px}
+.form-sub a{color:#FF6100;font-weight:500;text-decoration:none;border-bottom:1px solid #FF6100}
+.form-label{display:block;font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:#aaa;margin-bottom:8px}
+.form-input{width:100%;padding:14px 16px;border:1.5px solid #e0e0e0;background:#f0f0f0;color:#1a1a1a;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--black);outline:none;transition:border-color .2s;cursor:none;margin-bottom:18px;border-radius:0}
+.form-input:focus{border-color:#FF6100}
+.form-input::placeholder{color:#bbb}
+.form-input.error{border-color:#ef4444}
+.btn-submit{width:100%;padding:15px;background:#FF6100;color:#1a1a1a;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;border:none;cursor:none;transition:background .3s;margin-top:4px;border-radius:0}
+.btn-submit:hover{background:#e05500}
+.btn-submit:disabled{background:#999}
+.error-msg{font-size:11px;color:#ef4444;margin-bottom:14px;display:none;padding:10px 14px;background:#fff5f5;border-left:3px solid #ef4444}
+/* Verification modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.active{display:flex}
+.modal-box{background:white;max-width:400px;width:90%;padding:40px;position:relative;animation:slideUp .3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.modal-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:var(--black);margin-bottom:8px}
+.modal-sub{font-size:13px;color:#888;margin-bottom:28px;line-height:1.5}
+.method-btn{width:100%;padding:16px;border:2px solid #e0e0e0;background:#f0f0f0;color:#1a1a1a;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:12px;transition:all .2s}
+.method-btn:hover{border-color:var(--black);background:#fafafa}
+.method-btn.selected{border-color:var(--black);background:#ffffff;color:#1a1a1a}
+.method-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:#f5f5f5;flex-shrink:0}
+.method-btn.selected .method-icon{background:rgba(255,255,255,.15)}
+.code-input{width:100%;padding:16px;border:2px solid #e0e0e0;font-size:24px;font-weight:900;letter-spacing:8px;text-align:center;outline:none;font-family:'DM Sans',sans-serif;color:var(--black);margin-bottom:16px}
+.code-input:focus{border-color:var(--black)}
+.resend-link{font-size:12px;color:#888;text-align:center;cursor:pointer;margin-bottom:16px}
+.resend-link span{color:var(--black);font-weight:600;text-decoration:underline}
+@media(max-width:768px){body{grid-template-columns:1fr}.left-panel{display:none}.right-panel{background:#ffffff;padding:40px 24px}.form-title{color:#1a1a1a}.form-sub a{color:#1a1a1a;border-color:#1a1a1a}.form-label{color:#aaa}.form-input{background:#f5f5f5;border-color:#333;color:#1a1a1a}.form-input:focus{border-color:var(--orange)}.btn-submit{background:var(--orange);color:var(--black)}}
+</style>
+        <script type="text/javascript" src="https://api.goaffpro.com/loader.js?shop=ennuikskcu"></script>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-follower" id="cf"></div>
+
+<!-- 2FA Modal -->
+<div class="modal-overlay" id="verifyModal">
+    <div class="modal-box">
+        <div id="methodSelect">
+            <h2 class="modal-title">Verify It's You</h2>
+            <p class="modal-sub" id="methodSubtext">Choose how you'd like to receive your one-time verification code.</p>
+            <button class="method-btn" id="emailBtn" onclick="selectMethod('email')">
+                <div class="method-icon">✉️</div>
+                <div><strong>Email</strong><br><span style="font-size:11px;color:#888" id="emailMasked">Send code to your email</span></div>
+            </button>
+            <button class="method-btn" id="smsBtn" onclick="selectMethod('sms')">
+                <div class="method-icon">📱</div>
+                <div><strong>SMS</strong><br><span style="font-size:11px;color:#888" id="smsMasked">Send code to your phone</span></div>
+            </button>
+            <p id="modal-error" class="error-msg"></p>
+        </div>
+        <div id="codeEntry" style="display:none">
+            <h2 class="modal-title">Enter Code</h2>
+            <p class="modal-sub" id="codeSubtext">We sent a 6-digit code to your account.</p>
+            <input type="tel" class="code-input" id="verifyCode" placeholder="000000" maxlength="6">
+            <p class="resend-link">Didn't get it? <span onclick="resendCode()">Resend code</span></p>
+            <button class="btn-submit" onclick="verifyAndLogin()">Verify & Sign In</button>
+            <p id="code-error" class="error-msg" style="margin-top:12px"></p>
+            <p style="text-align:center;margin-top:16px"><a href="#" onclick="backToMethodSelect()" style="font-size:12px;color:#888;text-decoration:none">← Choose different method</a></p>
+        </div>
+    </div>
+</div>
+
+<div class="left-panel">
+    <a href="/" class="panel-logo">Mova<span>99</span></a>
+    <div class="panel-content">
+        <h2 class="panel-headline">Welcome<br><em>back.</em></h2>
+        <p class="panel-sub">Sign in to access your personal marketplace and track your orders in real time.</p>
+    </div>
+    <div class="panel-footer">© 2026 Mova99 — Premium Marketplace</div>
+</div>
+
+<div class="right-panel">
+    <div class="form-container">
+        <h1 class="form-title">Sign In</h1>
+        <p class="form-sub">New to Mova99? <a href="/signup">Create an account</a></p>
+        <label class="form-label">Email Address</label>
+        <input id="email" type="email" class="form-input" placeholder="your@email.com">
+        <label class="form-label">Password</label>
+        <input id="password" type="password" class="form-input" placeholder="••••••••">
+        <p id="error-msg" class="error-msg"></p>
+        <button id="submit-btn" onclick="handleLogin()" class="btn-submit">Sign In</button>
+        <p style="text-align:center;margin-top:12px"><button onclick="document.getElementById('forgotModal').classList.add('active')" style="background:none;border:none;font-size:12px;color:#888;cursor:pointer;text-decoration:underline;font-family:inherit">Forgot password?</button></p>
+        <p style="text-align:center;font-size:13px;color:#888;margin-top:16px">Don't have an account? <a href="/signup" style="color:#ffffff;font-weight:500;text-decoration:none;border-bottom:1px solid #ffffff">Sign up free</a></p>
+    </div>
+</div>
+
+<script>
+const cursor=document.getElementById('cursor'),cf=document.getElementById('cf');
+let mx=0,my=0,fx=0,fy=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursor.style.left=mx-4+'px';cursor.style.top=my-4+'px';});
+(function af(){fx+=(mx-fx-16)*.12;fy+=(my-fy-16)*.12;cf.style.left=fx+'px';cf.style.top=fy+'px';requestAnimationFrame(af);})();
+document.querySelectorAll('a,button,input').forEach(el=>{el.addEventListener('mouseenter',()=>cursor.style.transform='scale(2.5)');el.addEventListener('mouseleave',()=>cursor.style.transform='scale(1)');});
+
+const sess=JSON.parse(localStorage.getItem('foundry_session')||'null');
+if(sess&&sess.expiry>Date.now())window.location.replace('/dashboard');
+
+let loginEmail='',loginPassword='',selectedMethod='';
+
+document.addEventListener('keypress',e=>{if(e.key==='Enter')handleLogin();});
+document.getElementById('verifyCode').addEventListener('keypress',e=>{if(e.key==='Enter')verifyAndLogin();});
+
+async function handleLogin(){
+    loginEmail=document.getElementById('email').value.trim();
+    loginPassword=document.getElementById('password').value;
+    const errEl=document.getElementById('error-msg');
+    const btn=document.getElementById('submit-btn');
+    errEl.style.display='none';
+    if(!loginEmail||!loginPassword){errEl.textContent='Please fill in all fields.';errEl.style.display='block';return;}
+    btn.textContent='Checking...';btn.disabled=true;
+
+    try{
+        // First verify credentials exist before showing 2FA
+        const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail,password:loginPassword})});
+        const data=await r.json();
+
+        if(data.error==='Invalid email or password'){
+            errEl.textContent='Invalid email or password.';errEl.style.display='block';btn.textContent='Sign In';btn.disabled=false;return;
+        }
+
+        if(data.token){
+            // No 2FA flow needed if credentials are ok — show verification popup
+            btn.textContent='Sign In';btn.disabled=false;
+            // Show 2FA modal
+            document.getElementById('emailMasked').textContent='Send to your registered email';
+            document.getElementById('smsMasked').textContent='Send to your registered phone';
+            document.getElementById('verifyModal').classList.add('active');
+        }
+    }catch(e){errEl.textContent='Connection error.';errEl.style.display='block';btn.textContent='Sign In';btn.disabled=false;}
+}
+
+async function selectMethod(method){
+    selectedMethod=method;
+    const errEl=document.getElementById('modal-error');
+    errEl.style.display='none';
+    document.getElementById('emailBtn').classList.toggle('selected',method==='email');
+    document.getElementById('smsBtn').classList.toggle('selected',method==='sms');
+
+    try{
+        const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail,password:loginPassword,action:'send-code',method})});
+        const data=await r.json();
+        if(data.success){
+            document.getElementById('codeSubtext').textContent='We sent a 6-digit code to '+data.masked+'. It expires in 10 minutes.';
+            document.getElementById('methodSelect').style.display='none';
+            document.getElementById('codeEntry').style.display='block';
+        }else{
+            errEl.textContent=data.error||'Failed to send code.';errEl.style.display='block';
+            document.getElementById('emailBtn').classList.remove('selected');
+            document.getElementById('smsBtn').classList.remove('selected');
+        }
+    }catch(e){errEl.textContent='Connection error.';errEl.style.display='block';}
+}
+
+async function resendCode(){selectMethod(selectedMethod);}
+
+function backToMethodSelect(){
+    document.getElementById('codeEntry').style.display='none';
+    document.getElementById('methodSelect').style.display='block';
+    document.getElementById('verifyCode').value='';
+    document.getElementById('code-error').style.display='none';
+}
+
+async function verifyAndLogin(){
+    const code=document.getElementById('verifyCode').value.trim();
+    const errEl=document.getElementById('code-error');
+    errEl.style.display='none';
+    if(code.length!==6){errEl.textContent='Please enter the 6-digit code.';errEl.style.display='block';return;}
+
+    try{
+        const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:loginEmail,password:loginPassword,code})});
+        const data=await r.json();
+        if(data.token){
+            localStorage.setItem('foundry_session',JSON.stringify({token:data.token,id:data.id,expiry:Date.now()+24*60*60*1000}));
+            const hasCart = JSON.parse(localStorage.getItem('mova_cart') || '[]').length > 0;
+            const cameFromShop = ['index','product'].includes(new URLSearchParams(window.location.search).get('redirect') || '');
+            window.location.href = (hasCart && cameFromShop) ? '/dashboard#opencart' : '/dashboard';
+        }else{errEl.textContent=data.error||'Invalid code.';errEl.style.display='block';}
+    }catch(e){errEl.textContent='Connection error.';errEl.style.display='block';}
+}
+</script>
+
+<footer style="background:#ffffff;color:#1a1a1a;padding:60px 48px 32px;font-family:'DM Sans',sans-serif">
+    <div style="max-width:1200px;margin:auto">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:40px;margin-bottom:48px">
+            <div>
+                <h3 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;font-style:italic;margin:0 0 20px"><span style="color:#1a1a1a">Mova</span><span style="color:#FF6100">99</span></h3>
+                <p style="font-size:12px;color:#888;line-height:1.7;max-width:220px">Premium marketplace. Quality products delivered across the USA.</p>
+            </div>
+            <div>
+                <h4 style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:#FF6100;margin:0 0 16px">Company Info</h4>
+                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
+                    <li><a href="/docs/01_about_mova99.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">About Mova99</a></li>
+                    <li><a href="/docs/02_affiliate_influencer_program.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Affiliate &amp; Influencer Program</a></li>
+                    <li><a href="/docs/03_contact_us.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Contact Us</a></li>
+                    <li><a href="/docs/04_careers.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Careers</a></li>
+                    <li><a href="/docs/05_press.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Press</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:#FF6100;margin:0 0 16px">Customer Service</h4>
+                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
+                    <li><a href="/docs/06_return_refund_policy.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Return &amp; Refund Policy</a></li>
+                    <li><a href="/docs/07_intellectual_property_policy.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Intellectual Property Policy</a></li>
+                    <li><a href="/docs/08_shipping_info.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Shipping Info</a></li>
+                    <li><a href="/docs/09_report_suspicious_activity.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Report Suspicious Activity</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:#FF6100;margin:0 0 16px">Help</h4>
+                <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px">
+                    <li><a href="/docs/10_support_center_faq.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Support Center &amp; FAQ</a></li>
+                    <li><a href="/docs/11_safety_center.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Safety Center</a></li>
+                    <li><a href="/docs/12_purchase_protection.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Purchase Protection</a></li>
+                    <li><a href="/docs/13_sitemap.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Sitemap</a></li>
+                    <li><a href="/docs/14_partner_with_mova99.pdf" target="_blank" style="font-size:12px;color:#888;text-decoration:none">Partner with Mova99</a></li>
+                </ul>
+            </div>
+        </div>
+        <div style="border-top:1px solid #e5e7eb;padding-top:32px">
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px;margin-bottom:24px">
+                <div>
+                    <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#888;margin:0 0 12px">Connect With Us</p>
+                    <div style="display:flex;gap:14px">
+                        <a href="#" style="color:#888;text-decoration:none;font-size:16px">&#x24BE;</a>
+                        <a href="#" style="color:#888;text-decoration:none;font-size:14px;font-weight:700">f</a>
+                        <a href="#" style="color:#888;text-decoration:none;font-size:14px;font-weight:700">X</a>
+                        <a href="#" style="color:#888;text-decoration:none;font-size:14px">&#x266B;</a>
+                        <a href="#" style="color:#888;text-decoration:none;font-size:14px">&#x25B6;</a>
+                    </div>
+                </div>
+                <div>
+                    <p style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#888;margin:0 0 12px">We Accept</p>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                        <span style="background:#1a1a5e;color:#1a1a1a;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">VERVE</span>
+                        <span style="background:#1a1a8f;color:#1a1a1a;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">VISA</span>
+                        <span style="background:#eb001b;color:#1a1a1a;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">MC</span>
+                        <span style="background:#2d6cdf;color:#1a1a1a;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">AMEX</span>
+                        <span style="background:#231f20;color:#1a1a1a;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">DISCOVER</span>
+                        <span style="background:#000;color:#FF6100;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">Apple Pay</span>
+                        <span style="background:#4285f4;color:#1a1a1a;font-size:9px;font-weight:900;padding:4px 8px;border-radius:3px">G Pay</span>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid #1a1a1a;padding-top:20px">
+                <p style="font-size:11px;color:#555;margin:0">© 2026 Mova99 LLC. All rights reserved.</p>
+                <div style="display:flex;gap:20px;flex-wrap:wrap">
+                    <a href="/docs/15_terms_of_service.pdf" target="_blank" style="font-size:11px;color:#555;text-decoration:none">Terms of Service</a>
+                    <a href="/docs/16_privacy_policy.pdf" target="_blank" style="font-size:11px;color:#555;text-decoration:none">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+<!-- Forgot Password Modal -->
+<div class="modal-overlay" id="forgotModal">
+    <div class="modal-box">
+        <div id="forgot-step1">
+            <h2 class="modal-title">Reset Password</h2>
+            <p class="modal-sub">Enter your email address and we'll send you a verification code.</p>
+            <label style="font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:#444;display:block;margin-bottom:8px">Email Address</label>
+            <input id="forgot-email" type="email" placeholder="your@email.com" style="width:100%;padding:14px 16px;border:1.5px solid #e0e0e0;font-family:inherit;font-size:14px;outline:none;margin-bottom:16px;box-sizing:border-box">
+            <p id="forgot-err1" class="error-msg"></p>
+            <button class="btn-submit" onclick="forgotSendCode()">Send Reset Code</button>
+            <p style="text-align:center;margin-top:12px"><button onclick="document.getElementById('forgotModal').classList.remove('active')" style="background:none;border:none;font-size:12px;color:#888;cursor:pointer;font-family:inherit">Cancel</button></p>
+        </div>
+        <div id="forgot-step2" style="display:none">
+            <h2 class="modal-title">Enter Code</h2>
+            <p class="modal-sub" id="forgot-code-sub">We sent a 6-digit code to your email.</p>
+            <input type="tel" class="code-input" id="forgot-code" placeholder="000000" maxlength="6">
+            <p id="forgot-err2" class="error-msg"></p>
+            <button class="btn-submit" onclick="forgotVerifyCode()">Verify Code</button>
+        </div>
+        <div id="forgot-step3" style="display:none">
+            <h2 class="modal-title">New Password</h2>
+            <p class="modal-sub">Create your new password.</p>
+            <label style="font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:#444;display:block;margin-bottom:8px">New Password</label>
+            <input id="forgot-newpw" type="password" placeholder="Min 6 characters" style="width:100%;padding:14px 16px;border:1.5px solid #e0e0e0;font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;box-sizing:border-box">
+            <label style="font-size:10px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:#444;display:block;margin-bottom:8px">Confirm Password</label>
+            <input id="forgot-confirmpw" type="password" placeholder="Repeat password" style="width:100%;padding:14px 16px;border:1.5px solid #e0e0e0;font-family:inherit;font-size:14px;outline:none;margin-bottom:16px;box-sizing:border-box">
+            <p id="forgot-err3" class="error-msg"></p>
+            <button class="btn-submit" onclick="forgotResetPassword()">Save New Password</button>
+        </div>
+        <div id="forgot-step4" style="display:none">
+            <h2 class="modal-title" style="color:#22c55e">Password Reset!</h2>
+            <p class="modal-sub">Your password has been updated. You can now sign in with your new password.</p>
+            <button class="btn-submit" onclick="document.getElementById('forgotModal').classList.remove('active')">Sign In</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let forgotEmail = '';
+
+async function forgotSendCode() {
+    forgotEmail = document.getElementById('forgot-email').value.trim();
+    const errEl = document.getElementById('forgot-err1');
+    errEl.style.display = 'none';
+    if (!forgotEmail) { errEl.textContent = 'Please enter your email.'; errEl.style.display = 'block'; return; }
+    try {
+        const r = await fetch('/api/get-user?action=forgot-password', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: forgotEmail, action: 'send-code' })
+        });
+        const d = await r.json();
+        if (d.success) {
+            document.getElementById('forgot-code-sub').textContent = 'We sent a code to ' + forgotEmail.replace(/(.{2}).*(@.*)/, '$1***$2');
+            document.getElementById('forgot-step1').style.display = 'none';
+            document.getElementById('forgot-step2').style.display = 'block';
+        } else { errEl.textContent = d.error || 'Failed to send code.'; errEl.style.display = 'block'; }
+    } catch(e) { errEl.textContent = 'Connection error.'; errEl.style.display = 'block'; }
+}
+
+async function forgotVerifyCode() {
+    const code = document.getElementById('forgot-code').value.trim();
+    const errEl = document.getElementById('forgot-err2');
+    errEl.style.display = 'none';
+    if (code.length !== 6) { errEl.textContent = 'Enter the 6-digit code.'; errEl.style.display = 'block'; return; }
+    try {
+        const r = await fetch('/api/get-user?action=forgot-password', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: forgotEmail, code, action: 'verify-code' })
+        });
+        const d = await r.json();
+        if (d.success) {
+            document.getElementById('forgot-step2').style.display = 'none';
+            document.getElementById('forgot-step3').style.display = 'block';
+        } else { errEl.textContent = d.error || 'Invalid code.'; errEl.style.display = 'block'; }
+    } catch(e) { errEl.textContent = 'Connection error.'; errEl.style.display = 'block'; }
+}
+
+async function forgotResetPassword() {
+    const newPw = document.getElementById('forgot-newpw').value;
+    const confirmPw = document.getElementById('forgot-confirmpw').value;
+    const code = document.getElementById('forgot-code').value.trim();
+    const errEl = document.getElementById('forgot-err3');
+    errEl.style.display = 'none';
+    if (newPw !== confirmPw) { errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; return; }
+    if (newPw.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; return; }
+    try {
+        const r = await fetch('/api/get-user?action=forgot-password', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: forgotEmail, code, newPassword: newPw, action: 'reset-password' })
+        });
+        const d = await r.json();
+        if (d.success) {
+            document.getElementById('forgot-step3').style.display = 'none';
+            document.getElementById('forgot-step4').style.display = 'block';
+        } else { errEl.textContent = d.error || 'Failed to reset password.'; errEl.style.display = 'block'; }
+    } catch(e) { errEl.textContent = 'Connection error.'; errEl.style.display = 'block'; }
+}
+</script>
+        <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
+        <script>
+(function(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)) return;
+  if(Notification.permission==='denied') return;
+  
+  async function registerSub(){
+    try{
+      var reg=await navigator.serviceWorker.ready;
+      var existing=await reg.pushManager.getSubscription();
+      
+      // If subscription exists verify it is still valid
+      if(existing){
+        // Re-register to keep token fresh
+        fetch('/api/push-notification?action=register',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            token:JSON.stringify(existing),
+            userId:(JSON.parse(localStorage.getItem('foundry_session')||'null'))?.id||''
+          })
+        });
+        return;
+      }
+      
+      // No subscription — ask permission if not decided
+      if(Notification.permission!=='granted'){
+        var p=await Notification.requestPermission();
+        if(p!=='granted') return;
+      }
+      
+      // Subscribe fresh
+      function u(b){var p='='.repeat((4-b.length%4)%4),s=(b+p).replace(/-/g,'+').replace(/_/g,'/'),r=atob(s),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o;}
+      var sub=await reg.pushManager.subscribe({
+        userVisibleOnly:true,
+        applicationServerKey:u('BKDaWm4VMC4Gz8UZH4MZNCUgeXDBY3mEnhy9YKhxZxpRf0JpNhLQwn8fwKxqzN_4Qq4yUXKcoMJXJie9iEgrkoI')
+      });
+      var ses=JSON.parse(localStorage.getItem('foundry_session')||'null');
+      fetch('/api/push-notification?action=register',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({token:JSON.stringify(sub),userId:ses?.id||''})
+      });
+    }catch(e){console.log('Push:',e.message);}
+  }
+
+  // Run on load
+  window.addEventListener('load', function(){
+    if(Notification.permission==='granted'){
+      registerSub();
+    } else {
+      // Ask on first tap
+      document.addEventListener('click',function f(){
+        document.removeEventListener('click',f);
+        registerSub();
+      },{once:true});
+    }
+  });
+})();
+</script>
+
+
+</body>
+</html>
