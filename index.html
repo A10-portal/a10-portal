@@ -1117,6 +1117,11 @@ window.addEventListener('DOMContentLoaded', () => {
   // Load both grids with different seeds so they show different products
   loadGrid('grid-trending', 0);
   loadGrid('grid-arrivals', 500);
+  // After returning from login/signup with items in cart, auto-open the cart drawer
+  if (window.location.hash === '#opencart' && cart.length > 0) {
+    history.replaceState(null, '', '/');
+    openCartDrawer();
+  }
 });
 </script>
 
