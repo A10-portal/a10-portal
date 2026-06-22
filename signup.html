@@ -179,7 +179,12 @@ async function handleRegister(){
                 id: data.id,
                 expiry: Date.now() + 24*60*60*1000
             }));
-            window.location.href='/dashboard';
+            const redirectParam = new URLSearchParams(window.location.search).get('redirect') || '';
+            if (redirectParam === 'index') { window.location.href = '/#opencart'; }
+            else if (redirectParam === 'product') {
+                const pid = new URLSearchParams(window.location.search).get('pid') || '';
+                window.location.href = pid ? '/product?pid=' + encodeURIComponent(pid) + '#opencart' : '/#opencart';
+            } else { window.location.href = '/dashboard'; }
         } else {
             errEl.textContent = data.error || 'Registration failed. Please try again.';
             errEl.style.display='block';
@@ -339,7 +344,12 @@ async function verifyOTP() {
                 referralCode: data.referralCode,
                 expiry: Date.now() + 24*60*60*1000
             }));
-            window.location.href = '/dashboard';
+            const redirectParam = new URLSearchParams(window.location.search).get('redirect') || '';
+            if (redirectParam === 'index') { window.location.href = '/#opencart'; }
+            else if (redirectParam === 'product') {
+                const pid = new URLSearchParams(window.location.search).get('pid') || '';
+                window.location.href = pid ? '/product?pid=' + encodeURIComponent(pid) + '#opencart' : '/#opencart';
+            } else { window.location.href = '/dashboard'; }
         } else {
             document.getElementById('otpError').textContent = data.error || 'Invalid code. Please try again.';
             document.getElementById('otpError').style.display = 'block';
