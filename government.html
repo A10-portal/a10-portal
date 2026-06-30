@@ -64,6 +64,20 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
 @keyframes bob { 0%,100% { transform: translate(-50%,0); } 50% { transform: translate(-50%,8px); } }
 .scroll-hint-line { width: 1px; height: 26px; background: linear-gradient(to bottom, rgba(255,255,255,.5), transparent); }
 
+/* ── 3D VERIFIED BADGE (own canvas, floats near hero copy) ── */
+.verify-badge-wrap { position: absolute; z-index: 3; width: 150px; height: 150px; top: 18%; right: 6%; opacity: 0; animation: fadeUp 1s ease forwards 1s; }
+#badge-canvas { width: 100%; height: 100%; }
+.verify-badge-label { text-align: center; margin-top: -8px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.5); }
+@media(max-width: 860px) { .verify-badge-wrap { display: none; } }
+
+/* ── FULL-PAGE AMBIENT 3D LAYER (runs continuously from hero to footer) ── */
+#ambient-canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: 0.5; }
+
+/* ── 3D MOVA99 WORDMARK ── */
+.wordmark3d-wrap { position: absolute; z-index: 1; inset: 0; opacity: 0; animation: fadeUp 1.2s ease forwards .15s; pointer-events: none; }
+#wordmark-canvas { width: 100%; height: 100%; }
+@media(max-width: 860px) { .wordmark3d-wrap { opacity: .65; } }
+
 .hero-btn-primary { background: var(--orange); color: #fff; padding: 15px 32px; border-radius: 12px; font-size: 14px; font-weight: 800; text-decoration: none; text-transform: uppercase; letter-spacing: .07em; transition: all .2s; border: none; cursor: pointer; font-family: inherit; display: inline-block; }
 .hero-btn-primary:hover { background: var(--orange-light); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,97,0,.4); }
 .hero-btn-secondary { background: transparent; color: #fff; padding: 15px 32px; border-radius: 12px; font-size: 14px; font-weight: 800; text-decoration: none; text-transform: uppercase; letter-spacing: .07em; transition: all .2s; border: 2px solid rgba(255,255,255,.2); display: inline-block; }
@@ -82,7 +96,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
 .stagger-child:nth-child(6) { transition-delay: .40s; }
 
 /* ── SECTIONS ── */
-.section { padding: 72px 24px; }
+.section { padding: 72px 24px; position: relative; z-index: 1; background: #fff; }
 .section-inner { max-width: 1100px; margin: auto; }
 .section-title { font-size: clamp(20px, 2.6vw, 26px); font-weight: 900; color: var(--text); letter-spacing: -.5px; margin-bottom: 24px; }
 .section-title span { color: var(--orange); }
@@ -117,7 +131,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
 .naics-desc-text { font-size: 13.5px; color: var(--text); font-weight: 600; line-height: 1.4; }
 
 /* ── INSURANCE / BONDING ── */
-.ins-band { background: linear-gradient(180deg, #0a0a0a 0%, #120800 100%); padding: 72px 24px; position: relative; overflow: hidden; }
+.ins-band { background: linear-gradient(180deg, rgba(10,10,10,.96) 0%, rgba(18,8,0,.96) 100%); padding: 72px 24px; position: relative; overflow: hidden; z-index: 1; }
 .ins-band::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 80% 20%, rgba(255,97,0,.14) 0%, transparent 55%); pointer-events:none; }
 .ins-inner { max-width: 1100px; margin: auto; position: relative; z-index: 2; }
 .ins-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 28px; }
@@ -136,13 +150,13 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
 .ins-status-sub { color: rgba(255,255,255,.5); font-size: 11.5px; margin-top: 2px; }
 
 /* ── 3D DIVIDER BAND ── */
-.divider3d { position: relative; height: 180px; background: #0a0a0a; overflow: hidden; }
+.divider3d { position: relative; height: 180px; background: rgba(10,10,10,.96); overflow: hidden; z-index: 1; }
 #divider-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .divider3d-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 2; pointer-events: none; }
 .divider3d-label span { color: rgba(255,255,255,.25); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .3em; }
 
 /* ── CTA BAND ── */
-.cta-band { background: #0a0a0a; padding: 72px 24px; text-align: center; position: relative; overflow: hidden; }
+.cta-band { background: rgba(10,10,10,.96); padding: 72px 24px; text-align: center; position: relative; overflow: hidden; z-index: 1; }
 .cta-band::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 50% 0%, rgba(255,97,0,.18) 0%, transparent 60%); pointer-events:none; }
 .cta-inner { max-width: 700px; margin: auto; position: relative; z-index: 2; }
 .cta-inner h2 { color: #fff; font-size: clamp(22px,3vw,32px); font-weight: 900; margin-bottom: 14px; }
@@ -150,7 +164,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
 .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
 /* ── FOOTER ── */
-.footer { background: #0a0a0a; padding: 40px 24px 28px; border-top: 1px solid #1a1a1a; }
+.footer { background: rgba(10,10,10,.97); padding: 40px 24px 28px; border-top: 1px solid #1a1a1a; position: relative; z-index: 1; }
 .footer-inner { max-width: 1280px; margin: auto; }
 .footer-logo { font-size: 22px; font-weight: 900; font-style: italic; color: #fff; margin-bottom: 8px; letter-spacing: -1px; }
 .footer-logo span { color: var(--orange); }
@@ -163,6 +177,8 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
 </style>
 </head>
 <body>
+
+<canvas id="ambient-canvas"></canvas>
 
 <!-- NAV -->
 <nav class="nav" id="nav">
@@ -183,7 +199,12 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
     <div class="fb-shape s3"></div>
     <div class="fb-shape s4"></div>
   </div>
+  <div class="wordmark3d-wrap"><canvas id="wordmark-canvas"></canvas></div>
   <canvas id="hero-canvas"></canvas>
+  <div class="verify-badge-wrap">
+    <canvas id="badge-canvas"></canvas>
+    <div class="verify-badge-label">Verified Registration</div>
+  </div>
   <div class="hero3d-overlay">
     <div class="gov-badge">● Active SAM.gov Registration · Fully Insured</div>
     <h1>MOVA99 LLC <span>Government Contracting</span></h1>
@@ -368,6 +389,8 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FontLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
 <script>
 const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => {
@@ -382,7 +405,70 @@ revealEls.forEach(el => io.observe(el));
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// ── 3D Hero ──
+// ── Persistent full-page ambient particles: runs continuously hero-to-footer ──
+(function() {
+  const canvas = document.getElementById('ambient-canvas');
+  if (!canvas) return;
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 60);
+  camera.position.z = 18;
+
+  function resize() {
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // Particle field spread across a tall virtual volume so it reads as "infinite" while scrolling
+  const count = 220;
+  const geo = new THREE.BufferGeometry();
+  const positions = new Float32Array(count * 3);
+  const speeds = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    positions[i*3]   = (Math.random() - 0.5) * 40;
+    positions[i*3+1] = (Math.random() - 0.5) * 40;
+    positions[i*3+2] = (Math.random() - 0.5) * 20 - 5;
+    speeds[i] = 0.002 + Math.random() * 0.004;
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const mat = new THREE.PointsMaterial({ color: 0xff6100, size: 0.05, transparent: true, opacity: 0.35 });
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+
+  // Reposition the whole field based on scroll so it always has fresh particles in view,
+  // creating the illusion of continuous ambient motion the full length of the page.
+  let targetY = 0, currentY = 0;
+  window.addEventListener('scroll', () => {
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? window.scrollY / docHeight : 0;
+    targetY = -progress * 26; // drift the field downward as user scrolls
+  });
+
+  function animateAmbient() {
+    if (!reduceMotion) {
+      const pos = geo.attributes.position;
+      for (let i = 0; i < count; i++) {
+        pos.array[i*3+1] -= speeds[i];
+        if (pos.array[i*3+1] < -20) pos.array[i*3+1] = 20;
+      }
+      pos.needsUpdate = true;
+      points.rotation.y += 0.0006;
+
+      currentY += (targetY - currentY) * 0.04;
+      points.position.y = currentY;
+    }
+    renderer.render(scene, camera);
+    requestAnimationFrame(animateAmbient);
+  }
+  animateAmbient();
+})();
+
+
+// ── 3D Hero crate cluster ──
 (function() {
   const canvas = document.getElementById('hero-canvas');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -468,7 +554,214 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
   animate();
 })();
 
-// ── Divider strip: flowing logistics lanes ──
+// ── 3D MOVA99 Wordmark: real extruded text geometry, rotating in hero background ──
+(function() {
+  const canvas = document.getElementById('wordmark-canvas');
+  if (!canvas) return;
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+  camera.position.set(0, 0, 18);
+
+  function resize() {
+    const w = canvas.clientWidth || window.innerWidth;
+    const h = canvas.clientHeight || window.innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.3);
+  keyLight.position.set(3, 4, 6);
+  scene.add(keyLight);
+  const rimLight = new THREE.DirectionalLight(0xff6100, 0.7);
+  rimLight.position.set(-4, -2, 3);
+  scene.add(rimLight);
+  scene.add(new THREE.AmbientLight(0x442200, 0.6));
+
+  let wordGroup = null;
+  const fontLoader = new THREE.FontLoader();
+  fontLoader.load('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/helvetiker_bold.typeface.json', function(font) {
+    wordGroup = new THREE.Group();
+
+    const textGeo = new THREE.TextGeometry('MOVA99', {
+      font: font,
+      size: 2.2,
+      height: 0.5,
+      curveSegments: 8,
+      bevelEnabled: true,
+      bevelThickness: 0.08,
+      bevelSize: 0.05,
+      bevelSegments: 3
+    });
+    textGeo.computeBoundingBox();
+    textGeo.center();
+
+    const textMat = new THREE.MeshStandardMaterial({
+      color: 0xff6100,
+      metalness: 0.4,
+      roughness: 0.3,
+      emissive: 0x331100,
+      emissiveIntensity: 0.5
+    });
+    const textMesh = new THREE.Mesh(textGeo, textMat);
+    wordGroup.add(textMesh);
+
+    // Thin wireframe duplicate slightly larger for a glow/outline feel
+    const wireGeo = new THREE.EdgesGeometry(textGeo);
+    const wireMat = new THREE.LineBasicMaterial({ color: 0xff8533, transparent: true, opacity: 0.35 });
+    const wireMesh = new THREE.LineSegments(wireGeo, wireMat);
+    wordGroup.add(wireMesh);
+
+    wordGroup.position.set(0, -0.5, -6);
+    wordGroup.rotation.set(0, -0.2, 0);
+    scene.add(wordGroup);
+
+    // Scale down on narrow viewports so full wordmark stays in frame
+    function fitWordmark() {
+      const w = window.innerWidth;
+      const scale = w < 480 ? 0.55 : w < 860 ? 0.75 : 1;
+      wordGroup.userData.baseScale = scale;
+      wordGroup.scale.set(scale, scale, scale);
+    }
+    fitWordmark();
+    window.addEventListener('resize', fitWordmark);
+
+    // Soft shadow disc beneath the wordmark — pulses opposite the bounce for a grounded feel
+    const shadowGeo = new THREE.CircleGeometry(2.2, 32);
+    const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35 });
+    const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+    shadowMesh.rotation.x = -Math.PI / 2;
+    shadowMesh.position.set(0, -2.6, -6);
+    scene.add(shadowMesh);
+    wordGroup.userData.shadow = shadowMesh;
+  });
+
+  let mouseX = 0, mouseY = 0;
+  window.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  let scrollFactor = 0;
+  window.addEventListener('scroll', () => { scrollFactor = Math.min(window.scrollY / 800, 1); });
+
+  let frame = 0;
+  function animateWordmark() {
+    frame++;
+    if (wordGroup && !reduceMotion) {
+      // Continuous full rotation
+      wordGroup.rotation.y += 0.012 + mouseX * 0.01;
+      wordGroup.rotation.x = Math.sin(frame * 0.004) * 0.08 - mouseY * 0.05;
+
+      // Bounce: gravity-style arc using absolute sine for a "drop and bounce" feel
+      const bounceHeight = Math.abs(Math.sin(frame * 0.025)) * 1.4;
+      wordGroup.position.y = -0.5 + bounceHeight - scrollFactor * 2.2;
+      wordGroup.position.z = -6 - scrollFactor * 3;
+
+      // Squash and stretch tied to bounce phase for extra liveliness
+      const squash = 1 - Math.abs(Math.cos(frame * 0.025)) * 0.08;
+      wordGroup.scale.set(
+        wordGroup.userData.baseScale * (2 - squash),
+        wordGroup.userData.baseScale * squash,
+        wordGroup.userData.baseScale
+      );
+
+      // Shadow shrinks/fades as wordmark rises, grows as it "lands"
+      if (wordGroup.userData.shadow) {
+        const proximity = 1 - bounceHeight / 1.4;
+        wordGroup.userData.shadow.scale.set(0.6 + proximity * 0.4, 0.6 + proximity * 0.4, 1);
+        wordGroup.userData.shadow.material.opacity = 0.15 + proximity * 0.25;
+      }
+    }
+    renderer.render(scene, camera);
+    requestAnimationFrame(animateWordmark);
+  }
+  animateWordmark();
+})();
+
+
+(function() {
+  const canvas = document.getElementById('badge-canvas');
+  if (!canvas) return;
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50);
+  camera.position.set(0, 0, 6);
+
+  function resize() {
+    const size = canvas.clientWidth || 150;
+    renderer.setSize(size, size, false);
+    camera.aspect = 1;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const badgeGroup = new THREE.Group();
+
+  // Shield shape via extruded 2D path
+  const shieldShape = new THREE.Shape();
+  shieldShape.moveTo(0, 1.3);
+  shieldShape.bezierCurveTo(0.9, 1.0, 1.1, 0.9, 1.1, 0.3);
+  shieldShape.bezierCurveTo(1.1, -0.6, 0.6, -1.1, 0, -1.4);
+  shieldShape.bezierCurveTo(-0.6, -1.1, -1.1, -0.6, -1.1, 0.3);
+  shieldShape.bezierCurveTo(-1.1, 0.9, -0.9, 1.0, 0, 1.3);
+
+  const extrudeSettings = { depth: 0.18, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.03, bevelSegments: 2 };
+  const shieldGeo = new THREE.ExtrudeGeometry(shieldShape, extrudeSettings);
+  shieldGeo.center();
+  const shieldMat = new THREE.MeshStandardMaterial({ color: 0xff6100, metalness: 0.35, roughness: 0.35, emissive: 0x401800, emissiveIntensity: 0.4 });
+  const shieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+  badgeGroup.add(shieldMesh);
+
+  // Checkmark via thin torus-like tube using a simple line path extruded as tube
+  const checkPoints = [
+    new THREE.Vector3(-0.45, 0.0, 0.16),
+    new THREE.Vector3(-0.12, -0.35, 0.16),
+    new THREE.Vector3(0.5, 0.4, 0.16),
+  ];
+  const checkCurve = new THREE.CatmullRomCurve3(checkPoints);
+  const checkGeo = new THREE.TubeGeometry(checkCurve, 20, 0.09, 8, false);
+  const checkMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.1, roughness: 0.3 });
+  const checkMesh = new THREE.Mesh(checkGeo, checkMat);
+  badgeGroup.add(checkMesh);
+
+  // Thin outer ring for extra dimension
+  const ringGeo = new THREE.TorusGeometry(1.25, 0.025, 8, 48);
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0xff8533, transparent: true, opacity: 0.5 });
+  const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+  badgeGroup.add(ringMesh);
+
+  scene.add(badgeGroup);
+
+  // Lighting
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
+  keyLight.position.set(2, 3, 4);
+  scene.add(keyLight);
+  const fillLight = new THREE.AmbientLight(0xff8533, 0.5);
+  scene.add(fillLight);
+
+  let badgeFrame = 0;
+  function animateBadge() {
+    if (!reduceMotion) {
+      badgeFrame += 1;
+      badgeGroup.rotation.y += 0.018;
+      badgeGroup.rotation.x = Math.sin(badgeFrame * 0.012) * 0.15;
+      badgeGroup.position.y = Math.sin(badgeFrame * 0.02) * 0.08;
+      ringMesh.rotation.z += 0.01;
+    }
+    renderer.render(scene, camera);
+    requestAnimationFrame(animateBadge);
+  }
+  animateBadge();
+})();
+
+
 (function() {
   const canvas = document.getElementById('divider-canvas');
   if (!canvas) return;
