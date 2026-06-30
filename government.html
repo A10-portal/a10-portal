@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" type="image/png" href="/image/logo.png">
+<meta name="description" content="MOVA99 LLC — Registered federal small business government contractor. Wholesale distribution, apparel, uniforms, and general merchandise. SAM.gov registered, fully insured.">
+<meta property="og:title" content="MOVA99 LLC — Government Contracting">
+<meta property="og:description" content="MOVA99 LLC is a New Jersey small business wholesale distributor, registered and active in SAM.gov.">
+<meta property="og:url" content="https://www.mova99.com/government">
+<meta property="og:type" content="website">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://www.mova99.com/government">
+<title>MOVA99 LLC — Government Contracting</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff6100">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --orange: #ff6100;
+  --orange-light: #ff8533;
+  --orange-pale: #fff3ed;
+  --text: #1a1a1a;
+  --border: #f0f0f0;
+  --bg: #f5f5f5;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color: var(--text); overflow-x: hidden; }
+
+/* ── NAV ── */
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: rgba(10,10,10,.55); backdrop-filter: blur(14px); padding: 0 24px; transition: background .3s; }
+.nav.scrolled { background: rgba(255,255,255,.96); border-bottom: 1px solid var(--border); }
+.nav-inner { max-width: 1280px; margin: auto; height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.nav-logo { font-size: 22px; font-weight: 900; font-style: italic; color: var(--orange); text-decoration: none; letter-spacing: -1px; }
+.nav-logo span { color: #fff; transition: color .3s; }
+.nav.scrolled .nav-logo span { color: var(--text); }
+.nav-links { display: flex; align-items: center; gap: 8px; }
+.nav-btn { padding: 9px 20px; border-radius: 24px; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; transition: all .18s; font-family: inherit; }
+.nav-btn-outline { background: transparent; border: 2px solid rgba(255,255,255,.4); color: #fff; }
+.nav.scrolled .nav-btn-outline { border-color: var(--orange); color: var(--orange); }
+.nav-btn-solid { background: var(--orange); border: 2px solid var(--orange); color: #fff; }
+.nav-btn:hover { opacity: .85; transform: translateY(-1px); }
+
+/* ── 3D HERO ── */
+.hero3d { position: relative; height: 100vh; min-height: 640px; background: linear-gradient(135deg, #0a0a0a 0%, #170900 55%, #0a0a0a 100%); overflow: hidden; display: flex; align-items: center; }
+.hero3d-fallback { position: absolute; inset: 0; z-index: 1; overflow: hidden; }
+.fb-shape { position: absolute; border: 1.5px solid rgba(255,97,0,.3); border-radius: 8px; animation: floatShape 14s ease-in-out infinite; }
+.fb-shape.s1 { width: 220px; height: 220px; top: 12%; right: 8%; transform: rotate(18deg); animation-delay: 0s; border-color: rgba(255,97,0,.5); }
+.fb-shape.s2 { width: 140px; height: 140px; bottom: 18%; right: 22%; transform: rotate(-12deg); animation-delay: -4s; }
+.fb-shape.s3 { width: 90px; height: 90px; top: 38%; right: 32%; transform: rotate(8deg); animation-delay: -8s; }
+.fb-shape.s4 { width: 170px; height: 170px; bottom: 8%; right: 4%; transform: rotate(-22deg); animation-delay: -2s; }
+@keyframes floatShape { 0%,100% { transform: translateY(0) rotate(var(--r,0deg)); } 50% { transform: translateY(-18px) rotate(var(--r,0deg)); } }
+#hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; }
+.hero3d-overlay { position: relative; z-index: 3; max-width: 1280px; margin: auto; padding: 0 24px; width: 100%; pointer-events: none; }
+.hero3d-overlay > * { pointer-events: auto; }
+.gov-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,97,0,.15); border: 1px solid rgba(255,97,0,.4); border-radius: 24px; padding: 6px 16px; font-size: 11px; font-weight: 700; color: #ff8533; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 22px; opacity: 0; animation: fadeUp .8s ease forwards .2s; }
+.hero3d h1 { font-size: clamp(34px, 6vw, 72px); font-weight: 900; color: #fff; line-height: 1.04; margin-bottom: 20px; letter-spacing: -2px; max-width: 760px; opacity: 0; animation: fadeUp .9s ease forwards .4s; }
+.hero3d h1 span { color: var(--orange); }
+.hero3d p { font-size: clamp(15px, 1.8vw, 18px); color: rgba(255,255,255,.65); line-height: 1.7; max-width: 560px; margin-bottom: 32px; opacity: 0; animation: fadeUp .9s ease forwards .6s; }
+.hero3d-btns { display: flex; gap: 12px; flex-wrap: wrap; opacity: 0; animation: fadeUp .9s ease forwards .8s; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+.scroll-hint { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 3; color: rgba(255,255,255,.4); font-size: 10px; text-transform: uppercase; letter-spacing: .15em; display: flex; flex-direction: column; align-items: center; gap: 8px; animation: bob 2s ease-in-out infinite; }
+@keyframes bob { 0%,100% { transform: translate(-50%,0); } 50% { transform: translate(-50%,8px); } }
+.scroll-hint-line { width: 1px; height: 26px; background: linear-gradient(to bottom, rgba(255,255,255,.5), transparent); }
+
+.hero-btn-primary { background: var(--orange); color: #fff; padding: 15px 32px; border-radius: 12px; font-size: 14px; font-weight: 800; text-decoration: none; text-transform: uppercase; letter-spacing: .07em; transition: all .2s; border: none; cursor: pointer; font-family: inherit; display: inline-block; }
+.hero-btn-primary:hover { background: var(--orange-light); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,97,0,.4); }
+.hero-btn-secondary { background: transparent; color: #fff; padding: 15px 32px; border-radius: 12px; font-size: 14px; font-weight: 800; text-decoration: none; text-transform: uppercase; letter-spacing: .07em; transition: all .2s; border: 2px solid rgba(255,255,255,.2); display: inline-block; }
+.hero-btn-secondary:hover { border-color: #fff; transform: translateY(-2px); }
+
+/* ── REVEAL ON SCROLL ── */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.in { opacity: 1; transform: translateY(0); }
+.reveal-stagger.in .stagger-child { opacity: 1; transform: translateY(0); }
+.stagger-child { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+.stagger-child:nth-child(1) { transition-delay: .05s; }
+.stagger-child:nth-child(2) { transition-delay: .12s; }
+.stagger-child:nth-child(3) { transition-delay: .19s; }
+.stagger-child:nth-child(4) { transition-delay: .26s; }
+.stagger-child:nth-child(5) { transition-delay: .33s; }
+.stagger-child:nth-child(6) { transition-delay: .40s; }
+
+/* ── SECTIONS ── */
+.section { padding: 72px 24px; }
+.section-inner { max-width: 1100px; margin: auto; }
+.section-title { font-size: clamp(20px, 2.6vw, 26px); font-weight: 900; color: var(--text); letter-spacing: -.5px; margin-bottom: 24px; }
+.section-title span { color: var(--orange); }
+.section-title-dark { color: #fff; }
+.section-eyebrow { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--orange); margin-bottom: 8px; }
+
+/* ── INFO GRID ── */
+.info-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media(min-width:640px) { .info-grid { grid-template-columns: repeat(2,1fr); } }
+@media(min-width:960px) { .info-grid { grid-template-columns: repeat(3,1fr); } }
+.info-card { background: var(--orange-pale); border: 1px solid var(--border); border-radius: 14px; padding: 20px; transition: transform .25s ease, box-shadow .25s ease; }
+.info-card:hover { transform: translateY(-4px); box-shadow: 0 14px 32px rgba(255,97,0,.22); }
+.info-card-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--orange); margin-bottom: 6px; }
+.info-card-value { font-size: 15px; font-weight: 700; color: var(--text); }
+.info-card-sub { font-size: 12px; color: #888; margin-top: 4px; }
+
+/* ── COMPETENCY LIST ── */
+.comp-list { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media(min-width:640px) { .comp-list { grid-template-columns: repeat(2,1fr); } }
+.comp-item { display: flex; gap: 12px; align-items: flex-start; padding: 18px; border: 1px solid var(--border); border-radius: 12px; transition: border-color .2s, transform .2s, box-shadow .2s; }
+.comp-item:hover { border-color: var(--orange); transform: translateY(-3px); box-shadow: 0 10px 26px rgba(0,0,0,.08); }
+.comp-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--orange); flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 14px; }
+.comp-text-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; color: var(--text); }
+.comp-text-sub { font-size: 12px; color: #888; line-height: 1.5; }
+
+/* ── NAICS CARDS — always visible, explicit text colors ── */
+.naics-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media(min-width:640px) { .naics-grid { grid-template-columns: repeat(2,1fr); } }
+.naics-card { display: flex; align-items: center; gap: 16px; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; transition: transform .2s, border-color .2s, box-shadow .2s; }
+.naics-card:hover { transform: translateY(-3px); border-color: var(--orange); box-shadow: 0 10px 26px rgba(255,97,0,.14); }
+.naics-code-badge { flex-shrink: 0; min-width: 76px; text-align: center; background: #0a0a0a; color: #ff8533; font-weight: 900; font-size: 14px; letter-spacing: .02em; padding: 8px 10px; border-radius: 8px; }
+.naics-desc-text { font-size: 13.5px; color: var(--text); font-weight: 600; line-height: 1.4; }
+
+/* ── INSURANCE / BONDING ── */
+.ins-band { background: linear-gradient(180deg, #0a0a0a 0%, #120800 100%); padding: 72px 24px; position: relative; overflow: hidden; }
+.ins-band::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 80% 20%, rgba(255,97,0,.14) 0%, transparent 55%); pointer-events:none; }
+.ins-inner { max-width: 1100px; margin: auto; position: relative; z-index: 2; }
+.ins-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 28px; }
+@media(min-width:640px) { .ins-grid { grid-template-columns: repeat(2,1fr); } }
+@media(min-width:960px) { .ins-grid { grid-template-columns: repeat(3,1fr); } }
+.ins-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 24px; backdrop-filter: blur(6px); transition: transform .3s ease, border-color .3s ease, background .3s ease; cursor: default; }
+.ins-card:hover { transform: translateY(-6px) scale(1.015); border-color: rgba(255,97,0,.5); background: rgba(255,97,0,.06); }
+.ins-card-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,97,0,.15); border: 1px solid rgba(255,97,0,.4); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+.ins-card-icon svg { width: 20px; height: 20px; stroke: var(--orange); }
+.ins-card h3 { color: #fff; font-size: 15px; font-weight: 800; margin-bottom: 8px; }
+.ins-card p { color: rgba(255,255,255,.55); font-size: 12.5px; line-height: 1.6; }
+.ins-status-row { display: flex; align-items: center; gap: 14px; margin-top: 36px; padding: 18px 22px; background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.3); border-radius: 12px; flex-wrap: wrap; }
+.ins-status-dot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.18); flex-shrink: 0; animation: pulseDot 2s ease-in-out infinite; }
+@keyframes pulseDot { 0%,100% { box-shadow: 0 0 0 4px rgba(34,197,94,.18); } 50% { box-shadow: 0 0 0 8px rgba(34,197,94,.08); } }
+.ins-status-text { color: #fff; font-size: 13px; font-weight: 700; }
+.ins-status-sub { color: rgba(255,255,255,.5); font-size: 11.5px; margin-top: 2px; }
+
+/* ── 3D DIVIDER BAND ── */
+.divider3d { position: relative; height: 180px; background: #0a0a0a; overflow: hidden; }
+#divider-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.divider3d-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 2; pointer-events: none; }
+.divider3d-label span { color: rgba(255,255,255,.25); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .3em; }
+
+/* ── CTA BAND ── */
+.cta-band { background: #0a0a0a; padding: 72px 24px; text-align: center; position: relative; overflow: hidden; }
+.cta-band::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 50% 0%, rgba(255,97,0,.18) 0%, transparent 60%); pointer-events:none; }
+.cta-inner { max-width: 700px; margin: auto; position: relative; z-index: 2; }
+.cta-inner h2 { color: #fff; font-size: clamp(22px,3vw,32px); font-weight: 900; margin-bottom: 14px; }
+.cta-inner p { color: rgba(255,255,255,.6); font-size: 14px; margin-bottom: 28px; line-height: 1.6; }
+.cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* ── FOOTER ── */
+.footer { background: #0a0a0a; padding: 40px 24px 28px; border-top: 1px solid #1a1a1a; }
+.footer-inner { max-width: 1280px; margin: auto; }
+.footer-logo { font-size: 22px; font-weight: 900; font-style: italic; color: #fff; margin-bottom: 8px; letter-spacing: -1px; }
+.footer-logo span { color: var(--orange); }
+.footer-copy { font-size: 11px; color: #333; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .stagger-child { opacity: 1; transform: none; transition: none; }
+  .hero3d h1, .hero3d p, .hero3d-btns, .gov-badge { animation: none; opacity: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Mova<span>99</span></a>
+    <div class="nav-links">
+      <a href="/" class="nav-btn nav-btn-outline">Marketplace</a>
+      <a href="mailto:ceo@mova99.com" class="nav-btn nav-btn-solid">Contact CEO</a>
+    </div>
+  </div>
+</nav>
+
+<!-- 3D HERO -->
+<section class="hero3d">
+  <div class="hero3d-fallback">
+    <div class="fb-shape s1"></div>
+    <div class="fb-shape s2"></div>
+    <div class="fb-shape s3"></div>
+    <div class="fb-shape s4"></div>
+  </div>
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero3d-overlay">
+    <div class="gov-badge">● Active SAM.gov Registration · Fully Insured</div>
+    <h1>MOVA99 LLC <span>Government Contracting</span></h1>
+    <p>New Jersey-registered small business wholesale distributor supplying general merchandise, apparel, uniforms, and consumer goods to federal, state, and local government agencies.</p>
+    <div class="hero3d-btns">
+      <a href="mailto:ceo@mova99.com" class="hero-btn-primary">Email CEO</a>
+      <a href="#capabilities" class="hero-btn-secondary">Explore Capabilities</a>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>Scroll</span><div class="scroll-hint-line"></div></div>
+</section>
+
+<!-- COMPANY INFO -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-eyebrow reveal">Verified &amp; Registered</div>
+    <h2 class="section-title reveal">Company <span>Information</span></h2>
+    <div class="info-grid reveal-stagger reveal">
+      <div class="info-card stagger-child">
+        <div class="info-card-label">Legal Business Name</div>
+        <div class="info-card-value">MOVA99 LLC</div>
+        <div class="info-card-sub">New Jersey Limited Liability Company — Single Member</div>
+      </div>
+      <div class="info-card stagger-child">
+        <div class="info-card-label">Unique Entity ID (UEI)</div>
+        <div class="info-card-value">[INSERT UEI]</div>
+        <div class="info-card-sub">SAM.gov Registration: Active</div>
+      </div>
+      <div class="info-card stagger-child">
+        <div class="info-card-label">CAGE Code</div>
+        <div class="info-card-value">[INSERT CAGE CODE]</div>
+        <div class="info-card-sub">Commercial and Government Entity Code</div>
+      </div>
+      <div class="info-card stagger-child">
+        <div class="info-card-label">NJ Entity ID</div>
+        <div class="info-card-value">0451488030</div>
+        <div class="info-card-sub">State of New Jersey Registration</div>
+      </div>
+      <div class="info-card stagger-child">
+        <div class="info-card-label">Business Type</div>
+        <div class="info-card-value">Small Business</div>
+        <div class="info-card-sub">Wholesale Distribution &amp; E-Commerce</div>
+      </div>
+      <div class="info-card stagger-child">
+        <div class="info-card-label">Point of Contact</div>
+        <div class="info-card-value">Edward J. Milano Jr., Owner</div>
+        <div class="info-card-sub">ceo@mova99.com&nbsp;·&nbsp;(248) 300-6940</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3D DIVIDER -->
+<div class="divider3d">
+  <canvas id="divider-canvas"></canvas>
+  <div class="divider3d-label"><span>Wholesale · Distribution · Fulfillment</span></div>
+</div>
+
+<!-- CORE COMPETENCIES -->
+<section class="section" style="background:var(--bg)" id="capabilities">
+  <div class="section-inner">
+    <div class="section-eyebrow reveal">What We Do</div>
+    <h2 class="section-title reveal">Core <span>Competencies</span></h2>
+    <div class="comp-list reveal-stagger reveal">
+      <div class="comp-item stagger-child">
+        <div class="comp-icon">1</div>
+        <div>
+          <div class="comp-text-title">Wholesale Distribution</div>
+          <div class="comp-text-sub">Sourcing and fulfillment of general merchandise, apparel, and consumer goods through established manufacturer and supplier relationships.</div>
+        </div>
+      </div>
+      <div class="comp-item stagger-child">
+        <div class="comp-icon">2</div>
+        <div>
+          <div class="comp-text-title">Uniforms &amp; Apparel</div>
+          <div class="comp-text-sub">Athletic, duty, and institutional uniform sourcing with sizing, embroidery, and custom decoration coordination.</div>
+        </div>
+      </div>
+      <div class="comp-item stagger-child">
+        <div class="comp-icon">3</div>
+        <div>
+          <div class="comp-text-title">E-Commerce Fulfillment</div>
+          <div class="comp-text-sub">Proven order processing, secure payment handling (Stripe), and reliable nationwide shipping infrastructure.</div>
+        </div>
+      </div>
+      <div class="comp-item stagger-child">
+        <div class="comp-icon">4</div>
+        <div>
+          <div class="comp-text-title">Simplified Acquisitions</div>
+          <div class="comp-text-sub">Responsive quoting on FAR Part 13 simplified acquisitions and small business set-aside RFQs in the $10K–$50K range.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NAICS CODES -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-eyebrow reveal">Federal Classification</div>
+    <h2 class="section-title reveal">NAICS <span>Codes</span></h2>
+    <div class="naics-grid reveal-stagger reveal">
+      <div class="naics-card stagger-child">
+        <div class="naics-code-badge">423990</div>
+        <div class="naics-desc-text">Other Miscellaneous Nondurable Goods Merchant Wholesalers</div>
+      </div>
+      <div class="naics-card stagger-child">
+        <div class="naics-code-badge">454110</div>
+        <div class="naics-desc-text">Electronic Shopping and Mail-Order Houses</div>
+      </div>
+      <div class="naics-card stagger-child">
+        <div class="naics-code-badge">315990</div>
+        <div class="naics-desc-text">Apparel Accessories and Other Apparel Manufacturing</div>
+      </div>
+      <div class="naics-card stagger-child">
+        <div class="naics-code-badge">322230</div>
+        <div class="naics-desc-text">Stationery Product Manufacturing</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSURANCE & BONDING -->
+<section class="ins-band">
+  <div class="ins-inner">
+    <div class="section-eyebrow reveal" style="color:#ff8533">Risk &amp; Compliance</div>
+    <h2 class="section-title section-title-dark reveal">Insurance &amp; <span>Bonding</span></h2>
+    <p class="reveal" style="color:rgba(255,255,255,.55);font-size:14px;max-width:640px;margin-top:8px;line-height:1.7">MOVA99 LLC maintains active commercial insurance coverage to support government and commercial contract performance. Certificates of insurance are available to contracting officers and prime contractors upon request.</p>
+
+    <div class="ins-grid reveal-stagger reveal">
+      <div class="ins-card stagger-child">
+        <div class="ins-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+        </div>
+        <h3>General Liability</h3>
+        <p>Commercial general liability coverage protecting against third-party bodily injury and property damage claims arising from business operations.</p>
+      </div>
+      <div class="ins-card stagger-child">
+        <div class="ins-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
+        <h3>Product Liability</h3>
+        <p>Coverage extending to merchandise sourced, distributed, and shipped through MOVA99 LLC's wholesale fulfillment operations.</p>
+      </div>
+      <div class="ins-card stagger-child">
+        <div class="ins-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <h3>Bonding Availability</h3>
+        <p>Prepared to pursue bid, performance, or payment bonds as required by specific solicitations, in coordination with a licensed surety provider.</p>
+      </div>
+    </div>
+
+    <div class="ins-status-row reveal">
+      <div class="ins-status-dot"></div>
+      <div>
+        <div class="ins-status-text">Insurance Status: Active &amp; Current</div>
+        <div class="ins-status-sub">Certificate of Insurance available upon request — contact ceo@mova99.com</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-band">
+  <div class="cta-inner reveal">
+    <h2>Request a Quote or Capability Statement</h2>
+    <p>Contracting officers and prime contractors are welcome to reach out directly for our current capability statement, certificate of insurance, references, or to request a quote on an active solicitation.</p>
+    <div class="cta-btns">
+      <a href="mailto:ceo@mova99.com" class="hero-btn-primary">Email CEO</a>
+      <a href="/docs/mova99_capability_statement.pdf" target="_blank" class="hero-btn-secondary">Capability Statement (PDF)</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">Mova<span>99</span></div>
+    <p class="footer-copy">© 2026 MOVA99 LLC · New Jersey, USA · SAM.gov Registered Small Business · Fully Insured · ceo@mova99.com</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 80);
+});
+
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.12 });
+revealEls.forEach(el => io.observe(el));
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ── 3D Hero ──
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0, 11);
+
+  function resize() {
+    const w = canvas.clientWidth || window.innerWidth;
+    const h = canvas.clientHeight || window.innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const group = new THREE.Group();
+  const orangeMat = new THREE.LineBasicMaterial({ color: 0xff6100, transparent: true, opacity: 0.85 });
+  const dimMat = new THREE.LineBasicMaterial({ color: 0xff8533, transparent: true, opacity: 0.35 });
+
+  const boxPositions = [
+    [-3.2, 0.6, 0, 1.4], [3.0, -0.8, -1, 1.7], [-1.0, -1.6, 1, 1.1],
+    [1.6, 1.4, -0.5, 1.0], [0, 0, -2, 2.0], [-2.4, -2.2, -1.5, 0.9], [3.4, 1.8, 1, 0.8],
+  ];
+
+  const meshes = [];
+  boxPositions.forEach((p, i) => {
+    const size = p[3];
+    const geo = new THREE.BoxGeometry(size, size, size);
+    const edges = new THREE.EdgesGeometry(geo);
+    const mat = i === 4 ? orangeMat : dimMat;
+    const line = new THREE.LineSegments(edges, mat);
+    line.position.set(p[0], p[1], p[2]);
+    line.rotation.set(Math.random()*0.4, Math.random()*0.6, Math.random()*0.3);
+    group.add(line);
+    meshes.push({ mesh: line, speed: 0.05 + Math.random()*0.08 });
+  });
+  scene.add(group);
+
+  const particleCount = 140;
+  const particlesGeo = new THREE.BufferGeometry();
+  const positions = new Float32Array(particleCount * 3);
+  for (let i = 0; i < particleCount; i++) {
+    positions[i*3] = (Math.random()-0.5) * 24;
+    positions[i*3+1] = (Math.random()-0.5) * 14;
+    positions[i*3+2] = (Math.random()-0.5) * 10 - 4;
+  }
+  particlesGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  const particlesMat = new THREE.PointsMaterial({ color: 0xff8533, size: 0.035, transparent: true, opacity: 0.4 });
+  const particles = new THREE.Points(particlesGeo, particlesMat);
+  scene.add(particles);
+
+  let mouseX = 0, mouseY = 0;
+  window.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+  });
+
+  let scrollFactor = 0;
+  window.addEventListener('scroll', () => {
+    scrollFactor = Math.min(window.scrollY / 800, 1);
+  });
+
+  function animate() {
+    if (!reduceMotion) {
+      meshes.forEach((m) => {
+        m.mesh.rotation.x += m.speed * 0.01;
+        m.mesh.rotation.y += m.speed * 0.012;
+      });
+      group.rotation.y += 0.0012;
+      group.position.y = scrollFactor * 1.5;
+      particles.rotation.y += 0.0004;
+
+      camera.position.x += (mouseX * 1.2 - camera.position.x) * 0.02;
+      camera.position.y += (-mouseY * 0.8 - camera.position.y) * 0.02;
+      camera.lookAt(0, 0, 0);
+    }
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+
+// ── Divider strip: flowing logistics lanes ──
+(function() {
+  const canvas = document.getElementById('divider-canvas');
+  if (!canvas) return;
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-8, 8, 2, -2, 0.1, 50);
+  camera.position.set(0, 0, 10);
+
+  function resize() {
+    const w = canvas.clientWidth || window.innerWidth;
+    const h = canvas.clientHeight || 180;
+    renderer.setSize(w, h, false);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const lineCount = 9;
+  const lines = [];
+  for (let i = 0; i < lineCount; i++) {
+    const points = [];
+    const y = -1.6 + (i / (lineCount - 1)) * 3.2;
+    for (let x = -10; x <= 10; x += 0.4) {
+      points.push(new THREE.Vector3(x, y, 0));
+    }
+    const geo = new THREE.BufferGeometry().setFromPoints(points);
+    const mat = new THREE.LineBasicMaterial({ color: 0xff6100, transparent: true, opacity: 0.08 + (i % 3) * 0.05 });
+    const line = new THREE.Line(geo, mat);
+    scene.add(line);
+    lines.push(line);
+  }
+
+  const dotCount = 14;
+  const dots = [];
+  for (let i = 0; i < dotCount; i++) {
+    const geo = new THREE.CircleGeometry(0.05, 8);
+    const mat = new THREE.MeshBasicMaterial({ color: 0xff8533, transparent: true, opacity: 0.8 });
+    const dot = new THREE.Mesh(geo, mat);
+    const laneY = -1.6 + Math.floor(Math.random() * lineCount) / (lineCount - 1) * 3.2;
+    dot.position.set(-10 + Math.random()*20, laneY, 0.1);
+    scene.add(dot);
+    dots.push({ mesh: dot, speed: 0.015 + Math.random() * 0.025 });
+  }
+
+  function animate() {
+    if (!reduceMotion) {
+      dots.forEach(d => {
+        d.mesh.position.x += d.speed;
+        if (d.mesh.position.x > 10) d.mesh.position.x = -10;
+      });
+    }
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
+
+</body>
+</html>
