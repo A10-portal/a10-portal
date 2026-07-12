@@ -80,17 +80,29 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
 .feature{background:#f9f9f9;border-radius:8px;padding:10px;text-align:center}
 .feature-icon{font-size:20px;margin-bottom:4px}
 .feature-text{font-size:10px;font-weight:700;color:#555}
+.why-choose{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:16px}
+.wc-title{color:#2e9c4a;font-size:15px;font-weight:900;margin-bottom:12px}
+.wc-item{display:flex;gap:11px;align-items:flex-start;margin-bottom:12px}
+.wc-item:last-child{margin-bottom:0}
+.wc-item span{font-size:19px;flex-shrink:0}
+.wc-item b{display:block;font-size:13px;color:#1a5235;font-weight:800;margin-bottom:2px}
+.wc-item small{font-size:12px;color:#666;line-height:1.5}
+.temu-ship-line{color:#2e9c4a;font-size:13px;font-weight:800;margin:6px 0 2px}
+.temu-delivery{color:#222;font-size:13px;font-weight:600;margin-bottom:10px}
+.temu-delivery b{font-weight:800}
+.product-title{font-size:17px;font-weight:800;color:#1a1a1a;line-height:1.35;margin-bottom:8px}
+.product-price{font-size:30px;font-weight:900;color:#111}
+.temu-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin:18px 0 4px;position:sticky;top:0;background:#fff;z-index:50}
+.temu-tab{flex:1;text-align:center;padding:12px 4px;font-size:14px;font-weight:800;color:#999;cursor:pointer;border-bottom:2px solid transparent}
+.temu-tab.active{color:#111;border-bottom-color:#111}
+.rv-verified{display:inline-flex;align-items:center;gap:3px;background:#eafaf0;color:#2e9c4a;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;margin-left:6px}
+.rv-purchased{font-size:11px;color:#999;margin:2px 0 4px}
+.rv-actions{display:flex;gap:16px;margin-top:8px}
+.rv-action{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#555;cursor:pointer;background:none;border:none;padding:0}
 .temu-trust-icons{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:14px 0}
 .tti{display:flex;flex-direction:column;align-items:center;text-align:center;background:#faf7f2;border-radius:8px;padding:8px 4px;font-size:10px;font-weight:700;color:#444;gap:2px}
 .tti span{font-size:18px}
 .tti small{font-size:8px;color:#999;font-weight:600;line-height:1.1}
-.store-brand{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-top:16px}
-.sb-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--orange),var(--orange-light));color:#fff;font-size:22px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sb-info{flex:1;min-width:0}
-.sb-name{font-size:14px;font-weight:800;color:#222;display:flex;align-items:center;gap:5px}
-.sb-verified{background:var(--orange);color:#fff;border-radius:50%;width:15px;height:15px;font-size:10px;display:inline-flex;align-items:center;justify-content:center}
-.sb-meta{font-size:11px;color:#888;margin-top:3px}
-.sb-follow{background:var(--orange);color:#fff;border:none;border-radius:20px;padding:8px 18px;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0}
 .sticky-cart{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);box-shadow:0 -2px 12px rgba(0,0,0,.08);display:none;align-items:center;gap:8px;padding:10px 14px;z-index:1000}
 .sticky-cart.show{display:flex}
 .sc-price{font-size:20px;font-weight:900;color:var(--orange);flex-shrink:0}
@@ -698,6 +710,7 @@ async function loadProduct(pid) {
     // _p.basePrice = listedPrice always — never changes from variant
     _p = { pid, name, basePrice: listedPrice, image: mainImage, qty: 1, vid: variants[0]?.vid||'', color: variants[0]?.color||'', size: variants[0]?.size||'' };
     setTimeout(function(){ try{ loadReviews(pid); }catch(e){} }, 100);
+    setTimeout(function(){ try{ setDeliveryDate(); }catch(e){} }, 120);
 
     const seen = {};
     const imgs = [mainImage, ...gallery, ...variants.map(v=>v.variantImage).filter(Boolean)]
@@ -752,6 +765,8 @@ async function loadProduct(pid) {
           <div class="product-info">
             <h1 class="product-title">${name}</h1>
             <div id="prod-price" class="product-price">$${listedPrice.toFixed(2)}</div>
+            <div class="temu-ship-line">✓ Free shipping on qualifying orders</div>
+            <div class="temu-delivery" id="temu-delivery"></div>
             <div class="shipping-badge" id="shipping-badge">📦 Shipping: $${initShip} — USA (add more to save)</div>
             <div class="delivery-info">
               <div class="delivery-chip"><span>1-2</span>Processing Days</div>
@@ -789,13 +804,11 @@ async function loadProduct(pid) {
             <span class="g-icon">🛡️</span>
             <span class="g-txt">30-Day Money-Back Guarantee — Return your product within 30 days for a full refund. Shop with confidence.</span>
           </div>
-          <div class="store-brand">
-            <div class="sb-avatar">M</div>
-            <div class="sb-info">
-              <div class="sb-name">MOVA99 Official Store <span class="sb-verified">✓</span></div>
-              <div class="sb-meta"><span>⭐ Top Rated</span> · <span>USA Seller</span> · <span>Fast Support</span></div>
-            </div>
-            <button class="sb-follow" onclick="alert('Thanks for your interest! Follow us on social media @mova99')">Follow</button>
+          <div class="why-choose">
+            <div class="wc-title">Why choose Mova99?</div>
+            <div class="wc-item"><span>🔐</span><div><b>Security &amp; Privacy</b><small>We protect your data and never share your information. Payments are securely processed by Stripe.</small></div></div>
+            <div class="wc-item"><span>📦</span><div><b>Delivery Guarantee</b><small>Get a full refund if your order doesn't arrive, arrives damaged, or isn't as described.</small></div></div>
+            <div class="wc-item"><span>↩️</span><div><b>Free Returns</b><small>Return your item within 30 days for a full money-back refund.</small></div></div>
           </div>
           <div class="review-section" id="review-section">
             <div class="desc-title">Customer Reviews</div>
@@ -807,6 +820,7 @@ async function loadProduct(pid) {
                 <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
               </div>
               <input class="rv-input" id="rv-name" placeholder="Your name" maxlength="40">
+              <input class="rv-input" id="rv-email" placeholder="Email used at checkout (for Verified Purchase badge)" maxlength="120">
               <input class="rv-input" id="rv-title" placeholder="Review title (optional)" maxlength="80">
               <textarea class="rv-input rv-textarea" id="rv-text" placeholder="Share your experience with this product…" maxlength="1000"></textarea>
               <button class="rv-submit" onclick="submitReview()">Post Review</button>
@@ -1077,10 +1091,13 @@ async function loadReviews(pid){
     }
     let items = d.reviews.map(function(rv){
       const dt = rv.date ? new Date(rv.date).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : '';
-      return '<div class="rv-item"><div class="rv-item-head"><span class="rv-name">'+esc(rv.name)+'</span><span class="rv-date">'+dt+'</span></div>'
+      const badge = rv.verified ? '<span class="rv-verified">✓ Verified Purchase</span>' : '';
+      return '<div class="rv-item"><div class="rv-item-head"><span class="rv-name">'+esc(rv.name)+badge+'</span><span class="rv-date">'+dt+'</span></div>'
         +'<div class="rv-item-stars">'+starStr(rv.rating)+'</div>'
         +(rv.title?'<div class="rv-title">'+esc(rv.title)+'</div>':'')
-        +'<div class="rv-text">'+esc(rv.text)+'</div></div>';
+        +'<div class="rv-text">'+esc(rv.text)+'</div>'
+        +'<div class="rv-actions"><button class="rv-action" onclick="navigator.share?navigator.share({title:document.title,url:location.href}):alert(\'Link: \'+location.href)">↗ Share</button><button class="rv-action" onclick="this.textContent=\'👍 Helpful\'">👍 Helpful</button></div>'
+        +'</div>';
     }).join('');
     body.innerHTML = '<div class="review-head"><div><div class="rv-avg">'+d.average.toFixed(1)+'</div>'
       +'<div class="rv-stars-lg">'+starStr(d.average)+'</div>'
@@ -1098,14 +1115,15 @@ function submitReview(){
   const name = document.getElementById('rv-name').value.trim();
   const title = document.getElementById('rv-title').value.trim();
   const text = document.getElementById('rv-text').value.trim();
+  const email = (document.getElementById('rv-email')||{}).value ? document.getElementById('rv-email').value.trim() : '';
   if(text.length < 3){ msg.style.color='#e53e3e'; msg.textContent='Please write a short review.'; return; }
   msg.style.color='#888'; msg.textContent='Posting…';
   fetch('https://track.mova99.com/api/reviews',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({pid:_p.pid,rating:_rvRating,name:name,title:title,text:text})})
+    body:JSON.stringify({pid:_p.pid,rating:_rvRating,name:name,title:title,text:text,email:email})})
     .then(r=>r.json()).then(function(d){
       if(d.success){
         msg.style.color='#276749'; msg.textContent='✓ Thank you! Your review has been posted.';
-        document.getElementById('rv-name').value='';document.getElementById('rv-title').value='';document.getElementById('rv-text').value='';
+        document.getElementById('rv-name').value='';document.getElementById('rv-title').value='';document.getElementById('rv-text').value='';var _e=document.getElementById('rv-email');if(_e)_e.value='';
         _rvRating=0; document.querySelectorAll('#rv-star-pick span').forEach(x=>x.classList.remove('on'));
         setTimeout(function(){ document.getElementById('rv-form').classList.remove('open'); loadReviews(_p.pid); },1200);
       } else { msg.style.color='#e53e3e'; msg.textContent=d.error||'Could not post review.'; }
@@ -1136,6 +1154,17 @@ window.addEventListener('scroll', function(){
   if(r.bottom < 0 || r.top > window.innerHeight){ sc.classList.add('show'); updateStickyPrice(); }
   else { sc.classList.remove('show'); }
 });
+
+
+// ── Real delivery date estimate (honest: today + processing + shipping) ──
+function setDeliveryDate(){
+  var el = document.getElementById('temu-delivery');
+  if(!el) return;
+  var start = new Date(); start.setDate(start.getDate() + 4);   // ~processing + start of shipping
+  var end = new Date();   end.setDate(end.getDate() + 10);      // end of typical range
+  var opt = { month:'short', day:'numeric' };
+  el.innerHTML = 'Delivery: <b>' + start.toLocaleDateString('en-US',opt) + ' – ' + end.toLocaleDateString('en-US',opt) + '</b>';
+}
 
 </script>
   <div class="sticky-cart" id="sticky-cart">
