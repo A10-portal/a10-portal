@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1023742177079599');
+fbq('track', 'PageView');
+</script>
+<!-- End Meta Pixel Code -->
     <<link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ff6100">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -95,6 +109,14 @@
                 const greetEl = document.getElementById('greeting');
                 if (greetEl) greetEl.textContent = firstName ? 'Dear ' + firstName + ',' : 'Dear Customer,';
                 localStorage.removeItem('mova_cart');
+                // Meta Pixel: Purchase (real completed order)
+                try{
+                    if(window.fbq){
+                        var _amt = 0;
+                        try{ var _c = JSON.parse(localStorage.getItem('mova_cart_total')||'0'); _amt = parseFloat(_c)||0; }catch(e){}
+                        fbq('track','Purchase',{value:_amt||0,currency:'USD'});
+                    }
+                }catch(e){}
             });
         })();
     </script>
