@@ -1,6 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1023742177079599');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1023742177079599&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ff6100">
 <meta charset="UTF-8">
@@ -95,8 +112,6 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
 .wc-item b{display:block;font-size:13px;color:#1a5235;font-weight:800;margin-bottom:2px}
 .wc-item small{font-size:12px;color:#666;line-height:1.5}
 .temu-ship-line{color:#2e9c4a;font-size:13px;font-weight:800;margin:6px 0 2px}
-.temu-delivery{color:#222;font-size:13px;font-weight:600;margin-bottom:10px}
-.temu-delivery b{font-weight:800}
 .product-title{font-size:17px;font-weight:800;color:#1a1a1a;line-height:1.35;margin-bottom:8px}
 .product-price{font-size:30px;font-weight:900;color:#111}
 .temu-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin:18px 0 4px;position:sticky;top:0;background:#fff;z-index:50}
@@ -419,6 +434,7 @@ function addToCart() {
   const idx = cart.findIndex(i => i.pid === _p.pid);
   if (idx > -1) cart[idx] = entry; else cart.push(entry);
   saveCart();
+  try{ if(window.fbq) fbq('track','AddToCart',{content_ids:[_p.pid],content_type:'product',content_name:_p.name,value:parseFloat((_p.basePrice*_p.qty).toFixed(2)),currency:'USD'}); }catch(e){}
 
   const btn = document.getElementById('add-btn');
   btn.textContent = '✓ Added to Cart!';
@@ -435,6 +451,7 @@ function addToCart() {
 
 // Buy Now
 function buyNow() {
+  try{ if(window.fbq) fbq('track','InitiateCheckout',{content_ids:[_p.pid],content_type:'product',value:parseFloat((_p.basePrice*_p.qty).toFixed(2)),currency:'USD'}); }catch(e){}
   if (!session?.id) {
     document.getElementById('auth-login-btn').href = '/login?redirect=product&pid=' + _p.pid;
     document.getElementById('auth-signup-btn').href = '/signup?redirect=product&pid=' + _p.pid;
@@ -457,6 +474,13 @@ function runCheckout(userId) {
   const btn = document.getElementById('buy-btn');
   btn.textContent = 'Processing...';
   btn.disabled = true;
+
+  // Store order total so the success page can report Purchase value to Meta Pixel
+  try{
+    var _ship = calcShipping(_p.basePrice, _p.qty) || 0;
+    var _tot = (_p.basePrice * _p.qty) + parseFloat(_ship||0);
+    localStorage.setItem('mova_cart_total', _tot.toFixed(2));
+  }catch(e){}
 
   const truncPid = (_p.pid||'').substring(0,20);
   const singleItem = [{
@@ -717,6 +741,7 @@ async function loadProduct(pid) {
     // _p.basePrice = listedPrice always — never changes from variant
     _p = { pid, name, basePrice: listedPrice, image: mainImage, qty: 1, vid: variants[0]?.vid||'', color: variants[0]?.color||'', size: variants[0]?.size||'' };
     setTimeout(function(){ try{ loadReviews(pid); }catch(e){} }, 100);
+    try{ if(window.fbq) fbq('track','ViewContent',{content_ids:[pid],content_type:'product',value:_p.basePrice,currency:'USD'}); }catch(e){}
 
     const seen = {};
     const imgs = [mainImage, ...gallery, ...variants.map(v=>v.variantImage).filter(Boolean)]
@@ -1160,15 +1185,6 @@ window.addEventListener('scroll', function(){
 });
 
 
-// ── Real delivery date estimate (honest: today + processing + shipping) ──
-function setDeliveryDate(){
-  var el = document.getElementById('temu-delivery');
-  if(!el) return;
-  var start = new Date(); start.setDate(start.getDate() + 4);   // ~processing + start of shipping
-  var end = new Date();   end.setDate(end.getDate() + 10);      // end of typical range
-  var opt = { month:'short', day:'numeric' };
-  el.innerHTML = 'Delivery: <b>' + start.toLocaleDateString('en-US',opt) + ' – ' + end.toLocaleDateString('en-US',opt) + '</b>';
-}
 
 </script>
   <div class="sticky-cart" id="sticky-cart">
