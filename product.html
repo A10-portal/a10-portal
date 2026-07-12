@@ -80,6 +80,23 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
 .feature{background:#f9f9f9;border-radius:8px;padding:10px;text-align:center}
 .feature-icon{font-size:20px;margin-bottom:4px}
 .feature-text{font-size:10px;font-weight:700;color:#555}
+.temu-trust-icons{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:14px 0}
+.tti{display:flex;flex-direction:column;align-items:center;text-align:center;background:#faf7f2;border-radius:8px;padding:8px 4px;font-size:10px;font-weight:700;color:#444;gap:2px}
+.tti span{font-size:18px}
+.tti small{font-size:8px;color:#999;font-weight:600;line-height:1.1}
+.store-brand{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-top:16px}
+.sb-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--orange),var(--orange-light));color:#fff;font-size:22px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-info{flex:1;min-width:0}
+.sb-name{font-size:14px;font-weight:800;color:#222;display:flex;align-items:center;gap:5px}
+.sb-verified{background:var(--orange);color:#fff;border-radius:50%;width:15px;height:15px;font-size:10px;display:inline-flex;align-items:center;justify-content:center}
+.sb-meta{font-size:11px;color:#888;margin-top:3px}
+.sb-follow{background:var(--orange);color:#fff;border:none;border-radius:20px;padding:8px 18px;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0}
+.sticky-cart{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);box-shadow:0 -2px 12px rgba(0,0,0,.08);display:none;align-items:center;gap:8px;padding:10px 14px;z-index:1000}
+.sticky-cart.show{display:flex}
+.sc-price{font-size:20px;font-weight:900;color:var(--orange);flex-shrink:0}
+.sc-btn{flex:1;background:var(--orange);color:#fff;border:none;border-radius:24px;padding:13px;font-size:14px;font-weight:800;cursor:pointer}
+.sc-buy{background:#111}
+@media(min-width:900px){.sticky-cart{display:none !important}}
 .trust-bar-prominent{background:#f0fff4;border:1px solid #48bb78;border-radius:10px;padding:12px 14px;margin:14px 0}
 .tbp-row{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:#276749;line-height:1.45;margin-bottom:7px}
 .tbp-row:last-child{margin-bottom:0}
@@ -674,7 +691,6 @@ async function loadProduct(pid) {
     if (variants[0] && variants[0].variantImage) mainImage = variants[0].variantImage;
 
     // Was price always 40-70% above listed price
-    const fakeOld = (listedPrice * (1.4 + Math.random() * 0.3)).toFixed(2);
 
     // Shipping uses listedPrice (d.sellPrice) — never variant price
     const initShip = calcShipping(listedPrice, 1);
@@ -736,7 +752,6 @@ async function loadProduct(pid) {
           <div class="product-info">
             <h1 class="product-title">${name}</h1>
             <div id="prod-price" class="product-price">$${listedPrice.toFixed(2)}</div>
-            <div class="product-old">Was $${fakeOld}</div>
             <div class="shipping-badge" id="shipping-badge">📦 Shipping: $${initShip} — USA (add more to save)</div>
             <div class="delivery-info">
               <div class="delivery-chip"><span>1-2</span>Processing Days</div>
@@ -747,6 +762,12 @@ async function loadProduct(pid) {
               <div class="tbp-row"><span class="tbp-ico">🛡️</span><span><b>30-Day Money-Back Guarantee</b> — not happy? Full refund within 30 days.</span></div>
               <div class="tbp-row"><span class="tbp-ico">🔒</span><span><b>Secure Checkout</b> — payments protected by Stripe. Your card is safe.</span></div>
               <div class="tbp-row"><span class="tbp-ico">↩️</span><span><b>Easy Returns</b> — hassle-free returns, no questions asked.</span></div>
+            </div>
+            <div class="temu-trust-icons">
+              <div class="tti"><span>🚚</span>Free Shipping<small>on qualifying orders</small></div>
+              <div class="tti"><span>🔒</span>Secure Privacy<small>data protected</small></div>
+              <div class="tti"><span>💳</span>Safe Payments<small>via Stripe</small></div>
+              <div class="tti"><span>✅</span>Delivery Guarantee<small>or money back</small></div>
             </div>
             ${varHtml}
             <div class="qty-row">
@@ -767,6 +788,14 @@ async function loadProduct(pid) {
           <div class="guarantee-badge">
             <span class="g-icon">🛡️</span>
             <span class="g-txt">30-Day Money-Back Guarantee — Return your product within 30 days for a full refund. Shop with confidence.</span>
+          </div>
+          <div class="store-brand">
+            <div class="sb-avatar">M</div>
+            <div class="sb-info">
+              <div class="sb-name">MOVA99 Official Store <span class="sb-verified">✓</span></div>
+              <div class="sb-meta"><span>⭐ Top Rated</span> · <span>USA Seller</span> · <span>Fast Support</span></div>
+            </div>
+            <button class="sb-follow" onclick="alert('Thanks for your interest! Follow us on social media @mova99')">Follow</button>
           </div>
           <div class="review-section" id="review-section">
             <div class="desc-title">Customer Reviews</div>
@@ -1092,6 +1121,27 @@ document.addEventListener('click', function(e){
   });
 });
 
+
+// ── Sticky cart bar (Temu-style) ──
+function updateStickyPrice(){
+  var el = document.getElementById('sc-price-val');
+  if(el && _p && _p.basePrice){ el.textContent = (_p.basePrice * (_p.qty||1)).toFixed(2); }
+}
+window.addEventListener('scroll', function(){
+  var sc = document.getElementById('sticky-cart');
+  var addBtn = document.getElementById('add-btn');
+  if(!sc || !addBtn) return;
+  var r = addBtn.getBoundingClientRect();
+  // show sticky when the main add-to-cart button is scrolled out of view
+  if(r.bottom < 0 || r.top > window.innerHeight){ sc.classList.add('show'); updateStickyPrice(); }
+  else { sc.classList.remove('show'); }
+});
+
 </script>
+  <div class="sticky-cart" id="sticky-cart">
+    <div class="sc-price">$<span id="sc-price-val">0.00</span></div>
+    <button class="sc-btn" onclick="addToCart()">🛒 Add to Cart</button>
+    <button class="sc-btn sc-buy" onclick="buyNow()">⚡ Buy Now</button>
+  </div>
 </body>
 </html>
