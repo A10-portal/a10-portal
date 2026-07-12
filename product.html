@@ -80,6 +80,41 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
 .feature{background:#f9f9f9;border-radius:8px;padding:10px;text-align:center}
 .feature-icon{font-size:20px;margin-bottom:4px}
 .feature-text{font-size:10px;font-weight:700;color:#555}
+.trust-bar-prominent{background:#f0fff4;border:1px solid #48bb78;border-radius:10px;padding:12px 14px;margin:14px 0}
+.tbp-row{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:#276749;line-height:1.45;margin-bottom:7px}
+.tbp-row:last-child{margin-bottom:0}
+.tbp-ico{font-size:16px;flex-shrink:0}
+.tbp-row b{color:#1a5235}
+.guarantee-badge{display:flex;align-items:center;gap:10px;background:#f0fff4;border:1px solid #48bb78;border-radius:10px;padding:12px 16px;margin-top:14px}
+.guarantee-badge .g-icon{font-size:22px}
+.guarantee-badge .g-txt{font-size:12px;color:#276749;font-weight:700;line-height:1.4}
+.review-section{background:#fff;border-radius:14px;padding:20px;border:1px solid var(--border);margin-top:16px}
+.review-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.rv-avg{font-size:40px;font-weight:900;color:#111;line-height:1}
+.rv-stars-lg{color:#ffa41c;font-size:18px;letter-spacing:2px}
+.rv-count{font-size:12px;color:#888;margin-top:2px}
+.rv-bars{flex:1;min-width:160px}
+.rv-bar-row{display:flex;align-items:center;gap:8px;font-size:11px;color:#888;margin-bottom:3px}
+.rv-bar-track{flex:1;height:7px;background:#eee;border-radius:4px;overflow:hidden}
+.rv-bar-fill{height:100%;background:#ffa41c}
+.rv-item{padding:14px 0;border-bottom:1px solid #f0f0f0}
+.rv-item:last-child{border-bottom:none}
+.rv-item-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.rv-name{font-size:13px;font-weight:800;color:#222}
+.rv-date{font-size:11px;color:#aaa}
+.rv-item-stars{color:#ffa41c;font-size:13px;letter-spacing:1px;margin-bottom:4px}
+.rv-title{font-size:13px;font-weight:700;color:#333;margin-bottom:3px}
+.rv-text{font-size:13px;color:#666;line-height:1.6}
+.rv-write-btn{width:100%;background:var(--orange);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-top:16px}
+.rv-form{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:none}
+.rv-form.open{display:block}
+.rv-star-pick{font-size:32px;color:#ddd;cursor:pointer;letter-spacing:4px;margin-bottom:12px;user-select:none}
+.rv-star-pick span:hover,.rv-star-pick span.on{color:#ffa41c}
+.rv-input{width:100%;border:1px solid var(--border);border-radius:8px;padding:11px;font-size:13px;margin-bottom:10px;font-family:inherit;box-sizing:border-box}
+.rv-textarea{min-height:80px;resize:vertical}
+.rv-submit{width:100%;background:#111;color:#fff;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:800;cursor:pointer}
+.rv-msg{font-size:12px;margin-top:8px;font-weight:700}
+.rv-empty{font-size:13px;color:#999;text-align:center;padding:20px 0}
 .desc-section{background:#fff;border-radius:14px;padding:20px;border:1px solid var(--border);margin-top:16px}
 .desc-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;color:#333}
 .desc-text{font-size:13px;color:#666;line-height:1.8}
@@ -636,6 +671,7 @@ async function loadProduct(pid) {
 
     // _p.basePrice = listedPrice always — never changes from variant
     _p = { pid, name, basePrice: listedPrice, image: mainImage, qty: 1, vid: variants[0]?.vid||'', color: variants[0]?.color||'', size: variants[0]?.size||'' };
+    setTimeout(function(){ try{ loadReviews(pid); }catch(e){} }, 100);
 
     const seen = {};
     const imgs = [mainImage, ...gallery, ...variants.map(v=>v.variantImage).filter(Boolean)]
@@ -697,6 +733,11 @@ async function loadProduct(pid) {
               <div class="delivery-chip"><span>3-8</span>Delivery Days</div>
               <div class="delivery-chip"><span>🔒</span>Stripe Secured</div>
             </div>
+            <div class="trust-bar-prominent">
+              <div class="tbp-row"><span class="tbp-ico">🛡️</span><span><b>30-Day Money-Back Guarantee</b> — not happy? Full refund within 30 days.</span></div>
+              <div class="tbp-row"><span class="tbp-ico">🔒</span><span><b>Secure Checkout</b> — payments protected by Stripe. Your card is safe.</span></div>
+              <div class="tbp-row"><span class="tbp-ico">↩️</span><span><b>Easy Returns</b> — hassle-free returns, no questions asked.</span></div>
+            </div>
             ${varHtml}
             <div class="qty-row">
               <span class="qty-label">Qty</span>
@@ -713,6 +754,26 @@ async function loadProduct(pid) {
             </div>
           </div>
           ${desc ? `<div class="desc-section"><div class="desc-title">Product Details</div><p class="desc-text">${desc}</p></div>` : ''}
+          <div class="guarantee-badge">
+            <span class="g-icon">🛡️</span>
+            <span class="g-txt">30-Day Money-Back Guarantee — Return your product within 30 days for a full refund. Shop with confidence.</span>
+          </div>
+          <div class="review-section" id="review-section">
+            <div class="desc-title">Customer Reviews</div>
+            <div id="rv-body"><p class="rv-empty">Loading reviews…</p></div>
+            <button class="rv-write-btn" onclick="toggleReviewForm()">✍️ Write a Review</button>
+            <div class="rv-form" id="rv-form">
+              <div style="font-size:12px;font-weight:700;color:#333;margin-bottom:6px">Your Rating</div>
+              <div class="rv-star-pick" id="rv-star-pick">
+                <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+              </div>
+              <input class="rv-input" id="rv-name" placeholder="Your name" maxlength="40">
+              <input class="rv-input" id="rv-title" placeholder="Review title (optional)" maxlength="80">
+              <textarea class="rv-input rv-textarea" id="rv-text" placeholder="Share your experience with this product…" maxlength="1000"></textarea>
+              <button class="rv-submit" onclick="submitReview()">Post Review</button>
+              <div class="rv-msg" id="rv-msg"></div>
+            </div>
+          </div>
         </div>
       </div>`;
 
@@ -954,6 +1015,73 @@ function saveCookiePreferences() {
   closeCookiePreferences(); hideCookieBanner();
   if (on) loadAnalytics();
 }
+
+// ─────── REVIEWS ───────
+let _rvRating = 0;
+function starStr(n){ let f=Math.round(n); return '★★★★★'.slice(0,f)+'☆☆☆☆☆'.slice(0,5-f); }
+
+async function loadReviews(pid){
+  const body = document.getElementById('rv-body');
+  if(!body) return;
+  try{
+    const r = await fetch('/api/reviews?pid='+encodeURIComponent(pid));
+    const d = await r.json();
+    if(!d.count){
+      body.innerHTML = '<p class="rv-empty">No reviews yet. Be the first to review this product!</p>';
+      return;
+    }
+    let bars = '';
+    for(let st=5; st>=1; st--){
+      const c = (d.breakdown&&d.breakdown[st])||0;
+      const pct = d.count ? Math.round(c/d.count*100) : 0;
+      bars += '<div class="rv-bar-row"><span>'+st+'★</span><div class="rv-bar-track"><div class="rv-bar-fill" style="width:'+pct+'%"></div></div><span>'+c+'</span></div>';
+    }
+    let items = d.reviews.map(function(rv){
+      const dt = rv.date ? new Date(rv.date).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : '';
+      return '<div class="rv-item"><div class="rv-item-head"><span class="rv-name">'+esc(rv.name)+'</span><span class="rv-date">'+dt+'</span></div>'
+        +'<div class="rv-item-stars">'+starStr(rv.rating)+'</div>'
+        +(rv.title?'<div class="rv-title">'+esc(rv.title)+'</div>':'')
+        +'<div class="rv-text">'+esc(rv.text)+'</div></div>';
+    }).join('');
+    body.innerHTML = '<div class="review-head"><div><div class="rv-avg">'+d.average.toFixed(1)+'</div>'
+      +'<div class="rv-stars-lg">'+starStr(d.average)+'</div>'
+      +'<div class="rv-count">'+d.count+' review'+(d.count>1?'s':'')+'</div></div>'
+      +'<div class="rv-bars">'+bars+'</div></div>'+items;
+  }catch(e){
+    body.innerHTML = '<p class="rv-empty">Could not load reviews.</p>';
+  }
+}
+function esc(t){ return String(t||'').replace(/[<>&]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;'}[c];}); }
+function toggleReviewForm(){ document.getElementById('rv-form').classList.toggle('open'); }
+function submitReview(){
+  const msg = document.getElementById('rv-msg');
+  if(!_rvRating){ msg.style.color='#e53e3e'; msg.textContent='Please tap the stars to rate.'; return; }
+  const name = document.getElementById('rv-name').value.trim();
+  const title = document.getElementById('rv-title').value.trim();
+  const text = document.getElementById('rv-text').value.trim();
+  if(text.length < 3){ msg.style.color='#e53e3e'; msg.textContent='Please write a short review.'; return; }
+  msg.style.color='#888'; msg.textContent='Posting…';
+  fetch('/api/reviews',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({pid:_p.pid,rating:_rvRating,name:name,title:title,text:text})})
+    .then(r=>r.json()).then(function(d){
+      if(d.success){
+        msg.style.color='#276749'; msg.textContent='✓ Thank you! Your review has been posted.';
+        document.getElementById('rv-name').value='';document.getElementById('rv-title').value='';document.getElementById('rv-text').value='';
+        _rvRating=0; document.querySelectorAll('#rv-star-pick span').forEach(x=>x.classList.remove('on'));
+        setTimeout(function(){ document.getElementById('rv-form').classList.remove('open'); loadReviews(_p.pid); },1200);
+      } else { msg.style.color='#e53e3e'; msg.textContent=d.error||'Could not post review.'; }
+    }).catch(function(){ msg.style.color='#e53e3e'; msg.textContent='Connection error. Try again.'; });
+}
+// star picker wiring (event delegation, runs once DOM ready)
+document.addEventListener('click', function(e){
+  const sp = e.target.closest('#rv-star-pick span');
+  if(!sp) return;
+  _rvRating = parseInt(sp.getAttribute('data-v'));
+  document.querySelectorAll('#rv-star-pick span').forEach(function(x){
+    x.classList.toggle('on', parseInt(x.getAttribute('data-v')) <= _rvRating);
+  });
+});
+
 </script>
 </body>
 </html>
