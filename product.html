@@ -119,6 +119,8 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:var(--text)}
 .temu-tab.active{color:#111;border-bottom-color:#111}
 .rv-verified{display:inline-flex;align-items:center;gap:3px;background:#eafaf0;color:#2e9c4a;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;margin-left:6px}
 .rv-purchased{font-size:11px;color:#999;margin:2px 0 4px}
+.rv-action.liked{color:#ff6100}
+.rv-like-count{font-weight:800}
 .rv-actions{display:flex;gap:16px;margin-top:8px}
 .rv-action{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#555;cursor:pointer;background:none;border:none;padding:0}
 .temu-trust-icons{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:14px 0}
@@ -1125,7 +1127,7 @@ async function loadReviews(pid){
         +'<div class="rv-item-stars">'+starStr(rv.rating)+'</div>'
         +(rv.title?'<div class="rv-title">'+esc(rv.title)+'</div>':'')
         +'<div class="rv-text">'+esc(rv.text)+'</div>'
-        +'<div class="rv-actions"><button class="rv-action" onclick="navigator.share?navigator.share({title:document.title,url:location.href}):alert(\'Link: \'+location.href)">↗ Share</button><button class="rv-action" onclick="this.textContent=\'👍 Helpful\'">👍 Helpful</button></div>'
+        +'<div class="rv-actions"><button class="rv-action" onclick="shareReview()">↗ Share</button><button class="rv-action rv-like" onclick="toggleHelpful(this)">👍 <span class="rv-like-txt">Helpful</span> <span class="rv-like-count"></span></button></div>'
         +'</div>';
     }).join('');
     body.innerHTML = '<div class="review-head"><div><div class="rv-avg">'+d.average.toFixed(1)+'</div>'
@@ -1185,6 +1187,26 @@ window.addEventListener('scroll', function(){
 });
 
 
+
+
+// ── Helpful like button (toggles orange + counts) ──
+function toggleHelpful(btn){
+  var countEl = btn.querySelector('.rv-like-count');
+  var n = parseInt(countEl.getAttribute('data-n')||'0');
+  if(btn.classList.contains('liked')){
+    btn.classList.remove('liked');
+    n = Math.max(0, n-1);
+  } else {
+    btn.classList.add('liked');
+    n = n+1;
+  }
+  countEl.setAttribute('data-n', n);
+  countEl.textContent = n>0 ? '('+n+')' : '';
+}
+function shareReview(){
+  if(navigator.share){ navigator.share({title:document.title,url:location.href}).catch(function(){}); }
+  else { alert('Share this link: '+location.href); }
+}
 
 </script>
   <div class="sticky-cart" id="sticky-cart">
