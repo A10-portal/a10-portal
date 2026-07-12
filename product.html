@@ -1127,20 +1127,21 @@ async function loadReviews(pid){
         +'<div class="rv-item-stars">'+starStr(rv.rating)+'</div>'
         +(rv.title?'<div class="rv-title">'+esc(rv.title)+'</div>':'')
         +'<div class="rv-text">'+esc(rv.text)+'</div>'
-        +'<div class="rv-actions"><button class="rv-action" onclick="shareReview()">↗ Share</button><button class="rv-action rv-like" onclick="toggleHelpful(this)">👍 <span class="rv-like-txt">Helpful</span> <span class="rv-like-count"></span></button></div>'
+        +'<div class="rv-actions"><button class="rv-action" onclick="shareReview()">↗ Share</button><button class="rv-action rv-like" data-id="'+(rv.id||'')+'" onclick="toggleHelpful(this)">👍 <span class="rv-like-txt">Helpful</span> <span class="rv-like-count" data-n="'+(rv.likes||0)+'">'+((rv.likes||0)>0?'('+rv.likes+')':'')+'</span></button></div>'
         +'</div>';
     }).join('');
     body.innerHTML = '<div class="review-head"><div><div class="rv-avg">'+d.average.toFixed(1)+'</div>'
       +'<div class="rv-stars-lg">'+starStr(d.average)+'</div>'
       +'<div class="rv-count">'+d.count+' review'+(d.count>1?'s':'')+'</div></div>'
       +'<div class="rv-bars">'+bars+'</div></div>'+items;
+    try{ markLikedButtons(); }catch(e){}
   }catch(e){
     body.innerHTML = '<p class="rv-empty">Could not load reviews.</p>';
   }
 }
 function esc(t){ return String(t||'').replace(/[<>&]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;'}[c];}); }
-function toggleReviewForm(){ document.getElementById('rv-form').classList.toggle('open'); }
-function submitReview(){
+window.toggleReviewForm = function(){ document.getElementById('rv-form').classList.toggle('open'); }
+window.submitReview = function(){
   const msg = document.getElementById('rv-msg');
   if(!_rvRating){ msg.style.color='#e53e3e'; msg.textContent='Please tap the stars to rate.'; return; }
   const name = document.getElementById('rv-name').value.trim();
@@ -1161,6 +1162,13 @@ function submitReview(){
     }).catch(function(){ msg.style.color='#e53e3e'; msg.textContent='Connection error. Try again.'; });
 }
 // star picker wiring (event delegation, runs once DOM ready)
+// rv-like-delegate: robust click handling for Helpful button
+document.addEventListener('click', function(e){
+  var likeBtn = e.target.closest('.rv-like');
+  if(likeBtn){ e.preventDefault(); if(window.toggleHelpful) window.toggleHelpful(likeBtn); return; }
+  var shareBtn = e.target.closest('.rv-action:not(.rv-like)');
+  if(shareBtn && shareBtn.textContent.indexOf('Share')>-1){ e.preventDefault(); if(window.shareReview) window.shareReview(); return; }
+});
 document.addEventListener('click', function(e){
   const sp = e.target.closest('#rv-star-pick span');
   if(!sp) return;
@@ -1189,21 +1197,37 @@ window.addEventListener('scroll', function(){
 
 
 
-// ── Helpful like button (toggles orange + counts) ──
-function toggleHelpful(btn){
+// ── Helpful like button (PERMANENT — saves to VPS) ──
+window.likedSet = function(){ try{ return JSON.parse(localStorage.getItem('mova_liked_reviews')||'[]'); }catch(e){ return []; } }
+window.saveLiked = function(arr){ try{ localStorage.setItem('mova_liked_reviews', JSON.stringify(arr)); }catch(e){} }
+window.markLikedButtons = function(){
+  var liked = likedSet();
+  document.querySelectorAll('.rv-like').forEach(function(b){
+    if(liked.indexOf(b.getAttribute('data-id'))>-1) b.classList.add('liked');
+  });
+}
+window.toggleHelpful = function(btn){
+  var id = btn.getAttribute('data-id');
+  if(!id) return;
   var countEl = btn.querySelector('.rv-like-count');
+  var liked = likedSet();
+  var already = liked.indexOf(id)>-1;
+  var unlike = already;
+  // optimistic UI
   var n = parseInt(countEl.getAttribute('data-n')||'0');
-  if(btn.classList.contains('liked')){
-    btn.classList.remove('liked');
-    n = Math.max(0, n-1);
-  } else {
-    btn.classList.add('liked');
-    n = n+1;
-  }
+  if(unlike){ btn.classList.remove('liked'); n=Math.max(0,n-1); liked=liked.filter(function(x){return x!==id;}); }
+  else { btn.classList.add('liked'); n=n+1; liked.push(id); }
   countEl.setAttribute('data-n', n);
   countEl.textContent = n>0 ? '('+n+')' : '';
+  saveLiked(liked);
+  // persist to VPS
+  fetch('https://track.mova99.com/api/review-like',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({reviewId:id, unlike:unlike})})
+    .then(function(r){return r.json();})
+    .then(function(d){ if(d && typeof d.likes==='number'){ countEl.setAttribute('data-n',d.likes); countEl.textContent = d.likes>0?'('+d.likes+')':''; } })
+    .catch(function(){});
 }
-function shareReview(){
+window.shareReview = function(){
   if(navigator.share){ navigator.share({title:document.title,url:location.href}).catch(function(){}); }
   else { alert('Share this link: '+location.href); }
 }
