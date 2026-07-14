@@ -109,6 +109,11 @@ fbq('track', 'PageView');
                 const greetEl = document.getElementById('greeting');
                 if (greetEl) greetEl.textContent = firstName ? 'Dear ' + firstName + ',' : 'Dear Customer,';
                 localStorage.removeItem('mova_cart');
+                // Funnel tracker: purchase completed
+                try{
+                    fetch('https://track.mova99.com/api/track',{method:'POST',headers:{'Content-Type':'application/json'},
+                        body:JSON.stringify({step:'purchase',pid:''}),keepalive:true}).catch(function(){});
+                }catch(e){}
                 // Meta Pixel: Purchase (real completed order)
                 try{
                     if(window.fbq){
