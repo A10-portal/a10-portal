@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOVA99 - Funnel Tracker</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f6f7f9; color: #1a1a1a; padding: 16px; max-width: 640px; margin: 0 auto; padding-bottom: 60px; }
+  h1 { font-size: 22px; margin-bottom: 2px; }
+  .sub { color: #888; font-size: 13px; margin-bottom: 16px; }
+  .topbar { display: flex; gap: 8px; margin-bottom: 14px; align-items: center; }
+  .range { display: flex; gap: 6px; flex: 1; }
+  .range button { flex: 1; padding: 9px 4px; border: 1px solid #ddd; background: #fff; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; }
+  .range button.active { background: #ff6100; color: #fff; border-color: #ff6100; }
+  .refresh-btn { padding: 9px 14px; background: #111; color: #fff; border: none; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; white-space: nowrap; }
+  .live { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #2e9c4a; font-weight: 700; margin-bottom: 14px; }
+  .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #2e9c4a; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .step { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+  .step-top { display: flex; justify-content: space-between; align-items: center; }
+  .step-name { font-size: 15px; font-weight: 800; }
+  .step-count { font-size: 26px; font-weight: 900; color: #ff6100; }
+  .bar-track { height: 8px; background: #f0f0f0; border-radius: 5px; overflow: hidden; margin: 8px 0; }
+  .bar-fill { height: 100%; background: #ff6100; transition: width .4s; }
+  .drop { font-size: 12px; font-weight: 700; margin-top: 4px; }
+  .drop.bad { color: #e53e3e; }
+  .drop.good { color: #2e9c4a; }
+  .taps { margin-top: 10px; border-top: 1px dashed #eee; padding-top: 8px; }
+  .tap { font-size: 12px; color: #666; padding: 3px 0; }
+  .toggle { font-size: 12px; font-weight: 800; color: #ff6100; cursor: pointer; margin-top: 6px; display: inline-block; background: none; border: none; padding: 4px 0; }
+  .insight { background: #fff8f3; border: 1px solid #ffd9bf; border-radius: 12px; padding: 15px; margin-top: 14px; font-size: 14px; line-height: 1.6; }
+  .insight b { color: #ff6100; }
+  .loading { text-align: center; color: #888; padding: 40px; }
+  .updated { text-align: center; color: #aaa; font-size: 11px; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <h1>Funnel Tracker</h1>
+  <div class="sub">See exactly where people drop off</div>
+
+  <div class="topbar">
+    <div class="range">
+      <button data-days="1" onclick="setRange(1,this)">Today</button>
+      <button data-days="7" class="active" onclick="setRange(7,this)">7 Days</button>
+      <button data-days="30" onclick="setRange(30,this)">30 Days</button>
+    </div>
+    <button class="refresh-btn" onclick="manualRefresh()">Refresh</button>
+  </div>
+  <div class="live"><span class="live-dot"></span> Live - auto-updating</div>
+
+  <div id="funnel"><div class="loading">Loading...</div></div>
+  <div id="insight"></div>
+  <div class="updated" id="updated"></div>
+
+<script>
+var DAYS = 7;
+var expanded = {};
+var STEPS = [
+  { key:'view', label:'Viewed Product' },
+  { key:'add_to_cart', label:'Added to Cart' },
+  { key:'buy_now', label:'Tapped Buy Now' },
+  { key:'checkout', label:'Reached Checkout' },
+  { key:'purchase', label:'Purchased' }
+];
+
+function setRange(d, btn){
+  DAYS = d;
+  var btns = document.querySelectorAll('.range button');
+  for (var i=0;i<btns.length;i++){ btns[i].classList.remove('active'); }
+  btn.classList.add('active');
+  load();
+}
+
+function timeAgo(ts){
+  var diff = Math.floor((Date.now() - new Date(ts).getTime())/1000);
+  if (diff < 5) return 'just now';
+  if (diff < 60) return diff + ' sec ago';
+  var m = Math.floor(diff/60);
+  if (m < 60) return m + ' min ago';
+  var h = Math.floor(m/60);
+  if (h < 24) return h + ' hr ago';
+  var dd = Math.floor(h/24);
+  return dd + ' day' + (dd>1?'s':'') + ' ago';
+}
+
+function toggleStep(key){
+  expanded[key] = !expanded[key];
+  render(window._lastData);
+}
+
+function render(d){
+  if (!d) return;
+  window._lastData = d;
+  var c = d.counts;
+  var recent = d.recent || {};
+  var top = c.view || 0;
+  var html = '';
+  for (var i=0;i<STEPS.length;i++){
+    var step = STEPS[i];
+    var n = c[step.key] || 0;
+    var pct = top > 0 ? Math.round(n / top * 100) : 0;
+    var taps = recent[step.key] || [];
+
+    html += '<div class="step">';
+    html += '<div class="step-top"><div class="step-name">' + step.label + '</div><div class="step-count">' + n + '</div></div>';
+    html += '<div class="bar-track"><div class="bar-fill" style="width:' + pct + '%"></div></div>';
+
+    if (i > 0) {
+      var prev = c[STEPS[i-1].key] || 0;
+      if (prev > 0) {
+        var kept = Math.round(n / prev * 100);
+        var dropped = 100 - kept;
+        if (dropped > 0) {
+          html += '<div class="drop bad">' + dropped + '% dropped off here (' + (prev - n) + ' left)</div>';
+        } else {
+          html += '<div class="drop good">' + kept + '% continued</div>';
+        }
+      }
+    }
+
+    if (taps.length > 0) {
+      var isOpen = expanded[step.key];
+      var showCount = isOpen ? taps.length : Math.min(5, taps.length);
+      html += '<div class="taps">';
+      for (var t=0;t<showCount;t++){
+        html += '<div class="tap">' + timeAgo(taps[t]) + '</div>';
+      }
+      html += '</div>';
+      if (taps.length > 5) {
+        if (isOpen) {
+          html += '<button class="toggle" onclick="toggleStep(\'' + step.key + '\')">Hide all</button>';
+        } else {
+          html += '<button class="toggle" onclick="toggleStep(\'' + step.key + '\')">Show more (' + (taps.length - 5) + ')</button>';
+        }
+      }
+    }
+
+    html += '</div>';
+  }
+  document.getElementById('funnel').innerHTML = html;
+  showInsight(c);
+  document.getElementById('updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+}
+
+function showInsight(c){
+  var el = document.getElementById('insight');
+  var view = c.view||0, cart = c.add_to_cart||0, checkout = c.checkout||0, purchase = c.purchase||0;
+  var msg = '';
+  if (view === 0) {
+    msg = 'No visitors yet in this period. Once traffic comes in, you will see exactly where people drop off.';
+  } else if (cart === 0) {
+    msg = '<b>Biggest issue: nobody is adding to cart.</b> ' + view + ' viewed the product but 0 added to cart. This points to the <b>product, price, or page appeal</b> not convincing people. Likely fix: test a different product or improve the offer.';
+  } else if (purchase === 0 && checkout === 0) {
+    msg = '<b>People add to cart but do not reach checkout.</b> ' + cart + ' added to cart but 0 reached checkout. Something stops them after adding.';
+  } else if (purchase === 0 && checkout > 0) {
+    msg = '<b>People reach checkout but do not buy.</b> ' + checkout + ' reached checkout but 0 purchased. This points to a <b>checkout problem</b> - shipping surprise, payment friction, or account required. Fix the checkout experience.';
+  } else if (purchase > 0) {
+    msg = '<b>You have ' + purchase + ' purchase(s)!</b> The funnel is working. Focus on more traffic and improving each drop-off point.';
+  }
+  el.innerHTML = '<div class="insight">' + msg + '</div>';
+}
+
+function getKey(){
+  var k = sessionStorage.getItem('funnel_key');
+  if (!k) {
+    k = prompt('Enter funnel dashboard password:');
+    if (k) sessionStorage.setItem('funnel_key', k);
+  }
+  return k || '';
+}
+
+async function load(){
+  var key = getKey();
+  if (!key) {
+    document.getElementById('funnel').innerHTML = '<div class="loading">Password required. Refresh to enter it.</div>';
+    return;
+  }
+  try {
+    var r = await fetch('https://track.mova99.com/api/funnel?days=' + DAYS + '&key=' + encodeURIComponent(key));
+    if (r.status === 403) {
+      sessionStorage.removeItem('funnel_key');
+      document.getElementById('funnel').innerHTML = '<div class="loading">Wrong password. Refresh to try again.</div>';
+      return;
+    }
+    var d = await r.json();
+    render(d);
+  } catch(e) {
+    document.getElementById('funnel').innerHTML = '<div class="loading">Could not load data. Check connection.</div>';
+  }
+}
+
+function manualRefresh(){ load(); }
+
+load();
+setInterval(load, 5000);
+</script>
+</body>
+</html>
