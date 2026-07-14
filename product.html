@@ -338,6 +338,14 @@ let _stripeCheckout = null; // tracks the active Stripe Embedded Checkout instan
 // _p holds the current product state — unit price only
 let _p = { pid:'', name:'', basePrice:0, image:'', qty:1, vid:'', color:'', size:'' };
 
+// Funnel tap tracker (saves to VPS so you see where people drop off)
+function trackFunnel(step){
+  try{
+    fetch('https://track.mova99.com/api/track',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({step:step, pid:(typeof _p!=='undefined'&&_p.pid)?_p.pid:''}),keepalive:true}).catch(function(){});
+  }catch(e){}
+}
+
 fetch('/api/get-config').then(r=>r.json()).then(d=>{ stripeKey = d.publishableKey||''; }).catch(()=>{});
 
 const session = JSON.parse(localStorage.getItem('foundry_session') || 'null');
@@ -420,6 +428,7 @@ function updatePrice() {
 
 // Add to cart
 function addToCart() {
+  trackFunnel('add_to_cart');
   const label = [_p.color, _p.size].filter(Boolean).join(' / ');
   const displayName = _p.name.split(' — ')[0] + (label ? ' — ' + label : '') + (_p.qty > 1 ? ` (x${_p.qty})` : '');
   const entry = {
@@ -454,6 +463,7 @@ function addToCart() {
 
 // Buy Now
 function buyNow() {
+  trackFunnel('buy_now');
   try{ if(window.fbq) fbq('track','InitiateCheckout',{content_ids:[_p.pid],content_type:'product',value:parseFloat((_p.basePrice*_p.qty).toFixed(2)),currency:'USD'}); }catch(e){}
   if (!session?.id) {
     document.getElementById('auth-login-btn').href = '/login?redirect=product&pid=' + _p.pid;
@@ -474,6 +484,7 @@ function proceedAsGuest() {
 }
 
 function runCheckout(userId) {
+  trackFunnel('checkout');
   const btn = document.getElementById('buy-btn');
   btn.textContent = 'Processing...';
   btn.disabled = true;
@@ -744,6 +755,7 @@ async function loadProduct(pid) {
     // _p.basePrice = listedPrice always — never changes from variant
     _p = { pid, name, basePrice: listedPrice, image: mainImage, qty: 1, vid: variants[0]?.vid||'', color: variants[0]?.color||'', size: variants[0]?.size||'' };
     setTimeout(function(){ try{ loadReviews(pid); }catch(e){} }, 100);
+    trackFunnel('view');
     try{ if(window.fbq) fbq('track','ViewContent',{content_ids:[pid],content_type:'product',value:_p.basePrice,currency:'USD'}); }catch(e){}
 
     const seen = {};
