@@ -660,6 +660,7 @@ function popupAddMore() {
 
 // ── Checkout
 async function doCheckout() {
+  trackFunnel('checkout');
   if (!session?.id) {
     document.getElementById('auth-login-btn').href = '/login?redirect=product&pid=' + _p.pid;
     document.getElementById('auth-signup-btn').href = '/signup?redirect=product&pid=' + _p.pid;
