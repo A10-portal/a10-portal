@@ -110,19 +110,22 @@ export default async function handler(req, res) {
         // Filter — only import products where CJ price is $15+
         products = products.filter(p => parseFloat(p.sellPrice || 0) >= 15);
 
-        // Apply 2.4x markup and tiered shipping (qty 1 = no discount yet)
-        let result = products.map(p => {
-            const sellPrice = (parseFloat(p.sellPrice || 0) * 2.4).toFixed(2);
-            const sp = parseFloat(sellPrice);
-            const base = sp >= 101 ? 5 : 7 + (sp * 0.1);
-            const shippingCost = Math.max(base, 3).toFixed(2);
-            return {
-                ...p,
-                sellPrice,
-                originalPrice: p.sellPrice,
-                shippingCost
-            };
-        });
+        // Pricing: CJ price + 10% + $9.  Products with CJ price over $200 are excluded.
+        let result = products
+            .filter(p => parseFloat(p.sellPrice || 0) <= 200)  // skip products over $200 CJ price
+            .map(p => {
+                const cjPrice = parseFloat(p.sellPrice || 0);
+                const sellPrice = (cjPrice * 1.10 + 9).toFixed(2); // +10% then +$9
+                const sp = parseFloat(sellPrice);
+                const base = sp >= 101 ? 5 : 7 + (sp * 0.1);
+                const shippingCost = Math.max(base, 3).toFixed(2);
+                return {
+                    ...p,
+                    sellPrice,
+                    originalPrice: p.sellPrice,
+                    shippingCost
+                };
+            });
 
         // Shuffle
         for (let i = result.length - 1; i > 0; i--) {
