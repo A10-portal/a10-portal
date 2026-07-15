@@ -84,7 +84,7 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text)}
 .product-title{font-size:17px;font-weight:400;line-height:1.45;margin-bottom:10px}
 .product-price{font-size:34px;font-weight:600;color:#111;margin-bottom:4px}
 .product-old{font-size:14px;color:#aaa;text-decoration:line-through;margin-bottom:14px}
-.shipping-badge{display:flex;width:100%;align-items:center;gap:6px;background:#fef6ee;border:none;border-radius:8px;padding:11px 12px;font-size:13px;font-weight:700;color:var(--green);margin-bottom:16px}
+.shipping-badge{display:flex;width:100%;align-items:center;gap:6px;background:#e9faf0;border:none;border-radius:8px;padding:11px 12px;font-size:14px;font-weight:800;color:#16a34a;margin-bottom:16px}
 .delivery-info{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
 .delivery-chip{background:#f7f7f7;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:600;color:#555;flex:1;min-width:120px;text-align:center}
 .delivery-chip span{display:block;font-size:16px;font-weight:800;color:var(--green);margin-bottom:2px}
@@ -414,15 +414,10 @@ function updatePrice() {
   const priceEl = document.getElementById('prod-price');
   if (priceEl) priceEl.textContent = '$' + (_p.basePrice * _p.qty).toFixed(2);
 
-  // Shipping uses UNIT price + qty — same logic as dashboard
-  const ship = calcShipping(_p.basePrice, _p.qty);
+  // FREE SHIPPING — shipping is built into the product price
   const badge = document.getElementById('shipping-badge');
   if (badge) {
-    if (_p.qty >= 5 || parseFloat(ship) <= 3) {
-      badge.textContent = '📦 Shipping: $' + ship + ' — USA 🎉 Best rate!';
-    } else {
-      badge.textContent = '📦 Shipping: $' + ship + ' — USA (add more to save)';
-    }
+    badge.textContent = '🚚 FREE SHIPPING — USA';
   }
 }
 
@@ -491,8 +486,8 @@ function runCheckout(userId) {
 
   // Store order total so the success page can report Purchase value to Meta Pixel
   try{
-    var _ship = calcShipping(_p.basePrice, _p.qty) || 0;
-    var _tot = (_p.basePrice * _p.qty) + parseFloat(_ship||0);
+    // FREE SHIPPING — total is just product price
+    var _tot = (_p.basePrice * _p.qty);
     localStorage.setItem('mova_cart_total', _tot.toFixed(2));
   }catch(e){}
 
@@ -552,16 +547,9 @@ function renderCart() {
     return;
   }
 
-  // Calculate shipping using unit price + qty (same as dashboard)
+  // FREE SHIPPING — shipping built into product price
   const sub = cart.reduce((s,i) => s + parseFloat(i.price||0), 0);
-  const ship = Math.max(
-    cart.reduce((s,i) => {
-      const unitPrice = parseFloat(i.price||0) / (i.qty||1);
-      return s + parseFloat(calcShipping(unitPrice, i.qty||1));
-    }, 0),
-    3
-  ).toFixed(2);
-  const total = (sub + parseFloat(ship)).toFixed(2);
+  const total = sub.toFixed(2);
 
   let h = '';
   cart.forEach(item => {
@@ -590,9 +578,9 @@ function renderCart() {
 
   h += `<div style="border-top:1.5px solid var(--border);padding-top:14px;margin-top:14px">
     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span style="color:#888">Subtotal</span><span style="font-weight:700">$${sub.toFixed(2)}</span></div>
-    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:12px"><span style="color:#888">Shipping (USA)</span><span style="font-weight:700">$${ship}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:12px"><span style="color:#888">Shipping</span><span style="font-weight:800;color:#16a34a">FREE SHIPPING</span></div>
     <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:900;margin-bottom:16px"><span>Total</span><span style="color:var(--orange)">$${total}</span></div>
-    <button onclick="showShippingPopup(doCheckout)" style="width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Continue to Checkout →</button>
+    <button onclick="doCheckout()" style="width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Continue to Checkout →</button>
     <button onclick="closeCartDrawer()" style="width:100%;margin-top:8px;padding:11px;background:transparent;color:#888;border:1.5px solid var(--border);border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Continue Shopping</button>
   </div>`;
   body.innerHTML = h;
