@@ -33,7 +33,7 @@ function loadAnalytics() {
   gtag('config', 'G-TK7Y07K9VH');
 }
 // If already consented in a previous session, load immediately
-if (localStorage.getItem('mova_cookie_consent') === 'accepted') loadAnalytics();
+loadAnalytics();
 </script>
 <link rel="preconnect" href="https://cf.cjdropshipping.com">
 <link rel="dns-prefetch" href="https://cf.cjdropshipping.com">
@@ -118,7 +118,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
 .nav-cart-btn:hover { transform: scale(1.08); }
 .nav-cart-badge { position: absolute; top: -3px; right: -3px; background: #ef4444; color: #fff; font-size: 8px; font-weight: 900; border-radius: 50%; width: 16px; height: 16px; display: none; align-items: center; justify-content: center; }
 .nav-cart-badge.show { display: flex; }
-@media(max-width:640px) { .nav-btn-outline { display: none; } }
+@media(max-width:640px) { .nav-btn-outline, .nav-btn-solid { padding: 7px 12px; font-size: 12px; } }
 
 /* ── MARQUEE ── */
 .marquee-wrap { background: var(--orange); overflow: hidden; padding: 7px 0; }
@@ -353,6 +353,10 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
     <button class="sidebar-close" onclick="closeSidebar()">✕</button>
   </div>
   <div class="sidebar-section">
+    <a class="sidebar-link" href="https://track.mova99.com" target="_blank" style="background:var(--orange-pale);color:var(--orange);font-weight:800;border-radius:8px;margin:0 10px 6px">📦 Track Your Order</a>
+    <p style="font-size:11px;color:#999;padding:0 18px 4px;line-height:1.5">Track your order anytime at <a href="https://track.mova99.com" target="_blank" style="color:var(--orange);font-weight:700">track.mova99.com</a></p>
+  </div>
+  <div class="sidebar-section">
     <p class="sidebar-heading">Shop</p>
     <a class="sidebar-link" onclick="filterCat('')">🛍️ All Products</a>
     <a class="sidebar-link" onclick="filterCat('women clothing')">👗 Women's</a>
@@ -463,36 +467,15 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
 <!-- FOOTER -->
 <footer class="footer">
   <div class="footer-inner">
-    <div class="footer-grid">
-      <div>
-        <div class="footer-logo">Mova<span>99</span></div>
-        <p class="footer-desc">Your premium online marketplace. Shop millions of products across every category with fast USA delivery and unbeatable prices.</p>
-        <p style="font-size:11px;color:#444;margin-top:12px">support@mova99.com</p>
-      </div>
-      <div>
-        <p class="footer-heading">Shop</p>
-        <a href="/signup"    class="footer-link">Create Account</a>
-        <a href="/login?redirect=index"     class="footer-link">Sign In</a>
-        <a href="/dashboard" class="footer-link">Marketplace</a>
-      </div>
-      <div>
-        <p class="footer-heading">Legal</p>
-        <a href="/docs/16_privacy_policy.pdf"      class="footer-link" target="_blank">Privacy Policy</a>
-        <a href="/docs/15_terms_of_service.pdf"    class="footer-link" target="_blank">Terms of Service</a>
-        <a href="/docs/06_return_refund_policy.pdf" class="footer-link" target="_blank">Returns & Refunds</a>
-        <a href="/docs/08_shipping_info.pdf"        class="footer-link" target="_blank">Shipping Info</a>
-        <a href="/government" class="footer-link">Government Contracting</a>
-
-        <a href="#" onclick="showCookiePreferences();return false;" class="footer-link">Manage Preferences</a>
-        <a href="#" onclick="showCookiePreferences();return false;" class="footer-link">Do Not Sell My Personal Information</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
+    <div class="footer-bottom" style="border-top:none;padding-top:0">
       <p class="footer-copy">© 2026 Mova99 LLC · Premium USA Marketplace · www.mova99.com</p>
-      <p style="font-size:11px;color:#333">Powered by Stripe · Secure Payments</p>
-<p style="font-size:11px;color:#333;margin-top:6px">Mova99 LLC · United States · support@mova99.com</p>
-
-<a href="https://www.shipit.buzz/products/mova99?ref=badge" target="_blank" rel="noopener noreferrer"><img src="https://www.shipit.buzz/api/products/mova99/badge?theme=dark" alt="Featured on Shipit" /></a>
+      <p style="font-size:11px;color:#333">Powered by Stripe · Secure Payments · support@mova99.com</p>
+      <p style="font-size:11px;color:#333;margin-top:6px">
+        <a href="/docs/16_privacy_policy.pdf" class="footer-link" style="display:inline;margin:0 8px 0 0" target="_blank">Privacy</a>·
+        <a href="/docs/15_terms_of_service.pdf" class="footer-link" style="display:inline;margin:0 8px" target="_blank">Terms</a>·
+        <a href="/docs/06_return_refund_policy.pdf" class="footer-link" style="display:inline;margin:0 8px" target="_blank">Returns</a>·
+        <a href="#" onclick="showCookiePreferences();return false;" class="footer-link" style="display:inline;margin:0 0 0 8px">Manage Preferences</a>
+      </p>
     </div>
   </div>
 </footer>
@@ -614,7 +597,51 @@ function saveCartNotes(val) {
 // ══════════════════════════════════════════════════
 // PRODUCT FEED — infinite scroll + search + category filter
 // ══════════════════════════════════════════════════
-var FEED = { page: 1, loading: false, done: false, keyword: '', query: '', seed: Math.floor(Math.random()*1000) };
+var FEED = { page: 1, loading: false, done: false, keyword: '', query: '', seed: Math.floor(Math.random()*1000), emptyStreak: 0 };
+var SHOWN_PIDS = new Set();
+
+// ══════════════════════════════════════════════════
+// SMART RANKING — surfaces better products first
+// Scores each product by a mix of signals (price sweet-spot,
+// category relevance, name quality). Higher score = shown first.
+// ══════════════════════════════════════════════════
+var GOOD_CATEGORY_WORDS = ['dress','shirt','shoe','sneaker','bag','handbag','watch','jacket','hoodie',
+  'jewelry','necklace','ring','earring','sunglasses','boot','sandal','backpack','wallet','beauty',
+  'makeup','skincare','blouse','swimwear','activewear','tote','clothing','fashion','kids','baby'];
+
+function scoreProduct(p) {
+  let score = 0;
+  const price = parseFloat(p.sellPrice) || 0;
+  const name = (p.productNameEn || p.productName || '').toLowerCase();
+
+  // 1) Price sweet-spot: $15-50 converts best for impulse buys
+  if (price >= 15 && price <= 50) score += 30;
+  else if (price > 50 && price <= 80) score += 18;
+  else if (price > 80 && price <= 120) score += 8;
+  else if (price < 15) score += 4;
+
+  // 2) Category relevance: fashion/trending words rank higher
+  for (const w of GOOD_CATEGORY_WORDS) {
+    if (name.includes(w)) { score += 14; break; }
+  }
+
+  // 3) Name quality: a clear, readable name (not too short, not spammy)
+  const wordCount = name.split(/\s+/).filter(Boolean).length;
+  if (wordCount >= 3 && wordCount <= 12) score += 10;
+  if (name.length > 15 && name.length < 90) score += 6;
+
+  // 4) Has a real image
+  if (p.productImage) score += 8;
+
+  // 5) Small randomness so the feed feels fresh, not identical each load
+  score += Math.random() * 8;
+
+  return score;
+}
+
+function rankProducts(list) {
+  return list.slice().sort((a, b) => scoreProduct(b) - scoreProduct(a));
+}
 
 function buildCard(p) {
   PRODUCT_REG[p.pid] = p;
@@ -624,7 +651,7 @@ function buildCard(p) {
   card.dataset.pid = p.pid;
   card.innerHTML = `
     <div class="product-img-wrap pcard-view" data-pid="${p.pid}">
-      <img src="${imgUrl(p.productImage)}" alt="" loading="lazy"
+      <img src="${imgUrl(p.productImage)}" alt="" loading="lazy" decoding="async"
         onload="this.classList.add('loaded')" onerror="this.style.opacity='.2'">
     </div>
     <div class="product-info pcard-view" data-pid="${p.pid}">
@@ -638,8 +665,9 @@ function buildCard(p) {
 }
 
 function resetFeed() {
-  FEED.page = 1; FEED.loading = false; FEED.done = false;
+  FEED.page = 1; FEED.loading = false; FEED.done = false; FEED.emptyStreak = 0;
   FEED.seed = Math.floor(Math.random()*1000);
+  SHOWN_PIDS = new Set();
   const grid = document.getElementById('grid-feed');
   grid.innerHTML = '';
   document.getElementById('feed-empty').style.display = 'none';
@@ -654,15 +682,25 @@ async function loadFeed() {
   if (FEED.page > 1) loader.style.display = 'block';
 
   try {
-    let url = `/api/get-products?pageSize=20&page=${FEED.page}&seed=${FEED.seed}&_t=${Date.now()}`;
-    if (FEED.query) url += `&search=${encodeURIComponent(FEED.query)}`;
-    else if (FEED.keyword) url += `&search=${encodeURIComponent(FEED.keyword)}`;
+    let url = `/api/get-products?pageSize=20&page=${FEED.page}&_t=${Date.now()}`;
+    if (FEED.query) {
+      url += `&search=${encodeURIComponent(FEED.query)}&seed=${FEED.seed}`;
+    } else if (FEED.keyword) {
+      url += `&search=${encodeURIComponent(FEED.keyword)}&seed=${FEED.seed}`;
+    } else {
+      // Browsing all: rotate seed each page so fresh products keep coming (infinite)
+      url += `&seed=${FEED.seed + FEED.page * 37}`;
+    }
 
     const r = await fetch(url);
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const d = await r.json();
     if (d.error) throw new Error(d.error);
-    const products = Array.isArray(d) ? d : (d.products || []);
+    let products = Array.isArray(d) ? d : (d.products || []);
+
+    // Dedupe against already-shown products
+    products = products.filter(p => p && p.pid && !SHOWN_PIDS.has(p.pid));
+    products.forEach(p => SHOWN_PIDS.add(p.pid));
 
     // remove skeletons on first page
     if (FEED.page === 1) grid.innerHTML = '';
@@ -670,12 +708,24 @@ async function loadFeed() {
     if (!products.length) {
       if (FEED.page === 1) {
         document.getElementById('feed-empty').style.display = 'block';
+        FEED.done = true;
+      } else {
+        // no new unique products this page — try a few more pages before giving up
+        FEED.emptyStreak = (FEED.emptyStreak || 0) + 1;
+        FEED.page++;
+        if (FEED.emptyStreak < 4 && !FEED.query && !FEED.keyword) {
+          FEED.loading = false;
+          document.getElementById('feed-loader').style.display = 'none';
+          return loadFeed(); // keep trying with next seed
+        }
+        FEED.done = true;
       }
-      FEED.done = true;
     } else {
-      products.forEach(p => grid.appendChild(buildCard(p)));
+      FEED.emptyStreak = 0;
+      rankProducts(products).forEach(p => grid.appendChild(buildCard(p)));
       FEED.page++;
-      if (products.length < 20) FEED.done = true;
+      // For search/category, if fewer than pageSize, we've likely reached the end
+      if ((FEED.query || FEED.keyword) && products.length < 5) FEED.done = true;
     }
   } catch(e) {
     if (FEED.page === 1) {
@@ -1461,15 +1511,9 @@ setTimeout(function() {
 </div>
 
 <script>
-// ── Cookie Consent System ──
+// ── Cookie Consent System (banner disabled — non-obstructive; managed via footer preferences) ──
 (function() {
-  const consent = localStorage.getItem('mova_cookie_consent');
-  if (!consent) {
-    setTimeout(function() {
-      const b = document.getElementById('cookie-banner');
-      if (b) b.classList.add('show');
-    }, 1200);
-  }
+  // Auto-show banner removed per design — users can manage via footer "Manage Preferences"
 })();
 
 function setCookieConsent(choice) {
