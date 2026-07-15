@@ -54,6 +54,57 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
 ::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 2px; }
 
 /* ── NAV ── */
+/* ===== SIDEBAR ===== */
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 260px; background: #fff; border-right: 1px solid var(--border); z-index: 800; overflow-y: auto; padding: 16px 0 40px; transform: translateX(-100%); transition: transform .28s ease; }
+.sidebar.open { transform: translateX(0); }
+.sidebar-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 18px 16px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+.sidebar-close { background: none; border: none; font-size: 18px; cursor: pointer; color: #888; }
+.sidebar-section { padding: 10px 0; border-bottom: 1px solid var(--border); }
+.sidebar-heading { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: #999; padding: 0 18px; margin-bottom: 8px; }
+.sidebar-link { display: block; padding: 10px 18px; font-size: 13.5px; font-weight: 600; color: #333; text-decoration: none; cursor: pointer; transition: background .15s, color .15s; }
+.sidebar-link:hover { background: var(--orange-pale); color: var(--orange); }
+.sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 750; opacity: 0; visibility: hidden; transition: opacity .28s; }
+.sidebar-overlay.open { opacity: 1; visibility: visible; }
+.menu-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--text); padding: 4px 8px; margin-right: 4px; }
+@media(min-width:1000px) {
+  .sidebar { transform: translateX(0); }
+  .sidebar-overlay { display: none; }
+  .sidebar-close { display: none; }
+  body.has-sidebar { padding-left: 260px; }
+  .menu-btn { display: none; }
+}
+/* ===== SEARCH ===== */
+.nav-search { flex: 1; max-width: 520px; margin: 0 14px; position: relative; display: flex; align-items: center; }
+.nav-search input { width: 100%; padding: 10px 38px 10px 16px; border: 1.5px solid var(--border); border-radius: 24px; font-size: 14px; font-family: inherit; outline: none; transition: border-color .18s, box-shadow .18s; background: #fafafa; }
+.nav-search input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px var(--orange-pale); background: #fff; }
+.nav-search-clear { position: absolute; right: 12px; background: none; border: none; color: #999; cursor: pointer; font-size: 13px; }
+.nav-search-mobile { display: none; padding: 8px 16px 12px; }
+.nav-search-mobile input { width: 100%; padding: 10px 16px; border: 1.5px solid var(--border); border-radius: 24px; font-size: 16px; font-family: inherit; outline: none; background: #fafafa; }
+.nav-search-mobile input:focus { border-color: var(--orange); background: #fff; }
+@media(max-width:768px) {
+  .nav-search { display: none; }
+  .nav-search-mobile { display: block; }
+}
+/* ===== TRUST BAR ===== */
+.trust-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 18px; background: #fff8f3; border-bottom: 1px solid var(--border); padding: 9px 16px; font-size: 11.5px; font-weight: 700; color: #a15220; }
+.trust-bar span { white-space: nowrap; }
+@media(max-width:520px){ .trust-bar { gap: 12px; font-size: 10.5px; } }
+/* ===== CHIP FILTER BAR ===== */
+.chip-bar { position: sticky; top: 56px; z-index: 150; background: #fff; border-bottom: 1px solid var(--border); padding: 10px 0; }
+.chip-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px; scrollbar-width: none; }
+.chip-scroll::-webkit-scrollbar { display: none; }
+.fchip { flex-shrink: 0; padding: 8px 16px; border: 1.5px solid var(--border); background: #fff; border-radius: 20px; font-size: 13px; font-weight: 700; color: #555; cursor: pointer; font-family: inherit; white-space: nowrap; transition: all .15s; }
+.fchip.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+/* ===== FEED ===== */
+.feed-title { font-size: 18px; font-weight: 900; margin-bottom: 16px; color: var(--text); }
+/* ===== FLOATING DRAGGABLE CART ===== */
+.cart-float-drag { position: fixed; bottom: 90px; right: 20px; z-index: 600; background: var(--orange); border-radius: 50%; width: 58px; height: 58px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 24px rgba(255,97,0,.45); cursor: grab; border: none; touch-action: none; user-select: none; transition: transform .15s; }
+.cart-float-drag:active { cursor: grabbing; transform: scale(1.08); }
+.cart-float-drag svg { width: 24px; height: 24px; pointer-events: none; }
+.cart-float-badge2 { position: absolute; top: -3px; right: -3px; background: #111; color: #fff; font-size: 10px; font-weight: 900; border-radius: 50%; min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; padding: 0 4px; pointer-events: none; }
+/* ===== BACK TO TOP ===== */
+.back-top { position: fixed; bottom: 24px; right: 20px; z-index: 590; background: #111; color: #fff; border: none; border-radius: 50%; width: 46px; height: 46px; font-size: 18px; cursor: pointer; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,.25); }
+.back-top.show { display: flex; }
 .nav { position: sticky; top: 0; z-index: 200; background: rgba(255,255,255,.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 24px; }
 .nav-inner { max-width: 1280px; margin: auto; height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .nav-logo { font-size: 22px; font-weight: 900; font-style: italic; color: var(--orange); text-decoration: none; letter-spacing: -1px; }
@@ -292,97 +343,103 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
 
 
 
-<!-- NAV -->
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- LEFT SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head">
+    <a href="/" class="nav-logo">Mova<span>99</span></a>
+    <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+  </div>
+  <div class="sidebar-section">
+    <p class="sidebar-heading">Shop</p>
+    <a class="sidebar-link" onclick="filterCat('')">🛍️ All Products</a>
+    <a class="sidebar-link" onclick="filterCat('women clothing')">👗 Women's</a>
+    <a class="sidebar-link" onclick="filterCat('men clothing')">👕 Men's</a>
+    <a class="sidebar-link" onclick="filterCat('shoes')">👟 Shoes</a>
+    <a class="sidebar-link" onclick="filterCat('bags')">👜 Bags</a>
+    <a class="sidebar-link" onclick="filterCat('jewelry')">💍 Jewelry</a>
+    <a class="sidebar-link" onclick="filterCat('beauty')">💄 Beauty</a>
+    <a class="sidebar-link" onclick="filterCat('electronics')">📱 Electronics</a>
+    <a class="sidebar-link" onclick="filterCat('home')">🏠 Home</a>
+    <a class="sidebar-link" onclick="filterCat('kids')">🧒 Kids</a>
+  </div>
+  <div class="sidebar-section">
+    <p class="sidebar-heading">Company</p>
+    <a class="sidebar-link" href="/docs/01_about_mova99.pdf" target="_blank">About Mova99</a>
+    <a class="sidebar-link" href="/docs/03_contact_us.pdf" target="_blank">Contact Us</a>
+    <a class="sidebar-link" href="/docs/02_affiliate_influencer_program.pdf" target="_blank">Affiliate Program</a>
+    <a class="sidebar-link" href="/docs/04_careers.pdf" target="_blank">Careers</a>
+    <a class="sidebar-link" href="/docs/14_partner_with_mova99.pdf" target="_blank">Partner With Us</a>
+  </div>
+  <div class="sidebar-section">
+    <p class="sidebar-heading">Help &amp; Policies</p>
+    <a class="sidebar-link" href="/docs/10_support_center_faq.pdf" target="_blank">Support / FAQ</a>
+    <a class="sidebar-link" href="/docs/06_return_refund_policy.pdf" target="_blank">Returns &amp; Refunds</a>
+    <a class="sidebar-link" href="/docs/08_shipping_info.pdf" target="_blank">Shipping Info</a>
+    <a class="sidebar-link" href="/docs/12_purchase_protection.pdf" target="_blank">Purchase Protection</a>
+    <a class="sidebar-link" href="/docs/11_safety_center.pdf" target="_blank">Safety Center</a>
+    <a class="sidebar-link" href="/docs/09_report_suspicious_activity.pdf" target="_blank">Report Suspicious Activity</a>
+    <a class="sidebar-link" href="/docs/15_terms_of_service.pdf" target="_blank">Terms of Service</a>
+    <a class="sidebar-link" href="/docs/16_privacy_policy.pdf" target="_blank">Privacy Policy</a>
+    <a class="sidebar-link" href="/docs/07_intellectual_property_policy.pdf" target="_blank">IP Policy</a>
+  </div>
+</aside>
+
+<!-- TOP NAV -->
 <nav class="nav">
   <div class="nav-inner">
+    <button class="menu-btn" onclick="openSidebar()" aria-label="Menu">☰</button>
     <a href="/" class="nav-logo">Mova<span>99</span></a>
+    <div class="nav-search">
+      <input type="search" id="search-input" placeholder="Search products…" autocomplete="off" oninput="onSearchType()">
+      <button class="nav-search-clear" id="search-clear" onclick="clearSearch()" style="display:none">✕</button>
+    </div>
     <div class="nav-links">
-      <a href="/signup" class="nav-btn nav-btn-outline">Sign Up</a>
-      <a href="/login?redirect=index"  class="nav-btn nav-btn-solid">Sign In</a>
-      <button class="nav-cart-btn" onclick="openCartDrawer()">
+      <button class="nav-cart-btn" onclick="openCartDrawer()" aria-label="Cart">
         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2.3 2.3c-.63.63-.18 1.7.71 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
         <span class="nav-cart-badge" id="nav-cart-badge">0</span>
       </button>
+      <a href="/signup" class="nav-btn nav-btn-outline">Sign Up</a>
+      <a href="/login?redirect=index" class="nav-btn nav-btn-solid">Sign In</a>
     </div>
+  </div>
+  <!-- mobile search row -->
+  <div class="nav-search-mobile">
+    <input type="search" id="search-input-m" placeholder="Search products…" autocomplete="off" oninput="onSearchTypeM()">
   </div>
 </nav>
 
-<!-- MARQUEE -->
-<div class="marquee-wrap">
-  <div class="marquee-track">
-    <span>🛒 Millions of Products</span>
-    <span>🚚 Fast 3-8 Day USA Delivery</span>
-    <span>🔒 Secure Checkout — Stripe</span>
-    <span>💰 Unbeatable Prices</span>
-    <span>🎁 Earn 10% Referral Rewards</span>
-    <span>🏪 Shop Every Category</span>
-    <span>📦 1-2 Day Processing</span>
-    <span>⭐ Trusted by Thousands</span>
-    <span>🛒 Millions of Products</span>
-    <span>🚚 Fast 3-8 Day USA Delivery</span>
-    <span>🔒 Secure Checkout — Stripe</span>
-    <span>💰 Unbeatable Prices</span>
-    <span>🎁 Earn 10% Referral Rewards</span>
-    <span>🏪 Shop Every Category</span>
-    <span>📦 1-2 Day Processing</span>
-    <span>⭐ Trusted by Thousands</span>
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <span>🔒 Secure Checkout</span>
+  <span>🚚 Fast USA Shipping</span>
+  <span>↩️ 30-Day Returns</span>
+  <span>💳 Safe Payments</span>
+</div>
+
+<!-- CATEGORY FILTER CHIPS -->
+<div class="chip-bar">
+  <div class="chip-scroll" id="chip-scroll">
+    <button class="fchip active" onclick="filterCat('', this)">All</button>
+    <button class="fchip" onclick="filterCat('women clothing', this)">👗 Women's</button>
+    <button class="fchip" onclick="filterCat('men clothing', this)">👕 Men's</button>
+    <button class="fchip" onclick="filterCat('shoes', this)">👟 Shoes</button>
+    <button class="fchip" onclick="filterCat('bags', this)">👜 Bags</button>
+    <button class="fchip" onclick="filterCat('jewelry', this)">💍 Jewelry</button>
+    <button class="fchip" onclick="filterCat('beauty', this)">💄 Beauty</button>
+    <button class="fchip" onclick="filterCat('electronics', this)">📱 Electronics</button>
+    <button class="fchip" onclick="filterCat('home', this)">🏠 Home</button>
+    <button class="fchip" onclick="filterCat('kids', this)">🧒 Kids</button>
   </div>
 </div>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-badge">🔥 Premium USA Marketplace</div>
-    <h1>Shop <span>Millions</span> of<br>Products Online</h1>
-    <p>Fast delivery across the United States. Unbeatable prices on fashion, electronics, home goods, beauty and everything in between.</p>
-    <div class="hero-btns">
-      <a href="/signup" class="hero-btn-primary">Start Shopping Free →</a>
-      <a href="/login?redirect=index"  class="hero-btn-secondary">Sign In</a>
-    </div>
-    <div class="hero-stats">
-      <div><div class="hero-stat-num">1M+</div><div class="hero-stat-label">Products</div></div>
-      <div><div class="hero-stat-num">3-8</div><div class="hero-stat-label">Day Delivery</div></div>
-      <div><div class="hero-stat-num">100%</div><div class="hero-stat-label">USA Delivery</div></div>
-      <div><div class="hero-stat-num">10%</div><div class="hero-stat-label">Referral Earn</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- CATEGORIES -->
-<section class="section fade-up" style="padding-top:40px;padding-bottom:32px">
+<!-- MAIN PRODUCT FEED -->
+<section class="section" style="padding-top:20px;padding-bottom:48px">
   <div class="section-inner">
-    <div class="section-header">
-      <div><h2 class="section-title">Shop by <span>Category</span></h2></div>
-      <a href="/signup" class="section-link">Browse All →</a>
-    </div>
-    <div class="cat-scroll">
-      <a href="/signup" class="cat-chip"><div class="cat-chip-img">👗</div><span class="cat-chip-label">Women's</span></a>
-      <a href="/signup" class="cat-chip"><div class="cat-chip-img">👕</div><span class="cat-chip-label">Men's</span></a>
-      <a href="/signup" class="cat-chip"><div class="cat-chip-img">👟</div><span class="cat-chip-label">Sneakers</span></a>
-      <a href="/signup" class="cat-chip"><div class="cat-chip-img">💍</div><span class="cat-chip-label">Jewelry</span></a>
-      <a href="/signup" class="cat-chip"><div class="cat-chip-img">💄</div><span class="cat-chip-label">Beauty</span></a>
-      <a href="/signup" class="cat-chip"><div class="cat-chip-img">📱</div><span class="cat-chip-label">Electronics</span></a>
-      <a href="/signup" class="cat-chip"><div class="cat-chip-img">🏠</div><span class="cat-chip-label">Home</span></a>
-      <a href="/signup" class="cat-chip"><div class="cat-chip-img">👜</div><span class="cat-chip-label">Bags</span></a>
-      <a href="/signup" class="cat-chip"><div class="cat-chip-img">🧒</div><span class="cat-chip-label">Kids</span></a>
-      <a href="/signup" class="cat-chip"><div class="cat-chip-img">🏋️</div><span class="cat-chip-label">Sports</span></a>
-      <a href="/signup" class="cat-chip"><div class="cat-chip-img">🐾</div><span class="cat-chip-label">Pets</span></a>
-      <a href="/signup" class="cat-chip"><div class="cat-chip-img">🌿</div><span class="cat-chip-label">Garden</span></a>
-    </div>
-  </div>
-</section>
-
-<!-- TRENDING PRODUCTS -->
-<section class="section fade-up" style="background:var(--bg);padding-top:40px;padding-bottom:48px">
-  <div class="section-inner">
-    <div class="section-header">
-      <div>
-        <h2 class="section-title">Trending <span>Products</span></h2>
-        <p class="section-sub">Real products — tap to add to cart and checkout instantly</p>
-      </div>
-      <a href="/signup" class="section-link">Shop All →</a>
-    </div>
-    <div class="product-grid" id="grid-trending">
+    <h2 class="feed-title" id="feed-title">All Products</h2>
+    <div class="product-grid" id="grid-feed">
       <div class="skeleton" style="height:260px"></div>
       <div class="skeleton" style="height:260px"></div>
       <div class="skeleton" style="height:260px"></div>
@@ -390,58 +447,16 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
       <div class="skeleton" style="height:260px"></div>
       <div class="skeleton" style="height:260px"></div>
     </div>
-    <div style="text-align:center;margin-top:28px">
-      <a href="/signup" class="hero-btn-primary" style="display:inline-block;text-decoration:none">View All Products →</a>
+    <div id="feed-empty" style="display:none;text-align:center;padding:50px 20px;color:#888">
+      <div style="font-size:40px;margin-bottom:12px">🔍</div>
+      <p style="font-size:15px;font-weight:700;color:#555">No products found</p>
+      <p style="font-size:13px;margin-top:4px">Try a different search or category.</p>
     </div>
-  </div>
-</section>
-
-<!-- WHY MOVA99 -->
-<section class="section features-section fade-up">
-  <div class="section-inner">
-    <div class="section-header">
-      <div>
-        <h2 class="section-title">Why <span>Mova99</span>?</h2>
-        <p class="section-sub">Everything you need in one place</p>
-      </div>
+    <div id="feed-loader" style="display:none;text-align:center;padding:30px">
+      <div style="width:28px;height:28px;border:3px solid var(--orange);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:auto"></div>
+      <p style="margin-top:10px;font-size:12px;color:#888">Loading more…</p>
     </div>
-    <div class="features-grid">
-      <div class="feature-card"><div class="feature-icon">🛒</div><div class="feature-title">Millions of Products</div><div class="feature-desc">Every category covered — fashion, electronics, home goods, beauty and more</div></div>
-      <div class="feature-card"><div class="feature-icon">🚚</div><div class="feature-title">Fast USA Delivery</div><div class="feature-desc">3-8 business day delivery across the entire United States</div></div>
-      <div class="feature-card"><div class="feature-icon">🔒</div><div class="feature-title">Secure Checkout</div><div class="feature-desc">Powered by Stripe — the most trusted payment platform in the world</div></div>
-      <div class="feature-card"><div class="feature-icon">💰</div><div class="feature-title">Best Prices</div><div class="feature-desc">Unbeatable prices on millions of products updated daily</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- NEW ARRIVALS -->
-<section class="section fade-up" style="padding-top:40px;padding-bottom:48px">
-  <div class="section-inner">
-    <div class="section-header">
-      <div>
-        <h2 class="section-title">New <span>Arrivals</span></h2>
-        <p class="section-sub">Fresh products added daily</p>
-      </div>
-      <a href="/signup" class="section-link">Shop Now →</a>
-    </div>
-    <div class="product-grid" id="grid-arrivals">
-      <div class="skeleton" style="height:260px"></div>
-      <div class="skeleton" style="height:260px"></div>
-      <div class="skeleton" style="height:260px"></div>
-      <div class="skeleton" style="height:260px"></div>
-      <div class="skeleton" style="height:260px"></div>
-      <div class="skeleton" style="height:260px"></div>
-    </div>
-  </div>
-</section>
-
-<!-- REFERRAL -->
-<section class="referral-section fade-up">
-  <div class="referral-inner">
-    <div style="font-size:48px;margin-bottom:16px">🎁</div>
-    <h2>Earn With <span>Mova99</span></h2>
-    <p>Share your unique referral code and earn <strong style="color:var(--orange)">10% on every order</strong> your friends place. No limit on how much you can earn.</p>
-    <a href="/signup" class="hero-btn-primary" style="display:inline-block;text-decoration:none">Sign Up Free & Start Earning →</a>
+    <div id="feed-sentinel" style="height:1px"></div>
   </div>
 </section>
 
@@ -483,10 +498,14 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
 </footer>
 
 <!-- FLOATING CART BUTTON -->
-<button class="cart-float" id="cart-float" onclick="openCartDrawer()">
-  <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2.3 2.3c-.63.63-.18 1.7.71 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-  <span class="cart-float-badge" id="cart-float-badge">0</span>
+<!-- FLOATING DRAGGABLE CART -->
+<button class="cart-float-drag" id="cart-float" aria-label="Cart">
+  <svg fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2.3 2.3c-.63.63-.18 1.7.71 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+  <span class="cart-float-badge2" id="cart-float-badge">0</span>
 </button>
+
+<!-- BACK TO TOP -->
+<button class="back-top" id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
 
 <!-- PRODUCT DETAIL MODAL -->
 <div class="modal-bg" id="product-modal" onclick="if(event.target===this)closeModal()">
@@ -593,59 +612,144 @@ function saveCartNotes(val) {
 }
 
 // ══════════════════════════════════════════════════
-// PRODUCT GRIDS — each uses a different random seed
+// PRODUCT FEED — infinite scroll + search + category filter
 // ══════════════════════════════════════════════════
-async function loadGrid(gridId, extraSeedOffset) {
-  const grid = document.getElementById(gridId);
-  if (!grid) return;
+var FEED = { page: 1, loading: false, done: false, keyword: '', query: '', seed: Math.floor(Math.random()*1000) };
 
-  const seed = Math.floor(Math.random() * 1000) + (extraSeedOffset || 0);
+function buildCard(p) {
+  PRODUCT_REG[p.pid] = p;
+  const name = p.productNameEn || p.productName || '';
+  const card = document.createElement('div');
+  card.className = 'product-card';
+  card.dataset.pid = p.pid;
+  card.innerHTML = `
+    <div class="product-img-wrap pcard-view" data-pid="${p.pid}">
+      <img src="${imgUrl(p.productImage)}" alt="" loading="lazy"
+        onload="this.classList.add('loaded')" onerror="this.style.opacity='.2'">
+    </div>
+    <div class="product-info pcard-view" data-pid="${p.pid}">
+      <p class="product-name">${name}</p>
+      <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">
+        <span class="product-price">$${p.sellPrice}</span>
+      </div>
+    </div>
+    <button class="pcard-add-btn pcard-add" data-pid="${p.pid}">🛒 Add to Cart</button>`;
+  return card;
+}
+
+function resetFeed() {
+  FEED.page = 1; FEED.loading = false; FEED.done = false;
+  FEED.seed = Math.floor(Math.random()*1000);
+  const grid = document.getElementById('grid-feed');
+  grid.innerHTML = '';
+  document.getElementById('feed-empty').style.display = 'none';
+  loadFeed();
+}
+
+async function loadFeed() {
+  if (FEED.loading || FEED.done) return;
+  FEED.loading = true;
+  const grid = document.getElementById('grid-feed');
+  const loader = document.getElementById('feed-loader');
+  if (FEED.page > 1) loader.style.display = 'block';
 
   try {
-    const r = await fetch(`/api/get-products?pageSize=12&seed=${seed}&_t=${Date.now()}`);
+    let url = `/api/get-products?pageSize=20&page=${FEED.page}&seed=${FEED.seed}&_t=${Date.now()}`;
+    if (FEED.query) url += `&search=${encodeURIComponent(FEED.query)}`;
+    else if (FEED.keyword) url += `&search=${encodeURIComponent(FEED.keyword)}`;
+
+    const r = await fetch(url);
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const d = await r.json();
     if (d.error) throw new Error(d.error);
     const products = Array.isArray(d) ? d : (d.products || []);
-    if (!products.length) throw new Error('No products');
 
-    grid.innerHTML = '';
-    products.slice(0, 12).forEach(p => {
-      PRODUCT_REG[p.pid] = p; // store in registry — no unsafe strings in onclick
-      const fire = Math.random() < 0.74;
-      const fakeOld = fire ? (parseFloat(p.sellPrice) * (1.28 + Math.random()*.4)).toFixed(2) : null;
-      const pct  = fire ? Math.floor(15 + Math.random()*38) : 0;
-      const name = p.productNameEn || p.productName || '';
+    // remove skeletons on first page
+    if (FEED.page === 1) grid.innerHTML = '';
 
-      const card = document.createElement('div');
-      card.className = 'product-card';
-      card.dataset.pid = p.pid;
-      card.innerHTML = `
-        <div class="product-img-wrap pcard-view" data-pid="${p.pid}">
-          ${fire ? '<div class="hot-badge">🔥 HOT</div>' : ''}
-          <img src="${imgUrl(p.productImage)}" alt="" loading="lazy"
-            onload="this.classList.add('loaded')"
-            onerror="this.style.opacity='.2'">
-        </div>
-        <div class="product-info pcard-view" data-pid="${p.pid}">
-          <p class="product-name">${name}</p>
-          <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">
-            <span class="product-price">$${p.sellPrice}</span>
-            ${fakeOld ? `<span class="product-old">$${fakeOld}</span>` : ''}
-            ${fire ? `<span style="font-size:9px;font-weight:800;color:var(--orange);background:var(--orange-pale);padding:2px 5px;border-radius:3px">${pct}% OFF</span>` : ''}
-          </div>
-        </div>
-        <button class="pcard-add-btn pcard-add" data-pid="${p.pid}">
-          🛒 Add to Cart
-        </button>`;
-      grid.appendChild(card);
-    });
+    if (!products.length) {
+      if (FEED.page === 1) {
+        document.getElementById('feed-empty').style.display = 'block';
+      }
+      FEED.done = true;
+    } else {
+      products.forEach(p => grid.appendChild(buildCard(p)));
+      FEED.page++;
+      if (products.length < 20) FEED.done = true;
+    }
   } catch(e) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px">
-      <p style="color:#888;font-size:14px">Sign in to browse all products</p>
-      <a href="/signup" style="display:inline-block;margin-top:12px;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Get Started Free →</a>
-    </div>`;
+    if (FEED.page === 1) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px">
+        <p style="color:#888;font-size:14px">Could not load products. Please refresh.</p>
+      </div>`;
+    }
+    FEED.done = true;
+  } finally {
+    FEED.loading = false;
+    document.getElementById('feed-loader').style.display = 'none';
   }
+}
+
+// ── SEARCH (live as you type, debounced) ──
+var _searchTimer = null;
+function doSearch(val) {
+  FEED.query = (val || '').trim();
+  const clearBtn = document.getElementById('search-clear');
+  if (clearBtn) clearBtn.style.display = FEED.query ? 'block' : 'none';
+  document.getElementById('feed-title').textContent = FEED.query ? ('Results for "' + FEED.query + '"') : (FEED.keyword ? currentCatLabel() : 'All Products');
+  resetFeed();
+}
+function onSearchType() {
+  const v = document.getElementById('search-input').value;
+  const m = document.getElementById('search-input-m'); if (m) m.value = v;
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(() => doSearch(v), 350);
+}
+function onSearchTypeM() {
+  const v = document.getElementById('search-input-m').value;
+  const d = document.getElementById('search-input'); if (d) d.value = v;
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(() => doSearch(v), 350);
+}
+function clearSearch() {
+  document.getElementById('search-input').value = '';
+  const m = document.getElementById('search-input-m'); if (m) m.value = '';
+  doSearch('');
+}
+// ── CATEGORY FILTER ──
+var _catLabel = 'All Products';
+function currentCatLabel() { return _catLabel; }
+function filterCat(keyword, btnEl) {
+  FEED.keyword = keyword || '';
+  FEED.query = '';
+  document.getElementById('search-input').value = '';
+  const m = document.getElementById('search-input-m'); if (m) m.value = '';
+  document.getElementById('search-clear').style.display = 'none';
+  // update chip active state
+  if (btnEl && btnEl.classList.contains('fchip')) {
+    document.querySelectorAll('.fchip').forEach(c => c.classList.remove('active'));
+    btnEl.classList.add('active');
+    _catLabel = btnEl.textContent.trim();
+  } else {
+    // clicked from sidebar — sync chips
+    document.querySelectorAll('.fchip').forEach(c => {
+      c.classList.toggle('active', c.getAttribute('onclick').indexOf("'" + keyword + "'") > -1);
+    });
+    _catLabel = keyword ? keyword.replace(/\b\w/g, ch => ch.toUpperCase()) : 'All Products';
+  }
+  document.getElementById('feed-title').textContent = keyword ? _catLabel : 'All Products';
+  closeSidebar();
+  resetFeed();
+}
+
+// ── SIDEBAR ──
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
 }
 
 // ── Tap image/name → open product page in new tab
@@ -1115,11 +1219,75 @@ setTimeout(() => document.querySelectorAll('.fade-up').forEach(el=>el.classList.
 // INIT
 // ══════════════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', () => {
+  document.body.classList.add('has-sidebar');
   updateCartBadge();
-  // Load both grids with different seeds so they show different products
-  loadGrid('grid-trending', 0);
-  loadGrid('grid-arrivals', 500);
+  loadFeed(); // initial product feed
+
+  // ── Infinite scroll via IntersectionObserver ──
+  const sentinel = document.getElementById('feed-sentinel');
+  if (sentinel && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) loadFeed();
+    }, { rootMargin: '600px' });
+    io.observe(sentinel);
+  } else {
+    // fallback: scroll listener
+    window.addEventListener('scroll', () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 700) loadFeed();
+    });
+  }
+
+  // ── Back to top button ──
+  const backTop = document.getElementById('back-top');
+  window.addEventListener('scroll', () => {
+    if (backTop) backTop.classList.toggle('show', window.scrollY > 600);
+  });
+
+  // ── Draggable floating cart ──
+  makeCartDraggable();
 });
+
+// ── DRAGGABLE FLOATING CART ──
+function makeCartDraggable() {
+  const el = document.getElementById('cart-float');
+  if (!el) return;
+  let dragging = false, moved = false, offX = 0, offY = 0;
+
+  function start(clientX, clientY) {
+    dragging = true; moved = false;
+    const rect = el.getBoundingClientRect();
+    offX = clientX - rect.left;
+    offY = clientY - rect.top;
+    el.style.transition = 'none';
+  }
+  function move(clientX, clientY) {
+    if (!dragging) return;
+    moved = true;
+    let x = clientX - offX;
+    let y = clientY - offY;
+    // keep within viewport
+    x = Math.max(6, Math.min(x, window.innerWidth - el.offsetWidth - 6));
+    y = Math.max(6, Math.min(y, window.innerHeight - el.offsetHeight - 6));
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+  }
+  function end() {
+    dragging = false;
+    el.style.transition = 'transform .15s';
+    if (!moved) openCartDrawer(); // tap (no drag) = open cart
+  }
+
+  // mouse
+  el.addEventListener('mousedown', e => { start(e.clientX, e.clientY); });
+  window.addEventListener('mousemove', e => move(e.clientX, e.clientY));
+  window.addEventListener('mouseup', () => { if (dragging) end(); });
+  // touch
+  el.addEventListener('touchstart', e => { const t = e.touches[0]; start(t.clientX, t.clientY); }, { passive: true });
+  window.addEventListener('touchmove', e => { if (dragging) { const t = e.touches[0]; move(t.clientX, t.clientY); } }, { passive: true });
+  window.addEventListener('touchend', () => { if (dragging) end(); });
+}
 </script>
 
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
