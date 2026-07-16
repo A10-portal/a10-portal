@@ -1229,61 +1229,6 @@ function changeCartQty(key, delta) {
 }
 
 
-function showShippingPopup(onContinue) {
-  // Check if popup should show
-  const checked = cart.filter(i => (window._checked || {})[i.cartKey||i.pid] !== false);
-  if (!checked.length) { onContinue(); return; }
-
-  // Check if any item can benefit from more quantity
-  const canSave = checked.some(i => {
-    const qty = i.qty || 1;
-    if (qty >= 5) return false;
-    const price = parseFloat(i.price||0) / qty;
-    const current = parseFloat(calcShipping(price * qty, qty));
-    const next = parseFloat(calcShipping(price * (qty+1), qty+1));
-    return current > 3 && next < current;
-  });
-
-  if (!canSave) { onContinue(); return; }
-
-  // Calculate total shipping savings
-  const totalCurrentShip = checked.reduce((s,i) => s + parseFloat(i.shippingCost || calcShipping(i.price, i.qty||1)), 0);
-  const totalNextShip = checked.reduce((s,i) => {
-    const qty = i.qty || 1;
-    const unitPrice = parseFloat(i.price||0) / qty;
-    return s + parseFloat(calcShipping(unitPrice, qty+1));
-  }, 0);
-  const saving = (totalCurrentShip - totalNextShip).toFixed(2);
-
-  // Update popup content
-  const el = document.getElementById('popup-current-ship');
-  const nextEl = document.getElementById('popup-next-ship');
-  if (el) el.textContent = '$' + totalCurrentShip.toFixed(2);
-  if (nextEl && parseFloat(saving) > 0) {
-    nextEl.textContent = '➕ Add 1 more item → shipping drops by $' + saving;
-  } else if (nextEl) {
-    nextEl.textContent = 'You have reached the minimum shipping rate!';
-  }
-
-  // Store callback
-  window._checkoutCallback = onContinue;
-
-  const popup = document.getElementById('shipping-popup');
-  if (popup) { popup.style.display = 'flex'; }
-}
-
-function popupContinue() {
-  const popup = document.getElementById('shipping-popup');
-  if (popup) popup.style.display = 'none';
-  if (window._checkoutCallback) window._checkoutCallback();
-}
-
-function popupAddMore() {
-  const popup = document.getElementById('shipping-popup');
-  if (popup) popup.style.display = 'none';
-  // Close checkout and return to cart
-}
-
 async function startCheckout() {
   if (!session?.id) { closeCart(); window.location.href='/login'; return; }
 
@@ -1931,27 +1876,6 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 </script>
 
 
-<!-- SHIPPING SAVINGS POPUP -->
-<div id="shipping-popup" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:16px">
-  <div style="background:#fff;border-radius:16px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-    <div style="background:linear-gradient(135deg,#ff6100,#ff8533);padding:20px;text-align:center">
-      <div style="font-size:32px;margin-bottom:8px">💡</div>
-      <div style="color:#fff;font-size:16px;font-weight:900">Save on Shipping!</div>
-      <div style="color:rgba(255,255,255,.85);font-size:12px;margin-top:4px">Increase quantity to reduce your shipping cost</div>
-    </div>
-    <div style="padding:20px">
-      <div id="popup-shipping-info" style="background:#fff3ed;border-radius:10px;padding:14px;margin-bottom:16px;text-align:center">
-        <div style="font-size:12px;color:#888;margin-bottom:4px">Current shipping cost</div>
-        <div id="popup-current-ship" style="font-size:24px;font-weight:900;color:#ff6100">$0.00</div>
-        <div id="popup-next-ship" style="font-size:12px;color:#22c55e;font-weight:700;margin-top:4px"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <button onclick="popupAddMore()" style="padding:14px;background:#fff;color:#ff6100;border:2px solid #ff6100;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">+ Add More Items</button>
-        <button onclick="popupContinue()" style="padding:14px;background:#ff6100;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Continue to Checkout →</button>
-      </div>
-    </div>
-  </div>
-</div>
 <!-- ── Legal Footer ── -->
 <div style="text-align:center;padding:24px 16px;border-top:1px solid var(--border);margin-top:40px">
   <p style="font-size:10px;color:var(--muted);margin:0">
