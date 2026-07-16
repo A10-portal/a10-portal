@@ -20,29 +20,29 @@ function verifyToken(req) {
 // Auto scheduled messages
 const AUTO_MESSAGES = {
   morning: [
-    { title: 'Good Morning! ☀️', body: 'Jewelry from $3.22 — flat $2.41 shipping anywhere in the USA!', landing: '/dashboard' },
+    { title: 'Good Morning! ☀️', body: 'Jewelry from $3.22 — FREE shipping anywhere in the USA!', landing: '/dashboard' },
     { title: 'Mova99 Morning Deals 🛍️', body: 'Fresh deals just dropped! Shop millions of products from $8.', landing: '/dashboard' },
-    { title: 'Start Your Day With Savings 💰', body: 'Flat $2.41 shipping on every order. Shop now at Mova99!', landing: '/dashboard' },
-    { title: 'New Arrivals Today! ✨', body: 'Fashion, electronics, beauty and more — all with flat $2.41 shipping.', landing: '/dashboard' },
+    { title: 'Start Your Day With Savings 💰', body: 'FREE shipping on every order. Shop now at Mova99!', landing: '/dashboard' },
+    { title: 'New Arrivals Today! ✨', body: 'Fashion, electronics, beauty and more — all with FREE shipping.', landing: '/dashboard' },
     { title: 'Morning Flash Sale ⚡', body: 'Limited time deals on jewelry, fashion and electronics at Mova99!', landing: '/dashboard' },
     { title: 'Earn While You Sleep 💸', body: 'Join our referral program — earn 5% on every purchase. Free to join!', landing: '/signup' },
     { title: 'Good Morning Shopper! 🌅', body: 'Millions of products waiting for you. Fast 3-8 day USA delivery.', landing: '/dashboard' },
   ],
   afternoon: [
-    { title: 'Afternoon Deals at Mova99 🔥', body: 'Hot products from $8 with flat $2.41 shipping. Shop now!', landing: '/dashboard' },
+    { title: 'Afternoon Deals at Mova99 🔥', body: 'Hot products from $8 with FREE shipping. Shop now!', landing: '/dashboard' },
     { title: 'Flash Sale Now Live! ⚡', body: 'Limited time prices on jewelry, fashion and electronics.', landing: '/dashboard' },
-    { title: 'Did You See This? 👀', body: 'Jewelry from $3.22 with flat $2.41 shipping — only at Mova99!', landing: '/dashboard' },
+    { title: 'Did You See This? 👀', body: 'Jewelry from $3.22 with FREE shipping — only at Mova99!', landing: '/dashboard' },
     { title: 'Referral Earnings Waiting 💰', body: '300 referrals × $1,000 × 5% = $15,000. Start earning free!', landing: '/signup' },
     { title: 'Midday Deals 🛒', body: 'Shop millions of products with fast 3-8 day USA delivery.', landing: '/dashboard' },
     { title: 'Someone Just Ordered This 📦', body: 'Top selling products at unbeatable prices. See what\'s trending!', landing: '/dashboard' },
-    { title: 'Flat $2.41 Shipping 🚚', body: 'No matter what you buy — shipping is always $2.41 at Mova99.', landing: '/dashboard' },
+    { title: 'FREE Shipping 🚚', body: 'No matter what you buy — shipping is always FREE at Mova99.', landing: '/dashboard' },
   ],
   evening: [
-    { title: 'Evening Deals at Mova99 🌙', body: 'End your day with great savings. Products from $8 flat $2.41 ship!', landing: '/dashboard' },
+    { title: 'Evening Deals at Mova99 🌙', body: 'End your day with great savings. Products from $8 with FREE shipping!', landing: '/dashboard' },
     { title: 'Tonight Only Deals 🔥', body: 'Shop jewelry, fashion, electronics and more at Mova99!', landing: '/dashboard' },
     { title: 'Before You Sleep 💤', body: 'Grab tonight\'s best deals at Mova99. Fast USA delivery!', landing: '/dashboard' },
     { title: 'Earn $15,000 Free 💸', body: 'Join Mova99 referral program. 5% on every purchase. No investment!', landing: '/signup' },
-    { title: 'Good Evening! 🌙', body: 'Millions of products from $8. Flat $2.41 shipping on every order.', landing: '/dashboard' },
+    { title: 'Good Evening! 🌙', body: 'Millions of products from $8. FREE shipping on every order.', landing: '/dashboard' },
     { title: 'Night Shopping at Mova99 🛍️', body: 'Browse and buy anytime. 24/7 shopping with fast USA delivery.', landing: '/dashboard' },
     { title: 'Last Chance Tonight ⏰', body: 'Today\'s best deals on jewelry, fashion and electronics!', landing: '/dashboard' },
   ]
