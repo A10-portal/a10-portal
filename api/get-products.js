@@ -121,12 +121,13 @@ export default async function handler(req, res) {
         // Filter — only import products where CJ price is $15+
         products = products.filter(p => parseFloat(p.sellPrice || 0) >= 15);
 
-        // Pricing: CJ price + 25% + $9.  Products with CJ price over $200 are excluded.
+        // Pricing: CJ price $200 and under -> x2.4 + $9. CJ price over $200 -> x2 only (no +$9).
         let result = products
-            .filter(p => parseFloat(p.sellPrice || 0) <= 200)  // skip products over $200 CJ price
             .map(p => {
                 const cjPrice = parseFloat(p.sellPrice || 0);
-                const sellPrice = (cjPrice * 1.25 + 9).toFixed(2); // +25% then +$9
+                const sellPrice = cjPrice > 200
+                    ? (cjPrice * 2).toFixed(2)       // over $200: x2 only
+                    : (cjPrice * 2.4 + 9).toFixed(2); // $200 and under: x2.4 then +$9
                 const sp = parseFloat(sellPrice);
                 const base = sp >= 101 ? 5 : 7 + (sp * 0.1);
                 const shippingCost = Math.max(base, 3).toFixed(2);
