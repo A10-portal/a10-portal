@@ -26,22 +26,9 @@ export default async function handler(req, res) {
 
         if (!itemsToCheckout || itemsToCheckout.length === 0) return res.status(400).json({ error: 'Cart is empty' });
 
-        // Tiered shipping: $15-$100 = $7+10%, $101+ = $5 flat, min $3, qty discount up to 50%
-        function calcShip(price, qty) {
-            const p = parseFloat(price) || 0;
-            const q = parseInt(qty) || 1;
-            const base = p >= 101 ? 5.0 : 7 + (p * 0.1);
-            if (q <= 1) return Math.max(base, 3);
-            const step = Math.max((base - 3) / 4, 0);
-            return Math.max(base - (step * (q - 1)), 3);
-        }
-        const totalShipping = itemsToCheckout.reduce((sum, item) => {
-            const itemPrice = parseFloat(item.price || 0);
-            const itemQty = item.qty || 1;
-            const itemShip = parseFloat(item.shippingCost || calcShip(itemPrice, itemQty));
-            return sum + itemShip;
-        }, 0);
-        const shippingAmount = Math.round(Math.max(totalShipping, 3) * 100);
+        // FREE SHIPPING — shipping cost is built into the product price.
+        // Customers see $0 shipping at checkout.
+        const shippingAmount = 0;
         const shippingGroups = 1;
 
         const lineItems = itemsToCheckout.map(item => {
@@ -100,7 +87,7 @@ export default async function handler(req, res) {
         if (cartStr.length > 490) cartStr = buildCartStr(itemsToCheckout.slice(0, 3), 2);
 
         // Build shipping label
-        const shippingLabel = `Standard Shipping — USA ($${(shippingAmount/100).toFixed(2)})`;
+        const shippingLabel = `Free Shipping — USA`;
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
