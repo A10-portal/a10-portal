@@ -184,6 +184,57 @@ async function handleFulfill(req, res) {
 }
 
 
+async function handleAddManualOrder(req, res) {
+    const { userId, customerEmail, productName, price, description, color, size, photo, trackingNumber, trackingLink, markShipped } = req.body || {};
+    if (!customerEmail || !productName || !price) return res.status(400).json({ error: 'Email, product name and price are required' });
+    const client = new MongoClient(uri);
+    try {
+        await client.connect();
+        const db = client.db('foundry_db');
+
+        // Try to link to an existing user by userId or email
+        let user = null;
+        if (userId) user = await db.collection('users').findOne({ uniqueID: userId });
+        if (!user && customerEmail) user = await db.collection('users').findOne({ email: customerEmail });
+        const linkedUserId = user?.uniqueID || userId || '';
+        const firstName = (user?.fullName || 'Customer').split(' ')[0];
+        const priceNum = parseFloat(price) || 0;
+
+        const orderDoc = {
+            userId: linkedUserId,
+            customerEmail,
+            items: [{
+                name: productName,
+                price: priceNum.toFixed(2),
+                description: description || '',
+                color: color || '',
+                size: size || '',
+                image: photo || '',
+                qty: 1
+            }],
+            amountTotal: priceNum,
+            status: markShipped ? 'shipped' : 'processing',
+            manualOrder: true,
+            source: 'support_manual',
+            trackingNumber: markShipped ? (trackingNumber || '') : '',
+            trackingLink: markShipped ? (trackingLink || '') : '',
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+        const result = await db.collection('orders').insertOne(orderDoc);
+
+        // Notify customer if marked shipped
+        if (markShipped && customerEmail) {
+            await resend.emails.send({
+                from: process.env.NT_EMAIL || 'Mova99 <onboarding@resend.dev>', to: customerEmail,
+                subject: 'Your Mova99 Order Has Shipped!',
+                html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:40px;background:#fafafa"><div style="background:#0a0a0a;padding:20px 28px;margin-bottom:24px"><h1 style="color:#fafafa;font-size:20px;font-weight:900;margin:0">Mova<span style="color:#c9a84c">99</span></h1></div><h2 style="font-size:22px;font-weight:900">Your Order is On Its Way! 📦</h2><p style="color:#666;font-size:14px;margin:12px 0">Dear ${firstName}, your order for <strong>${productName}</strong> has been shipped.</p>${trackingNumber ? `<div style="border:2px solid #0a0a0a;padding:20px;margin:20px 0;text-align:center"><p style="font-size:11px;text-transform:uppercase;color:#999;margin:0 0 8px;letter-spacing:.1em">Tracking Number</p><p style="font-size:22px;font-weight:900;margin:0;letter-spacing:2px">${trackingNumber}</p></div>` : ''}<p style="font-size:13px;color:#666">Estimated delivery: 6-13 business days.</p><a href="https://www.mova99.com/dashboard#orders" style="display:inline-block;background:#0a0a0a;color:white;padding:12px 24px;text-decoration:none;font-size:11px;font-weight:800;text-transform:uppercase;margin-top:16px">Track Order →</a></div>`
+            });
+        }
+        return res.status(200).json({ success: true, orderId: result.insertedId, linked: !!user });
+    } finally { await client.close(); }
+}
+
 async function handleReferralStats(req, res) {
     const { refCode, dateFrom, dateTo } = req.query;
     if (!refCode) return res.status(400).json({ error: 'Missing refCode' });
@@ -241,6 +292,7 @@ export default async function handler(req, res) {
     if (action === 'users') return handleUsers(req, res);
     if (action === 'update-user') return handleUpdateUser(req, res);
     if (action === 'fulfill') return handleFulfill(req, res);
+    if (action === 'add-manual-order') return handleAddManualOrder(req, res);
     if (action === 'referral-stats') return handleReferralStats(req, res);
     return res.status(404).json({ error: 'Unknown action' });
 }
