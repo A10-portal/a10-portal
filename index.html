@@ -763,9 +763,16 @@ async function loadFeed() {
         <p style="color:#888;font-size:14px">Could not load products. Please refresh.</p>
       </div>`;
       FEED.done = true;
+    } else {
+      // A transient network hiccup shouldn't permanently stop the feed. Retrying here
+      // (rather than waiting for the IntersectionObserver to re-fire) matters because the
+      // observer only fires on a change of intersection state — if this failed fetch adds
+      // no new cards, the sentinel's on-screen position never moves, so the observer would
+      // never re-trigger until the user scrolled away and back.
+      FEED.loading = false;
+      setTimeout(loadFeed, 1200);
+      return;
     }
-    // For later pages, a transient network hiccup shouldn't permanently stop the feed —
-    // just let the next scroll trigger try again.
   } finally {
     FEED.loading = false;
     document.getElementById('feed-loader').style.display = 'none';
@@ -1266,12 +1273,21 @@ window.addEventListener('DOMContentLoaded', () => {
       if (entries[0].isIntersecting) loadFeed();
     }, { rootMargin: '600px' });
     io.observe(sentinel);
-  } else {
-    // fallback: scroll listener
-    window.addEventListener('scroll', () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 700) loadFeed();
-    });
   }
+  // Redundant scroll-based check (works alongside the observer above, not just as a
+  // fallback for old browsers). IntersectionObserver only re-fires when the sentinel's
+  // intersection state *changes* — if a page silently failed or came back empty without
+  // adding new cards, the sentinel never moves and the observer would never re-trigger.
+  // This periodic check guarantees the feed can always recover on its own.
+  let _scrollCheckTicking = false;
+  window.addEventListener('scroll', () => {
+    if (_scrollCheckTicking) return;
+    _scrollCheckTicking = true;
+    requestAnimationFrame(() => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 800) loadFeed();
+      _scrollCheckTicking = false;
+    });
+  });
 
   // ── Back to top button ──
   const backTop = document.getElementById('back-top');
