@@ -47,6 +47,7 @@ if (localStorage.getItem('mova_cookie_consent') === 'accepted') loadAnalytics();
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
+html{background:#fff}
 :root{--orange:#ff6100;--orange-light:#ff8533;--orange-pale:#fff3ed;--green:#0a8800;--green-dark:#076600;--text:#1a1a1a;--border:#f0f0f0;--bg:#fff}
 body{font-family:'Inter',sans-serif;background:#fff;color:var(--text)}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--orange);border-radius:2px}
@@ -54,13 +55,24 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text)}
 .nav-inner{max-width:1000px;margin:auto;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .nav-logo{font-size:20px;font-weight:900;font-style:italic;color:var(--orange);text-decoration:none;letter-spacing:-1px}
 .nav-logo span{color:var(--text)}
-.nav-links{display:flex;gap:8px;align-items:center}
-.nav-btn{padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .18s;font-family:inherit}
+.nav-track-link{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#888;text-decoration:none;white-space:nowrap;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.nav-track-link:hover{color:var(--orange)}
+.nav-links{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.nav-btn{padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .18s;font-family:inherit;white-space:nowrap}
 .nav-btn-outline{background:transparent;border:2px solid var(--orange);color:var(--orange)}
 .nav-btn-solid{background:var(--orange);border:2px solid var(--orange);color:#fff}
-.nav-cart-btn{position:relative;width:38px;height:38px;border-radius:50%;background:var(--orange);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.nav-cart-btn{position:relative;width:38px;height:38px;border-radius:50%;background:var(--orange);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .cart-badge{position:absolute;top:-3px;right:-3px;background:#ef4444;color:#fff;font-size:8px;font-weight:900;border-radius:50%;width:16px;height:16px;display:none;align-items:center;justify-content:center}
 .cart-badge.show{display:flex}
+@media(max-width:640px){
+  .nav-track-link span{display:none}
+}
+@media(max-width:480px){
+  .nav{padding:0 12px}
+  .nav-logo{font-size:17px}
+  .nav-btn{padding:7px 10px;font-size:11px}
+  .nav-links{gap:5px}
+}
 .page{max-width:1100px;margin:0 auto;padding:20px}
 .breadcrumb{font-size:12px;color:#888;margin-bottom:16px}
 .breadcrumb a{color:var(--orange);text-decoration:none}
@@ -195,7 +207,7 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text)}
   .add-btn{padding:15px;font-size:15px}.delivery-info{gap:6px}
   .delivery-chip{padding:6px 8px;min-width:90px}.delivery-chip span{font-size:14px}
   .features{gap:6px}.feature{padding:8px 6px}.gallery-main{border-radius:10px}
-  .product-info{padding:14px}.nav-btn-outline{display:none}
+  .product-info{padding:14px}
   .qty-btn{width:28px;height:28px}.vbtn{padding:5px 10px;font-size:10px}
   .review-section{padding:14px}
   .review-head{gap:10px}
@@ -257,6 +269,7 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text)}
 <nav class="nav">
   <div class="nav-inner">
     <a href="/" class="nav-logo">Mova<span>99</span></a>
+    <a href="https://track.mova99.com" target="_blank" class="nav-track-link">📦<span>&nbsp;Track your order at track.mova99.com</span></a>
     <div class="nav-links">
       <a href="/signup" class="nav-btn nav-btn-outline" style="display:none" id="nav-signup">Sign Up</a>
       <a href="/login?redirect=product" class="nav-btn nav-btn-solid" id="nav-login">Sign In</a>
@@ -739,7 +752,6 @@ async function loadProduct(pid) {
     // Was price always 40-70% above listed price
 
     // Shipping uses listedPrice (d.sellPrice) — never variant price
-    const initShip = calcShipping(listedPrice, 1);
 
     // _p.basePrice = listedPrice always — never changes from variant
     _p = { pid, name, basePrice: listedPrice, image: mainImage, qty: 1, vid: variants[0]?.vid||'', color: variants[0]?.color||'', size: variants[0]?.size||'' };
@@ -800,7 +812,7 @@ async function loadProduct(pid) {
           <div class="product-info">
             <h1 class="product-title">${name}</h1>
             <div id="prod-price" class="product-price">$${listedPrice.toFixed(2)}</div>
-            <div class="shipping-badge" id="shipping-badge">📦 Shipping: $${initShip} — USA (add more to save)</div>
+            <div class="shipping-badge" id="shipping-badge">🚚 FREE SHIPPING — USA</div>
             <div class="delivery-info">
               <div class="delivery-chip"><span>1-2</span>Processing Days</div>
               <div class="delivery-chip"><span>3-8</span>Delivery Days</div>
@@ -1067,14 +1079,7 @@ if (pid) {
 </div>
 
 <script>
-(function() {
-  if (!localStorage.getItem('mova_cookie_consent')) {
-    setTimeout(function() {
-      const b = document.getElementById('cookie-banner');
-      if (b) b.classList.add('show');
-    }, 1200);
-  }
-})();
+// ── Cookie Consent System (banner disabled — non-obstructive; managed via Manage Preferences link) ──
 function setCookieConsent(choice) {
   localStorage.setItem('mova_cookie_consent', choice);
   localStorage.setItem('mova_cookie_analytics', choice === 'accepted' ? '1' : '0');
