@@ -2,6 +2,15 @@ import axios from 'axios';
 
 const H = tok => ({ 'CJ-Access-Token': tok });
 
+// Pricing: CJ price + 25% + $9. Products with a CJ price over $200 are sold at the
+// original CJ price (no markup applied) — kept consistent with api/get-products.js.
+function markupPrice(cjPriceStr) {
+    const cjPrice = parseFloat(cjPriceStr || 0);
+    if (!cjPrice) return '';
+    if (cjPrice > 200) return cjPrice.toFixed(2);
+    return (cjPrice * 1.25 + 9).toFixed(2);
+}
+
 const SIZES = new Set([
     'xs','s','m','l','xl','xxl','xxxl','2xl','3xl','4xl','5xl','6xl',
     'small','medium','large','free size','one size','freesize','onesize',
@@ -158,7 +167,7 @@ export default async function handler(req, res) {
                 variantImage:     v.variantImage  || '',
                 variantStock:     v.variantStock  > 0 ? v.variantStock : 999,
                 variantSellPrice: v.variantSellPrice
-                    ? (parseFloat(v.variantSellPrice) * 2.4).toFixed(2) : '',
+                    ? markupPrice(v.variantSellPrice) : '',
                 productSku:       v.productSku  || '',
                 variantSku:       v.variantSku  || '',
                 color, size, displayName
@@ -173,7 +182,7 @@ export default async function handler(req, res) {
         return res.status(200).json({
             pid:             product.pid || pid,
             productNameEn:   product.productNameEn || product.productName || '',
-            sellPrice:       product.sellPrice ? (parseFloat(product.sellPrice) * 2.4).toFixed(2) : '',
+            sellPrice:       product.sellPrice ? markupPrice(product.sellPrice) : '',
             productImage:    product.productImage  || '',
             productGallery:  product.productGallery || [],
             productSku:      product.productSku    || '',
@@ -196,7 +205,7 @@ export default async function handler(req, res) {
             shippingCost:    product.sellPrice ? (function(p){
                 const base = p >= 101 ? 5 : 7 + (p * 0.1);
                 return Math.max(base, 3).toFixed(2);
-            })(parseFloat(product.sellPrice) * 2.4) : null,
+            })(parseFloat(markupPrice(product.sellPrice))) : null,
             shippingName:    'Standard Shipping',
             shippingDays:    '3-8',
             variants
