@@ -119,7 +119,6 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .pcard-img { background: linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%); background-size: 200% 100%; animation: shimmer .8s infinite; }
 .pcard-img img[style*='opacity: 1'] { animation: none; }
 .pcard:hover .pcard-img img { transform: scale(1.04); }
-.hot-tag { position: absolute; top: 7px; left: 7px; background: var(--orange); color: white; font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 4px; }
 .pcard-body { padding: 8px 10px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
 .pcard-name { font-size: 11px; line-height: 1.35; height: 30px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: var(--text); }
 .pcard-price { font-size: 15px; font-weight: 800; color: var(--orange); }
@@ -777,9 +776,6 @@ function appendProductCard(grid, p) {
   // Store product in registry — onclick only passes pid, avoiding all quote/escape bugs
   PRODUCT_REGISTRY[p.pid] = p;
 
-  const fire = Math.random() < 0.72;
-  const fakeOld = fire ? (parseFloat(p.sellPrice) * (1.25 + Math.random()*.4)).toFixed(2) : null;
-  const pct = fire ? Math.floor(15 + Math.random()*38) : 0;
   const inCart = cart.some(i => i.pid === p.pid || i.pid.startsWith(p.pid+'-'));
   const pid = p.pid;
 
@@ -789,15 +785,12 @@ function appendProductCard(grid, p) {
   div.dataset.pid = pid;
   div.innerHTML = `
     <div class="pcard-img pcard-open" data-pid="${pid}">
-      ${fire ? '<div class="hot-tag">🔥 HOT</div>' : ''}
       <img src="${imgUrl(p.productImage)}" alt="" loading="eager" onload="this.style.animation='flashIn .25s ease forwards';this.style.opacity='1'" onerror="this.style.opacity='.2'">
     </div>
     <div class="pcard-body pcard-open" data-pid="${pid}">
       <div class="pcard-name">${p.productNameEn || p.productName}</div>
       <div class="flex items-center gap-2" style="flex-wrap:wrap">
         <span class="pcard-price">$${p.sellPrice}</span>
-        ${fakeOld ? `<span class="pcard-old">$${fakeOld}</span>` : ''}
-        ${fire ? `<span style="font-size:9px;font-weight:800;color:var(--orange);background:var(--orange-pale);padding:2px 6px;border-radius:3px">${pct}% OFF</span>` : ''}
       </div>
     </div>
     <div class="pcard-footer">
