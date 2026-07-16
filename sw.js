@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mova99-v4';
+const CACHE_NAME = 'mova99-v5';
 const STATIC_ASSETS = ['/', '/dashboard', '/login', '/signup', '/image/logo.PNG'];
 
 self.addEventListener('install', event => {
