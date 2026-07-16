@@ -2,13 +2,13 @@ import axios from 'axios';
 
 const H = tok => ({ 'CJ-Access-Token': tok });
 
-// Pricing: CJ price + 25% + $9. Products with a CJ price over $200 are sold at the
-// original CJ price (no markup applied) — kept consistent with api/get-products.js.
+// Pricing: CJ price $200 and under -> x2.4 + $9. CJ price over $200 -> x2 only (no +$9).
+// Kept consistent with api/get-products.js.
 function markupPrice(cjPriceStr) {
     const cjPrice = parseFloat(cjPriceStr || 0);
     if (!cjPrice) return '';
-    if (cjPrice > 200) return cjPrice.toFixed(2);
-    return (cjPrice * 1.25 + 9).toFixed(2);
+    if (cjPrice > 200) return (cjPrice * 2).toFixed(2);
+    return (cjPrice * 2.4 + 9).toFixed(2);
 }
 
 const SIZES = new Set([
