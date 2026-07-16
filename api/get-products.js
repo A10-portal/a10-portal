@@ -65,9 +65,20 @@ export default async function handler(req, res) {
     }
 
     const requestedPage = parseInt(page) || 1;
-    const cjPage = (!q && requestedPage === 1)
-        ? (Math.floor(Math.random() * 6) + 1)
-        : requestedPage;
+    // CJ's catalog for any single keyword only goes a few pages deep. Previously we sent the
+    // client's ever-increasing page counter straight through as CJ's pageNum, so once CJ ran out
+    // of pages it started returning empty lists and the feed permanently stopped loading.
+    // Fix: wrap the CJ page number into a bounded range (and re-randomize it from the seed for
+    // every request, not just the first one) so there's always a valid page to fetch and the
+    // feed can keep loading indefinitely.
+    const MAX_CJ_PAGE_WRAP = 20;
+    let cjPage;
+    if (!q) {
+        const seedNum = parseInt(seed) || Math.floor(Math.random() * 1000);
+        cjPage = (seedNum % MAX_CJ_PAGE_WRAP) + 1;
+    } else {
+        cjPage = ((requestedPage - 1) % MAX_CJ_PAGE_WRAP) + 1;
+    }
 
     const base = {
         pageNum:     cjPage,
@@ -110,12 +121,12 @@ export default async function handler(req, res) {
         // Filter — only import products where CJ price is $15+
         products = products.filter(p => parseFloat(p.sellPrice || 0) >= 15);
 
-        // Pricing: CJ price + 10% + $9.  Products with CJ price over $200 are excluded.
+        // Pricing: CJ price + 25% + $9.  Products with CJ price over $200 are excluded.
         let result = products
             .filter(p => parseFloat(p.sellPrice || 0) <= 200)  // skip products over $200 CJ price
             .map(p => {
                 const cjPrice = parseFloat(p.sellPrice || 0);
-                const sellPrice = (cjPrice * 1.10 + 9).toFixed(2); // +10% then +$9
+                const sellPrice = (cjPrice * 1.25 + 9).toFixed(2); // +25% then +$9
                 const sp = parseFloat(sellPrice);
                 const base = sp >= 101 ? 5 : 7 + (sp * 0.1);
                 const shippingCost = Math.max(base, 3).toFixed(2);
