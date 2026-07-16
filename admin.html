@@ -180,6 +180,7 @@ tr:hover td { background: #fafafa; }
     <div class="sidebar-divider"></div>
     <div class="nav-item active" id="nav-home" onclick="showTab('home')"><span class="nav-icon">📊</span> Dashboard</div>
     <div class="nav-item" id="nav-orders" onclick="showTab('orders')"><span class="nav-icon">📦</span> Orders</div>
+    <div class="nav-item" id="nav-manual" onclick="showTab('manual')"><span class="nav-icon">➕</span> Add Manual Order</div>
     <div class="nav-item" id="nav-users" onclick="showTab('users')"><span class="nav-icon">👥</span> Users</div>
     <div class="nav-item" id="nav-fulfill" onclick="showTab('fulfill')"><span class="nav-icon">🚚</span> Fulfill</div>
     <div class="nav-item" id="nav-push" onclick="showTab('push')"><span class="nav-icon">🔔</span> Push Notify</div>
@@ -237,7 +238,7 @@ function af(url, opts = {}) {
 // ══════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════
-const TAB_TITLES = { home:'Dashboard', orders:'Orders', users:'Users', fulfill:'Fulfill Order', push:'Push Notifications' };
+const TAB_TITLES = { home:'Dashboard', orders:'Orders', manual:'Add Manual Order', users:'Users', fulfill:'Fulfill Order', push:'Push Notifications' };
 
 function showTab(tab) {
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -254,6 +255,7 @@ function showTab(tab) {
   if (tab === 'orders')  loadOrders();
   if (tab === 'users')   loadUsers();
   if (tab === 'fulfill') renderFulfill();
+  if (tab === 'manual')  renderManualOrder();
   if (tab === 'push')    renderPush();
 }
 
@@ -789,6 +791,81 @@ async function doFulfill(action) {
       showMsg(msg, action==='ship' ? '✓ Order shipped! Customer notified.' : '✓ Order declined. Customer notified.', true);
       ['f-uid','f-oid','f-tracking','f-link','f-reason'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
     } else showMsg(msg, d.error||'Failed', false);
+  } catch(e) { showMsg(msg, 'Network error', false); }
+}
+
+// ══════════════════════════════════════════════════
+// ADD MANUAL ORDER — for customers who order via support email
+// ══════════════════════════════════════════════════
+function renderManualOrder() {
+  const content = document.getElementById('content');
+  content.innerHTML = `
+    <div class="card" style="max-width:600px">
+      <div class="card-title">Add Manual Order</div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Use this when a customer contacts support to place an order. Fill in the details, optionally mark as shipped, and the customer gets a shipping email.</p>
+      <div class="space-y">
+        <div><label class="field-label">Customer Gmail / Email *</label><input id="m-email" class="field-input" placeholder="customer@gmail.com"></div>
+        <div><label class="field-label">User ID (optional — links to their account)</label><input id="m-uid" class="field-input" placeholder="User uniqueID (leave blank if none)"></div>
+        <div><label class="field-label">Product Name *</label><input id="m-name" class="field-input" placeholder="e.g. Smart Kids Toothbrush"></div>
+        <div><label class="field-label">Price (USD) *</label><input id="m-price" class="field-input" type="number" step="0.01" placeholder="e.g. 31.00"></div>
+        <div><label class="field-label">Description</label><textarea id="m-desc" class="field-input" rows="3" placeholder="Product description..." style="resize:vertical"></textarea></div>
+        <div style="display:flex;gap:12px">
+          <div style="flex:1"><label class="field-label">Color</label><input id="m-color" class="field-input" placeholder="e.g. Blue"></div>
+          <div style="flex:1"><label class="field-label">Size</label><input id="m-size" class="field-input" placeholder="e.g. M"></div>
+        </div>
+        <div><label class="field-label">Photo URL</label><input id="m-photo" class="field-input" placeholder="https://... (image link)"></div>
+      </div>
+
+      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;cursor:pointer">
+          <input type="checkbox" id="m-shipped" onchange="toggleManualShip()" style="width:16px;height:16px;accent-color:var(--orange)">
+          Mark as Shipped &amp; email the customer
+        </label>
+        <div id="m-ship-fields" style="display:none;margin-top:12px" class="space-y">
+          <div><label class="field-label">Tracking Number</label><input id="m-tracking" class="field-input" placeholder="e.g. LW123456789CN"></div>
+          <div><label class="field-label">Tracking Link (optional)</label><input id="m-link" class="field-input" placeholder="https://..."></div>
+        </div>
+      </div>
+
+      <button onclick="submitManualOrder()" class="btn btn-green w-full mt-3">Create Order</button>
+      <div class="msg-box mt-3" id="m-msg"></div>
+    </div>`;
+}
+
+function toggleManualShip() {
+  const on = document.getElementById('m-shipped').checked;
+  document.getElementById('m-ship-fields').style.display = on ? 'block' : 'none';
+}
+
+async function submitManualOrder() {
+  const msg = document.getElementById('m-msg');
+  const body = {
+    customerEmail: document.getElementById('m-email')?.value.trim(),
+    userId:        document.getElementById('m-uid')?.value.trim(),
+    productName:   document.getElementById('m-name')?.value.trim(),
+    price:         document.getElementById('m-price')?.value.trim(),
+    description:   document.getElementById('m-desc')?.value.trim(),
+    color:         document.getElementById('m-color')?.value.trim(),
+    size:          document.getElementById('m-size')?.value.trim(),
+    photo:         document.getElementById('m-photo')?.value.trim(),
+    markShipped:   document.getElementById('m-shipped')?.checked || false,
+    trackingNumber: document.getElementById('m-tracking')?.value.trim() || '',
+    trackingLink:   document.getElementById('m-link')?.value.trim() || ''
+  };
+  if (!body.customerEmail || !body.productName || !body.price) {
+    showMsg(msg, 'Email, product name and price are required.', false); return;
+  }
+  try {
+    const r = await af('/api/admin-api?action=add-manual-order', {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (d.success) {
+      showMsg(msg, 'Order created' + (d.linked ? ' and linked to user account' : '') + (body.markShipped ? ' — customer emailed.' : '.'), true);
+      ['m-email','m-uid','m-name','m-price','m-desc','m-color','m-size','m-photo','m-tracking','m-link'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      const sh = document.getElementById('m-shipped'); if (sh) sh.checked = false;
+      toggleManualShip();
+    } else showMsg(msg, d.error || 'Failed', false);
   } catch(e) { showMsg(msg, 'Network error', false); }
 }
 
