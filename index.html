@@ -49,6 +49,7 @@ loadAnalytics();
   --white: #ffffff;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: #fff; }
 body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color: var(--text); overflow-x: hidden; }
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 2px; }
@@ -388,6 +389,7 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
     <a class="sidebar-link" href="/docs/15_terms_of_service.pdf" target="_blank">Terms of Service</a>
     <a class="sidebar-link" href="/docs/16_privacy_policy.pdf" target="_blank">Privacy Policy</a>
     <a class="sidebar-link" href="/docs/07_intellectual_property_policy.pdf" target="_blank">IP Policy</a>
+    <a class="sidebar-link" href="#" onclick="showCookiePreferences();return false;">Manage Cookie Preferences</a>
   </div>
 </aside>
 
@@ -609,10 +611,19 @@ var GOOD_CATEGORY_WORDS = ['dress','shirt','shoe','sneaker','bag','handbag','wat
   'jewelry','necklace','ring','earring','sunglasses','boot','sandal','backpack','wallet','beauty',
   'makeup','skincare','blouse','swimwear','activewear','tote','clothing','fashion','kids','baby'];
 
-function scoreProduct(p) {
+function scoreProduct(p, queryWords) {
   let score = 0;
   const price = parseFloat(p.sellPrice) || 0;
   const name = (p.productNameEn || p.productName || '').toLowerCase();
+
+  // 0) Relevance to what the person actually searched/filtered for — this is the
+  // biggest signal when there is a query, so the best-matching results surface first.
+  if (queryWords && queryWords.length) {
+    let matches = 0;
+    queryWords.forEach(w => { if (w && name.includes(w)) matches++; });
+    score += matches * 40;
+    if (matches === queryWords.length) score += 20; // full-phrase match bonus
+  }
 
   // 1) Price sweet-spot: $15-50 converts best for impulse buys
   if (price >= 15 && price <= 50) score += 30;
@@ -640,7 +651,10 @@ function scoreProduct(p) {
 }
 
 function rankProducts(list) {
-  return list.slice().sort((a, b) => scoreProduct(b) - scoreProduct(a));
+  const q = (FEED.query || FEED.keyword || '').toLowerCase().trim();
+  const stop = new Set(['for','the','and','with','a','an','in','on','of','to']);
+  const queryWords = q ? q.split(/\s+/).filter(w => w.length > 1 && !stop.has(w)) : null;
+  return list.slice().sort((a, b) => scoreProduct(b, queryWords) - scoreProduct(a, queryWords));
 }
 
 function buildCard(p) {
@@ -709,16 +723,22 @@ async function loadFeed() {
       if (FEED.page === 1) {
         document.getElementById('feed-empty').style.display = 'block';
         FEED.done = true;
+      } else if (FEED.query || FEED.keyword) {
+        // Searching/filtering has a natural end — stop once a page comes back empty.
+        FEED.done = true;
       } else {
-        // no new unique products this page — try a few more pages before giving up
+        // Browsing all: this should never truly end. If we've cycled through the
+        // current inventory (all dedup'd out), reset the seen-set so items can
+        // recycle — exactly how real infinite feeds behave once you've seen everything.
         FEED.emptyStreak = (FEED.emptyStreak || 0) + 1;
         FEED.page++;
-        if (FEED.emptyStreak < 4 && !FEED.query && !FEED.keyword) {
-          FEED.loading = false;
-          document.getElementById('feed-loader').style.display = 'none';
-          return loadFeed(); // keep trying with next seed
+        if (FEED.emptyStreak >= 4) {
+          SHOWN_PIDS = new Set();
+          FEED.emptyStreak = 0;
         }
-        FEED.done = true;
+        FEED.loading = false;
+        document.getElementById('feed-loader').style.display = 'none';
+        return loadFeed(); // keep going — infinite means infinite
       }
     } else {
       FEED.emptyStreak = 0;
@@ -732,8 +752,10 @@ async function loadFeed() {
       grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px">
         <p style="color:#888;font-size:14px">Could not load products. Please refresh.</p>
       </div>`;
+      FEED.done = true;
     }
-    FEED.done = true;
+    // For later pages, a transient network hiccup shouldn't permanently stop the feed —
+    // just let the next scroll trigger try again.
   } finally {
     FEED.loading = false;
     document.getElementById('feed-loader').style.display = 'none';
