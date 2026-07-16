@@ -87,6 +87,10 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
   .nav-search-mobile { display: block; }
 }
 /* ===== TRUST BAR ===== */
+.refresh-bar { display: flex; justify-content: flex-end; padding: 6px 16px 0; max-width: 1280px; margin: auto; }
+.refresh-btn { display: flex; align-items: center; gap: 5px; background: #fff; border: 1.5px solid var(--border); color: #555; font-size: 11.5px; font-weight: 700; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-family: inherit; transition: all .15s; }
+.refresh-btn:hover { border-color: var(--orange); color: var(--orange); }
+.refresh-btn.spinning svg { animation: spin .6s linear; }
 .trust-bar { display: flex; justify-content: center; flex-wrap: wrap; gap: 18px; background: #fff8f3; border-bottom: 1px solid var(--border); padding: 9px 16px; font-size: 11.5px; font-weight: 700; color: #a15220; }
 .trust-bar span { white-space: nowrap; }
 @media(max-width:520px){ .trust-bar { gap: 12px; font-size: 10.5px; } }
@@ -391,6 +395,10 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
     <a class="sidebar-link" href="/docs/07_intellectual_property_policy.pdf" target="_blank">IP Policy</a>
     <a class="sidebar-link" href="#" onclick="showCookiePreferences();return false;">Manage Cookie Preferences</a>
   </div>
+  <div class="sidebar-section" style="border-bottom:none">
+    <p style="font-size:10.5px;color:#aaa;padding:6px 18px 2px;line-height:1.6">© 2026 Mova99 LLC · Premium USA Marketplace</p>
+    <p style="font-size:10.5px;color:#aaa;padding:0 18px;line-height:1.6">Powered by Stripe · Secure Payments · support@mova99.com</p>
+  </div>
 </aside>
 
 <!-- TOP NAV -->
@@ -416,6 +424,14 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
     <input type="search" id="search-input-m" placeholder="Search products…" autocomplete="off" oninput="onSearchTypeM()">
   </div>
 </nav>
+
+<!-- REFRESH PRODUCTS -->
+<div class="refresh-bar">
+  <button class="refresh-btn" id="refresh-feed-btn" onclick="manualRefreshFeed()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M4.5 9a8 8 0 0114-4M19.5 15a8 8 0 01-14 4"/></svg>
+    <span>Refresh Products</span>
+  </button>
+</div>
 
 <!-- TRUST BAR -->
 <div class="trust-bar">
@@ -465,22 +481,6 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
     <div id="feed-sentinel" style="height:1px"></div>
   </div>
 </section>
-
-<!-- FOOTER -->
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-bottom" style="border-top:none;padding-top:0">
-      <p class="footer-copy">© 2026 Mova99 LLC · Premium USA Marketplace · www.mova99.com</p>
-      <p style="font-size:11px;color:#333">Powered by Stripe · Secure Payments · support@mova99.com</p>
-      <p style="font-size:11px;color:#333;margin-top:6px">
-        <a href="/docs/16_privacy_policy.pdf" class="footer-link" style="display:inline;margin:0 8px 0 0" target="_blank">Privacy</a>·
-        <a href="/docs/15_terms_of_service.pdf" class="footer-link" style="display:inline;margin:0 8px" target="_blank">Terms</a>·
-        <a href="/docs/06_return_refund_policy.pdf" class="footer-link" style="display:inline;margin:0 8px" target="_blank">Returns</a>·
-        <a href="#" onclick="showCookiePreferences();return false;" class="footer-link" style="display:inline;margin:0 0 0 8px">Manage Preferences</a>
-      </p>
-    </div>
-  </div>
-</footer>
 
 <!-- FLOATING CART BUTTON -->
 <!-- FLOATING DRAGGABLE CART -->
@@ -688,6 +688,16 @@ function resetFeed() {
   loadFeed();
 }
 
+// Manual refresh button — lets the user reload the feed on demand if it ever looks stuck
+function manualRefreshFeed() {
+  const btn = document.getElementById('refresh-feed-btn');
+  if (btn) {
+    btn.classList.add('spinning');
+    setTimeout(() => btn.classList.remove('spinning'), 700);
+  }
+  resetFeed();
+}
+
 async function loadFeed() {
   if (FEED.loading || FEED.done) return;
   FEED.loading = true;
@@ -732,7 +742,7 @@ async function loadFeed() {
         // recycle — exactly how real infinite feeds behave once you've seen everything.
         FEED.emptyStreak = (FEED.emptyStreak || 0) + 1;
         FEED.page++;
-        if (FEED.emptyStreak >= 4) {
+        if (FEED.emptyStreak >= 1) {
           SHOWN_PIDS = new Set();
           FEED.emptyStreak = 0;
         }
