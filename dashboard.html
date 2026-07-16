@@ -32,6 +32,7 @@
   --sidebar-w: 220px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: #fff; }
 body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
 ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 2px; }
 
@@ -316,6 +317,12 @@ input:focus, select:focus, textarea:focus { outline: none; }
 <!-- ── SIDEBAR ── -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">MOVA99</div>
+  <div class="sidebar-divider"></div>
+
+  <a class="nav-item" href="https://track.mova99.com" target="_blank" style="text-decoration:none;background:var(--orange-pale);color:var(--orange);font-weight:800">
+    <span class="nav-icon">📦</span><span>Track Your Order</span>
+  </a>
+  <p style="font-size:10.5px;color:#999;padding:2px 16px 8px;line-height:1.5">Track anytime at <a href="https://track.mova99.com" target="_blank" style="color:var(--orange);font-weight:700">track.mova99.com</a></p>
   <div class="sidebar-divider"></div>
 
   <div class="sidebar-section-label">Shop</div>
@@ -2022,14 +2029,7 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 </div>
 
 <script>
-(function() {
-  if (!localStorage.getItem('mova_cookie_consent')) {
-    setTimeout(function() {
-      const b = document.getElementById('cookie-banner');
-      if (b) b.classList.add('show');
-    }, 1200);
-  }
-})();
+// ── Cookie Consent System (banner disabled — non-obstructive; managed via Manage Preferences link) ──
 function setCookieConsent(choice) {
   localStorage.setItem('mova_cookie_consent', choice);
   localStorage.setItem('mova_cookie_analytics', choice === 'accepted' ? '1' : '0');
