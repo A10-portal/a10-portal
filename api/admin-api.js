@@ -199,11 +199,14 @@ async function handleAddManualOrder(req, res) {
         const linkedUserId = user?.uniqueID || userId || '';
         const firstName = (user?.fullName || 'Customer').split(' ')[0];
         const priceNum = parseFloat(price) || 0;
+        const amountCents = Math.round(priceNum * 100); // stored in cents to match dashboard (/100)
 
         const orderDoc = {
             userId: linkedUserId,
             customerEmail,
+            shippingName: user?.fullName || '',
             items: [{
+                pid: 'MANUAL-' + Date.now(),
                 name: productName,
                 price: priceNum.toFixed(2),
                 description: description || '',
@@ -212,7 +215,7 @@ async function handleAddManualOrder(req, res) {
                 image: photo || '',
                 qty: 1
             }],
-            amountTotal: priceNum,
+            amountTotal: amountCents,
             status: markShipped ? 'shipped' : 'processing',
             manualOrder: true,
             source: 'support_manual',
