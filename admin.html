@@ -805,7 +805,7 @@ function renderManualOrder() {
       <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Use this when a customer contacts support to place an order. Fill in the details, optionally mark as shipped, and the customer gets a shipping email.</p>
       <div class="space-y">
         <div><label class="field-label">Customer Gmail / Email *</label><input id="m-email" class="field-input" placeholder="customer@gmail.com"></div>
-        <div><label class="field-label">User ID (optional — links to their account)</label><input id="m-uid" class="field-input" placeholder="User uniqueID (leave blank if none)"></div>
+        <div><label class="field-label">User ID (links order to their account so it shows in their dashboard)</label><input id="m-uid" class="field-input" placeholder="User uniqueID — required for it to show in their Orders tab"></div>
         <div><label class="field-label">Product Name *</label><input id="m-name" class="field-input" placeholder="e.g. Smart Kids Toothbrush"></div>
         <div><label class="field-label">Price (USD) *</label><input id="m-price" class="field-input" type="number" step="0.01" placeholder="e.g. 31.00"></div>
         <div><label class="field-label">Description</label><textarea id="m-desc" class="field-input" rows="3" placeholder="Product description..." style="resize:vertical"></textarea></div>
