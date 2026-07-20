@@ -8,7 +8,7 @@
 <title>Marketplace | Mova99</title>
 <link rel="icon" type="image/png" href="/image/logo.png">
 <script src="https://js.stripe.com/v3/"></script>
-<script src="https://www.paypal.com/sdk/js?client-id=AUayzCbWaMax6oycAb3fSYs-b3rAtTv8d0shr8X7IsDQiWnWNKxhI96Pz7ZHb6A7gEiAUvMv_bjtWyPO&currency=USD&enable-funding=paylater,venmo&components=buttons" data-sdk-integration-source="button-factory"></script>
+<!-- PayPal disabled (account deactivated) - Stripe only -->
 
 <!-- Gatekeeper -->
 <script>
@@ -426,15 +426,6 @@ input:focus, select:focus, textarea:focus { outline: none; }
   <div class="modal-box" style="max-width:520px">
     <button class="modal-close" onclick="closeStripeModal()">×</button>
     <div style="padding:24px">
-      <!-- PayPal + Pay in 4 buttons -->
-      <div id="paypal-button-container" style="margin-bottom:8px"></div>
-      <div id="paypal-msg" style="text-align:center;font-size:12px;color:#c00;min-height:0;margin-bottom:8px"></div>
-      <!-- divider -->
-      <div style="display:flex;align-items:center;gap:12px;margin:16px 0;color:#999;font-size:12px;font-weight:600">
-        <div style="flex:1;height:1px;background:#e0e0e0"></div>
-        <span>OR PAY WITH CARD</span>
-        <div style="flex:1;height:1px;background:#e0e0e0"></div>
-      </div>
       <!-- Stripe embedded checkout -->
       <div id="stripe-container"></div>
     </div>
@@ -1291,59 +1282,10 @@ function waitForStripe(maxWaitMs = 10000) {
   });
 }
 
-const PAYPAL_API = 'https://pay.mova99.com';
-let _ppButtonsRendered = false;
-
+const PAYPAL_API = '';
 function renderPayPalButtons() {
-  const container = document.getElementById('paypal-button-container');
-  const msg = document.getElementById('paypal-msg');
-  if (!container || !window.paypal) return;
-  // Clear any previous render
-  container.innerHTML = '';
-  _ppButtonsRendered = true;
-  if (msg) msg.textContent = '';
-
-  window.paypal.Buttons({
-    style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal' },
-
-    createOrder: async function() {
-      const r = await fetch(PAYPAL_API + '/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cart: window._checkoutCart || [],
-          userId: (session && session.id) || '',
-          checkedItems: (window._checkoutCart || []).map(i => i.pid),
-          orderNotes: window._checkoutNotes || ''
-        })
-      });
-      const d = await r.json();
-      if (!d.id) throw new Error(d.error || 'Could not start PayPal');
-      return d.id;
-    },
-
-    onApprove: async function(data) {
-      if (msg) msg.textContent = 'Processing payment...';
-      const r = await fetch(PAYPAL_API + '/capture-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderID: data.orderID })
-      });
-      const d = await r.json();
-      if (d.success) {
-        // Clear cart + go to success
-        try { localStorage.removeItem('mova_cart'); localStorage.removeItem('mova_cart_notes'); } catch(e){}
-        window.location.href = '/success.html?paypal=1&order=' + encodeURIComponent(d.orderId || '');
-      } else {
-        if (msg) msg.textContent = d.error || 'Payment could not be completed.';
-      }
-    },
-
-    onError: function(err) {
-      console.error('PayPal error:', err);
-      if (msg) msg.textContent = 'PayPal error. Please try card instead.';
-    }
-  }).render('#paypal-button-container');
+  // PayPal disabled — Stripe only
+  return;
 }
 
 async function showStripeCheckout(clientSecret) {
