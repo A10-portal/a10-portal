@@ -747,8 +747,8 @@ function renderFulfill() {
     <div class="card" style="max-width:560px">
       <div class="card-title">Fulfill Order</div>
       <div class="space-y">
-        <div><label class="field-label">User ID</label><input id="f-uid" class="field-input" placeholder="User uniqueID"></div>
-        <div><label class="field-label">Order ID (MongoDB _id)</label><input id="f-oid" class="field-input" placeholder="MongoDB _id"></div>
+        <div><label class="field-label">Order ID (MongoDB _id) *</label><input id="f-oid" class="field-input" placeholder="Required — matches the order"></div>
+        <div><label class="field-label">User ID (optional — leave blank for guest orders)</label><input id="f-uid" class="field-input" placeholder="Only needed if order is tied to an account"></div>
       </div>
 
       <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
@@ -779,7 +779,7 @@ async function doFulfill(action) {
   const link     = document.getElementById('f-link')?.value.trim() || '';
   const reason   = document.getElementById('f-reason')?.value.trim() || '';
   const msg      = document.getElementById('f-msg');
-  if (!uid||!oid) { showMsg(msg,'User ID and Order ID required.',false); return; }
+  if (!oid) { showMsg(msg,'Order ID is required.',false); return; }
   if (action==='ship'&&!tracking) { showMsg(msg,'Tracking number required.',false); return; }
   if (action==='decline'&&!reason) { showMsg(msg,'Decline reason required.',false); return; }
   try {
@@ -820,6 +820,24 @@ function renderManualOrder() {
       </div>
 
       <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
+        <p style="font-size:11px;font-weight:800;text-transform:uppercase;color:var(--orange);margin-bottom:12px">Shipping Information</p>
+        <div class="space-y">
+          <div><label class="field-label">Full Name</label><input id="m-ship-name" class="field-input" placeholder="Customer full name"></div>
+          <div><label class="field-label">Address Line 1</label><input id="m-ship-addr1" class="field-input" placeholder="Street address"></div>
+          <div><label class="field-label">Address Line 2</label><input id="m-ship-addr2" class="field-input" placeholder="Apt, suite, unit (optional)"></div>
+          <div style="display:flex;gap:12px">
+            <div style="flex:1"><label class="field-label">City</label><input id="m-ship-city" class="field-input" placeholder="City"></div>
+            <div style="flex:1"><label class="field-label">State</label><input id="m-ship-state" class="field-input" placeholder="State"></div>
+          </div>
+          <div style="display:flex;gap:12px">
+            <div style="flex:1"><label class="field-label">ZIP / Postal Code</label><input id="m-ship-zip" class="field-input" placeholder="ZIP code"></div>
+            <div style="flex:1"><label class="field-label">Country</label><input id="m-ship-country" class="field-input" value="United States" placeholder="Country"></div>
+          </div>
+          <div><label class="field-label">Phone Number</label><input id="m-ship-phone" class="field-input" placeholder="Customer phone"></div>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
         <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;cursor:pointer">
           <input type="checkbox" id="m-shipped" onchange="toggleManualShip()" style="width:16px;height:16px;accent-color:var(--orange)">
           Mark as Shipped &amp; email the customer
@@ -854,7 +872,15 @@ async function submitManualOrder() {
     photo:         document.getElementById('m-photo')?.value.trim(),
     markShipped:   document.getElementById('m-shipped')?.checked || false,
     trackingNumber: document.getElementById('m-tracking')?.value.trim() || '',
-    trackingLink:   document.getElementById('m-link')?.value.trim() || ''
+    trackingLink:   document.getElementById('m-link')?.value.trim() || '',
+    shipName:    document.getElementById('m-ship-name')?.value.trim() || '',
+    shipAddr1:   document.getElementById('m-ship-addr1')?.value.trim() || '',
+    shipAddr2:   document.getElementById('m-ship-addr2')?.value.trim() || '',
+    shipCity:    document.getElementById('m-ship-city')?.value.trim() || '',
+    shipState:   document.getElementById('m-ship-state')?.value.trim() || '',
+    shipZip:     document.getElementById('m-ship-zip')?.value.trim() || '',
+    shipCountry: document.getElementById('m-ship-country')?.value.trim() || '',
+    shipPhone:   document.getElementById('m-ship-phone')?.value.trim() || ''
   };
   if (!body.customerEmail || !body.productName || !body.price) {
     showMsg(msg, 'Email, product name and price are required.', false); return;
@@ -866,7 +892,8 @@ async function submitManualOrder() {
     const d = await r.json();
     if (d.success) {
       showMsg(msg, 'Order created' + (d.linked ? ' and linked to user account' : '') + (body.markShipped ? ' — customer emailed.' : '.'), true);
-      ['m-email','m-uid','m-name','m-price','m-qty','m-desc','m-color','m-size','m-photo','m-tracking','m-link'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      ['m-email','m-uid','m-name','m-price','m-qty','m-desc','m-color','m-size','m-photo','m-tracking','m-link','m-ship-name','m-ship-addr1','m-ship-addr2','m-ship-city','m-ship-state','m-ship-zip','m-ship-phone'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      const cc = document.getElementById('m-ship-country'); if (cc) cc.value = 'United States';
       const q = document.getElementById('m-qty'); if (q) q.value = '1';
       const sh = document.getElementById('m-shipped'); if (sh) sh.checked = false;
       toggleManualShip();
