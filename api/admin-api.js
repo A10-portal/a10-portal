@@ -143,6 +143,42 @@ async function handleUpdateUser(req, res) {
     } finally { await client.close(); }
 }
 
+async function handleUpdateShipping(req, res) {
+    const { orderId, shipName, shipAddr1, shipAddr2, shipCity, shipState, shipZip, shipCountry, shipPhone } = req.body || {};
+    if (!orderId) return res.status(400).json({ error: 'Order ID is required' });
+    const client = new MongoClient(uri);
+    try {
+        await client.connect();
+        const db = client.db('foundry_db');
+        let objectId;
+        try { objectId = new ObjectId(orderId); } catch (e) { return res.status(400).json({ error: 'Invalid order ID' }); }
+        const order = await db.collection('orders').findOne({ _id: objectId });
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+        // Only allow editing if not yet shipped
+        if (order.status === 'shipped' || order.status === 'delivered') {
+            return res.status(400).json({ error: 'Order already shipped — address cannot be changed' });
+        }
+        const newAddress = {
+            line1: shipAddr1 || '',
+            line2: shipAddr2 || '',
+            city: shipCity || '',
+            state: shipState || '',
+            postal_code: shipZip || '',
+            country: shipCountry || 'United States'
+        };
+        await db.collection('orders').updateOne(
+            { _id: objectId },
+            { $set: {
+                shippingName: shipName || order.shippingName || '',
+                shippingAddress: newAddress,
+                customerPhone: shipPhone || order.customerPhone || '',
+                updatedAt: new Date()
+            } }
+        );
+        return res.status(200).json({ success: true });
+    } finally { await client.close(); }
+}
+
 async function handleFulfill(req, res) {
     const { orderId, userId, action, trackingNumber, trackingLink, declineReason } = req.body || {};
     if (!orderId || !action) return res.status(400).json({ error: 'Order ID and action are required' });
@@ -239,16 +275,26 @@ async function handleAddManualOrder(req, res) {
             updatedAt: new Date()
         };
         const result = await db.collection('orders').insertOne(orderDoc);
+        const orderIdShort = result.insertedId.toString().slice(-6).toUpperCase();
 
         // Notify customer if marked shipped
         if (markShipped && customerEmail) {
             await resend.emails.send({
-                from: process.env.NT_EMAIL || 'Mova99 <onboarding@resend.dev>', to: customerEmail,
-                subject: 'Your Mova99 Order Has Shipped!',
-                html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:40px;background:#fafafa"><div style="background:#0a0a0a;padding:20px 28px;margin-bottom:24px"><h1 style="color:#fafafa;font-size:20px;font-weight:900;margin:0">Mova<span style="color:#c9a84c">99</span></h1></div><h2 style="font-size:22px;font-weight:900">Your Order is On Its Way! 📦</h2><p style="color:#666;font-size:14px;margin:12px 0">Dear ${firstName}, your order for <strong>${productName}</strong>${qtyNum > 1 ? ` (x${qtyNum})` : ''} has been shipped.</p>${trackingNumber ? `<div style="border:2px solid #0a0a0a;padding:20px;margin:20px 0;text-align:center"><p style="font-size:11px;text-transform:uppercase;color:#999;margin:0 0 8px;letter-spacing:.1em">Tracking Number</p><p style="font-size:22px;font-weight:900;margin:0;letter-spacing:2px">${trackingNumber}</p></div>` : ''}<p style="font-size:13px;color:#666">Estimated delivery: 6-13 business days.</p><a href="https://www.mova99.com/dashboard#orders" style="display:inline-block;background:#0a0a0a;color:white;padding:12px 24px;text-decoration:none;font-size:11px;font-weight:800;text-transform:uppercase;margin-top:16px">Track Order →</a></div>`
+                from: process.env.NT_EMAIL || 'Mova99 <notifications@mova99.com>', to: customerEmail,
+                subject: `Your Mova99 Order #${orderIdShort} Has Shipped!`,
+                html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:40px;background:#fafafa"><div style="background:#0a0a0a;padding:20px 28px;margin-bottom:24px"><h1 style="color:#fafafa;font-size:20px;font-weight:900;margin:0">Mova<span style="color:#c9a84c">99</span></h1></div><h2 style="font-size:22px;font-weight:900">Your Order is On Its Way! 📦</h2><p style="font-size:12px;color:#999;margin:0 0 8px">Order #${orderIdShort}</p><p style="color:#666;font-size:14px;margin:12px 0">Dear ${firstName}, your order for <strong>${productName}</strong>${qtyNum > 1 ? ` (x${qtyNum})` : ''} has been shipped.</p>${trackingNumber ? `<div style="border:2px solid #0a0a0a;padding:20px;margin:20px 0;text-align:center"><p style="font-size:11px;text-transform:uppercase;color:#999;margin:0 0 8px;letter-spacing:.1em">Tracking Number</p><p style="font-size:22px;font-weight:900;margin:0;letter-spacing:2px">${trackingNumber}</p></div>` : ''}<p style="font-size:13px;color:#666">Estimated delivery: 6-13 business days.</p><a href="https://www.mova99.com/dashboard#orders" style="display:inline-block;background:#0a0a0a;color:white;padding:12px 24px;text-decoration:none;font-size:11px;font-weight:800;text-transform:uppercase;margin-top:16px">Track Order →</a></div>`
+            });
+        } else if (customerEmail) {
+            // Not shipped yet — send an "order received" confirmation with full details
+            const shipBlock = (shipAddr1 || shipCity) ? `<div style="background:#f5f5f5;padding:14px 16px;margin:16px 0;border-left:3px solid #e0e0e0;font-size:13px;line-height:1.6"><strong style="font-size:11px;text-transform:uppercase;color:#333">Shipping To</strong><br>${shipName || firstName}<br>${shipAddr1 || ''}${shipAddr2 ? '<br>'+shipAddr2 : ''}<br>${[shipCity, shipState, shipZip].filter(Boolean).join(', ')}<br>${shipCountry || 'United States'}${shipPhone ? '<br>📞 '+shipPhone : ''}</div>` : '';
+            const prodBlock = `<div style="border:1px solid #eee;padding:16px;margin:16px 0"><table style="width:100%;font-size:13px"><tr><td style="padding:4px 0"><strong>Product</strong></td><td style="text-align:right">${productName}${qtyNum > 1 ? ` (x${qtyNum})` : ''}</td></tr>${color ? `<tr><td style="padding:4px 0;color:#888">Color</td><td style="text-align:right">${color}</td></tr>` : ''}${size ? `<tr><td style="padding:4px 0;color:#888">Size</td><td style="text-align:right">${size}</td></tr>` : ''}<tr><td style="padding:4px 0;color:#888">Unit Price</td><td style="text-align:right">$${priceNum.toFixed(2)}</td></tr><tr><td style="padding:4px 0;color:#888">Quantity</td><td style="text-align:right">${qtyNum}</td></tr>${description ? `<tr><td style="padding:8px 0;color:#888" colspan="2"><em style="font-size:12px">${description}</em></td></tr>` : ''}</table></div>`;
+            await resend.emails.send({
+                from: process.env.NT_EMAIL || 'Mova99 <notifications@mova99.com>', to: customerEmail,
+                subject: `Order Received ✓ — Mova99 #${orderIdShort}`,
+                html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:40px;background:#fafafa"><div style="background:#0a0a0a;padding:20px 28px;margin-bottom:24px"><h1 style="color:#fafafa;font-size:20px;font-weight:900;margin:0">Mova<span style="color:#c9a84c">99</span></h1></div><h2 style="font-size:22px;font-weight:900">Order Received ✓</h2><p style="font-size:12px;color:#999;margin:0 0 8px">Order #${orderIdShort}</p><p style="color:#666;font-size:14px;margin:12px 0">Dear ${firstName}, we've received your order and it's now being processed. You'll get another email with tracking once it ships.</p>${prodBlock}${shipBlock}<div style="background:#f8f8f8;border-left:4px solid #c9a84c;padding:14px 18px;margin:16px 0"><p style="font-size:13px;margin:0"><strong>Order Total:</strong> $${(amountCents/100).toFixed(2)}<br><strong>Shipping:</strong> <span style="color:#22c55e;font-weight:700">FREE</span></p></div><p style="font-size:12px;color:#888;margin-top:16px">Need to change your shipping address? Reply to this email or contact support@mova99.com with your order number <strong>#${orderIdShort}</strong> before it ships.</p></div>`
             });
         }
-        return res.status(200).json({ success: true, orderId: result.insertedId, linked: !!user });
+        return res.status(200).json({ success: true, orderId: result.insertedId.toString(), orderIdShort, linked: !!user });
     } finally { await client.close(); }
 }
 
@@ -309,6 +355,7 @@ export default async function handler(req, res) {
     if (action === 'users') return handleUsers(req, res);
     if (action === 'update-user') return handleUpdateUser(req, res);
     if (action === 'fulfill') return handleFulfill(req, res);
+    if (action === 'update-shipping') return handleUpdateShipping(req, res);
     if (action === 'add-manual-order') return handleAddManualOrder(req, res);
     if (action === 'referral-stats') return handleReferralStats(req, res);
     return res.status(404).json({ error: 'Unknown action' });
