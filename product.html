@@ -25,7 +25,8 @@ src="https://www.facebook.com/tr?id=1023742177079599&ev=PageView&noscript=1"
 <link rel="icon" type="image/png" href="/image/logo.png">
 <title>Product — Mova99</title>
 <script src="https://js.stripe.com/v3/"></script>
-<script src="https://www.paypal.com/sdk/js?client-id=AUayzCbWaMax6oycAb3fSYs-b3rAtTv8d0shr8X7IsDQiWnWNKxhI96Pz7ZHb6A7gEiAUvMv_bjtWyPO&currency=USD&enable-funding=paylater,venmo&components=buttons" data-sdk-integration-source="button-factory"></script>
+<!-- PayPal disabled (account deactivated) - Stripe only -->
+<!-- <script src="https://www.paypal.com/sdk/js?client-id=AUayzCbWaMax6oycAb3fSYs-b3rAtTv8d0shr8X7IsDQiWnWNKxhI96Pz7ZHb6A7gEiAUvMv_bjtWyPO&currency=USD&enable-funding=paylater,venmo&components=buttons" data-sdk-integration-source="button-factory"></script> -->
 <script>
 // ── Analytics — only loads after explicit cookie consent ──
 function loadAnalytics() {
@@ -646,47 +647,8 @@ function waitForStripe(maxWaitMs = 10000) {
 const PAYPAL_API = 'https://pay.mova99.com';
 
 function renderPayPalButtons() {
-  const container = document.getElementById('paypal-button-container');
-  const msg = document.getElementById('paypal-msg');
-  if (!container || !window.paypal) return;
-  container.innerHTML = '';
-  if (msg) msg.textContent = '';
-
-  window.paypal.Buttons({
-    style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal' },
-    createOrder: async function() {
-      const r = await fetch(PAYPAL_API + '/create-order', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cart: window._checkoutCart || [],
-          userId: window._checkoutUserId || (session && session.id) || '',
-          checkedItems: (window._checkoutCart || []).map(i => i.pid),
-          orderNotes: window._checkoutNotes || ''
-        })
-      });
-      const d = await r.json();
-      if (!d.id) throw new Error(d.error || 'Could not start PayPal');
-      return d.id;
-    },
-    onApprove: async function(data) {
-      if (msg) msg.textContent = 'Processing payment...';
-      const r = await fetch(PAYPAL_API + '/capture-order', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderID: data.orderID })
-      });
-      const d = await r.json();
-      if (d.success) {
-        try { localStorage.removeItem('mova_cart'); localStorage.removeItem('mova_cart_notes'); } catch(e){}
-        window.location.href = '/success.html?paypal=1&order=' + encodeURIComponent(d.orderId || '');
-      } else {
-        if (msg) msg.textContent = d.error || 'Payment could not be completed.';
-      }
-    },
-    onError: function(err) {
-      console.error('PayPal error:', err);
-      if (msg) msg.textContent = 'PayPal error. Please try card instead.';
-    }
-  }).render('#paypal-button-container');
+  // PayPal disabled — hide the PayPal area and "OR PAY WITH CARD" divider
+  return;
 }
 
 async function showStripe(clientSecret) {
@@ -694,7 +656,7 @@ async function showStripe(clientSecret) {
   const wrap = document.createElement('div');
   wrap.id = 'stripe-wrap';
   wrap.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;padding:16px';
-  wrap.innerHTML = '<div style="background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative"><button onclick="closeStripeModal()" style="position:absolute;top:10px;right:10px;background:#f0f0f0;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:16px;z-index:10">×</button><div style="padding:24px"><div id="paypal-button-container" style="margin-bottom:6px"></div><div id="paypal-msg" style="text-align:center;font-size:12px;color:#c00;margin-bottom:6px"></div><div style="display:flex;align-items:center;gap:12px;margin:14px 0;color:#999;font-size:12px;font-weight:600"><div style="flex:1;height:1px;background:#e0e0e0"></div><span>OR PAY WITH CARD</span><div style="flex:1;height:1px;background:#e0e0e0"></div></div><div id="stripe-container"><div style="text-align:center;padding:40px"><div style="width:28px;height:28px;border:3px solid #ff6100;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:auto"></div></div></div></div></div>';
+  wrap.innerHTML = '<div style="background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;position:relative"><button onclick="closeStripeModal()" style="position:absolute;top:10px;right:10px;background:#f0f0f0;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:16px;z-index:10">×</button><div style="padding:24px"><div id="stripe-container"><div style="text-align:center;padding:40px"><div style="width:28px;height:28px;border:3px solid #ff6100;border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;margin:auto"></div></div></div></div></div>';
   document.body.appendChild(wrap);
 
   // Render PayPal buttons into the modal
