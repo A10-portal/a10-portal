@@ -768,6 +768,26 @@ function renderFulfill() {
         </div>
       </div>
 
+      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px">
+        <p style="font-size:11px;font-weight:800;text-transform:uppercase;color:var(--orange);margin-bottom:6px">Option 3 — Edit Shipping Address</p>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:12px">Uses the Order ID above. Only works before the order is shipped. Leave blank fields you don't want to change (enter full address to replace).</p>
+        <div class="space-y">
+          <div><label class="field-label">Full Name</label><input id="e-ship-name" class="field-input" placeholder="Customer full name"></div>
+          <div><label class="field-label">Address Line 1</label><input id="e-ship-addr1" class="field-input" placeholder="Street address"></div>
+          <div><label class="field-label">Address Line 2</label><input id="e-ship-addr2" class="field-input" placeholder="Apt, suite (optional)"></div>
+          <div style="display:flex;gap:12px">
+            <div style="flex:1"><label class="field-label">City</label><input id="e-ship-city" class="field-input" placeholder="City"></div>
+            <div style="flex:1"><label class="field-label">State</label><input id="e-ship-state" class="field-input" placeholder="State"></div>
+          </div>
+          <div style="display:flex;gap:12px">
+            <div style="flex:1"><label class="field-label">ZIP / Postal Code</label><input id="e-ship-zip" class="field-input" placeholder="ZIP"></div>
+            <div style="flex:1"><label class="field-label">Country</label><input id="e-ship-country" class="field-input" placeholder="United States"></div>
+          </div>
+          <div><label class="field-label">Phone Number</label><input id="e-ship-phone" class="field-input" placeholder="Customer phone"></div>
+          <button onclick="doUpdateShipping()" class="btn btn-dark w-full">Update Shipping Address</button>
+        </div>
+      </div>
+
       <div class="msg-box mt-3" id="f-msg"></div>
     </div>`;
 }
@@ -805,7 +825,7 @@ function renderManualOrder() {
       <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Use this when a customer contacts support to place an order. Fill in the details, optionally mark as shipped, and the customer gets a shipping email.</p>
       <div class="space-y">
         <div><label class="field-label">Customer Gmail / Email *</label><input id="m-email" class="field-input" placeholder="customer@gmail.com"></div>
-        <div><label class="field-label">User ID (links order to their account so it shows in their dashboard)</label><input id="m-uid" class="field-input" placeholder="User uniqueID — required for it to show in their Orders tab"></div>
+        <div><label class="field-label">User ID (optional — links to account if they have one; leave blank for guests)</label><input id="m-uid" class="field-input" placeholder="Leave blank if customer has no account"></div>
         <div><label class="field-label">Product Name *</label><input id="m-name" class="field-input" placeholder="e.g. Smart Kids Toothbrush"></div>
         <div style="display:flex;gap:12px">
           <div style="flex:1"><label class="field-label">Price per item (USD) *</label><input id="m-price" class="field-input" type="number" step="0.01" placeholder="e.g. 31.00"></div>
@@ -891,13 +911,38 @@ async function submitManualOrder() {
     });
     const d = await r.json();
     if (d.success) {
-      showMsg(msg, 'Order created' + (d.linked ? ' and linked to user account' : '') + (body.markShipped ? ' — customer emailed.' : '.'), true);
+      showMsg(msg, '✓ Order #' + (d.orderIdShort || '') + ' created' + (d.linked ? ' & linked to account' : ' (guest)') + '. ' + (body.markShipped ? 'Customer emailed (shipped).' : 'Customer emailed (order received). Shows as pending in Orders.'), true);
       ['m-email','m-uid','m-name','m-price','m-qty','m-desc','m-color','m-size','m-photo','m-tracking','m-link','m-ship-name','m-ship-addr1','m-ship-addr2','m-ship-city','m-ship-state','m-ship-zip','m-ship-phone'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
       const cc = document.getElementById('m-ship-country'); if (cc) cc.value = 'United States';
       const q = document.getElementById('m-qty'); if (q) q.value = '1';
       const sh = document.getElementById('m-shipped'); if (sh) sh.checked = false;
       toggleManualShip();
     } else showMsg(msg, d.error || 'Failed', false);
+  } catch(e) { showMsg(msg, 'Network error', false); }
+}
+
+async function doUpdateShipping() {
+  const oid = document.getElementById('f-oid')?.value.trim();
+  const msg = document.getElementById('f-msg');
+  if (!oid) { showMsg(msg, 'Enter the Order ID (top field) to edit its address.', false); return; }
+  const body = {
+    orderId: oid,
+    shipName:    document.getElementById('e-ship-name')?.value.trim() || '',
+    shipAddr1:   document.getElementById('e-ship-addr1')?.value.trim() || '',
+    shipAddr2:   document.getElementById('e-ship-addr2')?.value.trim() || '',
+    shipCity:    document.getElementById('e-ship-city')?.value.trim() || '',
+    shipState:   document.getElementById('e-ship-state')?.value.trim() || '',
+    shipZip:     document.getElementById('e-ship-zip')?.value.trim() || '',
+    shipCountry: document.getElementById('e-ship-country')?.value.trim() || '',
+    shipPhone:   document.getElementById('e-ship-phone')?.value.trim() || ''
+  };
+  try {
+    const r = await af('/api/admin-api?action=update-shipping', { method:'POST', body: JSON.stringify(body) });
+    const d = await r.json();
+    if (d.success) {
+      showMsg(msg, '✓ Shipping address updated for this order.', true);
+      ['e-ship-name','e-ship-addr1','e-ship-addr2','e-ship-city','e-ship-state','e-ship-zip','e-ship-country','e-ship-phone'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+    } else showMsg(msg, d.error||'Failed', false);
   } catch(e) { showMsg(msg, 'Network error', false); }
 }
 
