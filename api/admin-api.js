@@ -175,6 +175,29 @@ async function handleUpdateShipping(req, res) {
                 updatedAt: new Date()
             } }
         );
+
+        // Email the customer a confirmation of the updated address
+        const custEmail = order.customerEmail || '';
+        if (custEmail && custEmail.includes('@')) {
+            const orderIdShort = order._id.toString().slice(-6).toUpperCase();
+            const fName = (shipName || order.shippingName || order.customerName || 'Customer').split(' ')[0];
+            const addrHtml = [
+                shipName || order.shippingName || '',
+                newAddress.line1,
+                newAddress.line2,
+                [newAddress.city, newAddress.state, newAddress.postal_code].filter(Boolean).join(', '),
+                newAddress.country,
+                shipPhone ? '📞 ' + shipPhone : ''
+            ].filter(Boolean).join('<br>');
+            try {
+                await resend.emails.send({
+                    from: process.env.NT_EMAIL || 'Mova99 <notifications@mova99.com>', to: custEmail,
+                    subject: `Shipping Address Updated — Mova99 #${orderIdShort}`,
+                    html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:40px;background:#fafafa"><div style="background:#0a0a0a;padding:20px 28px;margin-bottom:24px"><h1 style="color:#fafafa;font-size:20px;font-weight:900;margin:0">Mova<span style="color:#c9a84c">99</span></h1></div><h2 style="font-size:20px;font-weight:900">Shipping Address Updated ✓</h2><p style="font-size:12px;color:#999;margin:0 0 4px">Order #${orderIdShort}</p><p style="font-size:12px;color:#999;margin:0 0 8px">Account: ${custEmail}</p><p style="color:#666;font-size:14px;margin:12px 0">Dear ${fName}, the shipping address for your order has been updated to:</p><div style="background:#f5f5f5;padding:16px 18px;margin:16px 0;border-left:3px solid #c9a84c;font-size:14px;line-height:1.7">${addrHtml}</div><p style="font-size:13px;color:#666">If this isn't correct, please contact support@mova99.com right away with your order number <strong>#${orderIdShort}</strong>.</p></div>`
+                });
+            } catch (e) { console.error('[update-shipping] email error:', e.message); }
+        }
+
         return res.status(200).json({ success: true });
     } finally { await client.close(); }
 }
@@ -196,14 +219,16 @@ async function handleFulfill(req, res) {
         const user = lookupUserId ? await db.collection('users').findOne({ uniqueID: lookupUserId }) : null;
         const userEmail = user?.email || order.customerEmail || '';
         const firstName = (user?.fullName || order.customerName || 'Customer').split(' ')[0];
+        const orderIdShort = order._id.toString().slice(-6).toUpperCase();
+        const orderRefHtml = `<p style="font-size:12px;color:#999;margin:0 0 4px">Order #${orderIdShort}</p><p style="font-size:12px;color:#999;margin:0 0 12px">Account: ${userEmail || 'N/A'}</p>`;
 
         if (action === 'ship') {
             if (!trackingNumber) return res.status(400).json({ error: 'Tracking number required' });
             await db.collection('orders').updateOne({ _id: objectId }, { $set: { status: 'shipped', trackingNumber, trackingLink: trackingLink||'', updatedAt: new Date() } });
             if (userEmail) await resend.emails.send({
                 from: process.env.NT_EMAIL || 'Mova99 <onboarding@resend.dev>', to: userEmail,
-                subject: 'Your Mova99 Order Has Shipped!',
-                html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:40px;background:#fafafa"><div style="background:#0a0a0a;padding:20px 28px;margin-bottom:24px"><h1 style="color:#fafafa;font-size:20px;font-weight:900;margin:0">Mova<span style="color:#c9a84c">99</span></h1></div><h2 style="font-size:22px;font-weight:900">Your Order is On Its Way! 📦</h2><p style="color:#666;font-size:14px;margin:12px 0">Dear ${firstName}, your order has been shipped.</p><div style="border:2px solid #0a0a0a;padding:20px;margin:20px 0;text-align:center"><p style="font-size:11px;text-transform:uppercase;color:#999;margin:0 0 8px;letter-spacing:.1em">Tracking Number</p><p style="font-size:22px;font-weight:900;margin:0;letter-spacing:2px">${trackingNumber}</p></div><p style="font-size:13px;color:#666">Estimated delivery: 6-13 business days.</p><a href="https://www.mova99.com/dashboard#orders" style="display:inline-block;background:#0a0a0a;color:white;padding:12px 24px;text-decoration:none;font-size:11px;font-weight:800;text-transform:uppercase;margin-top:16px">Track Order →</a></div>`
+                subject: `Your Mova99 Order #${orderIdShort} Has Shipped!`,
+                html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:40px;background:#fafafa"><div style="background:#0a0a0a;padding:20px 28px;margin-bottom:24px"><h1 style="color:#fafafa;font-size:20px;font-weight:900;margin:0">Mova<span style="color:#c9a84c">99</span></h1></div><h2 style="font-size:22px;font-weight:900">Your Order is On Its Way! 📦</h2>${orderRefHtml}<p style="color:#666;font-size:14px;margin:12px 0">Dear ${firstName}, your order has been shipped.</p><div style="border:2px solid #0a0a0a;padding:20px;margin:20px 0;text-align:center"><p style="font-size:11px;text-transform:uppercase;color:#999;margin:0 0 8px;letter-spacing:.1em">Tracking Number</p><p style="font-size:22px;font-weight:900;margin:0;letter-spacing:2px">${trackingNumber}</p></div><p style="font-size:13px;color:#666">Estimated delivery: 6-13 business days.</p><a href="https://www.mova99.com/dashboard#orders" style="display:inline-block;background:#0a0a0a;color:white;padding:12px 24px;text-decoration:none;font-size:11px;font-weight:800;text-transform:uppercase;margin-top:16px">Track Order →</a></div>`
             });
             return res.status(200).json({ success: true });
         }
@@ -213,8 +238,8 @@ async function handleFulfill(req, res) {
             await db.collection('orders').updateOne({ _id: objectId }, { $set: { status: 'declined', declineReason, updatedAt: new Date() } });
             if (userEmail) await resend.emails.send({
                 from: process.env.NT_EMAIL || 'Mova99 <onboarding@resend.dev>', to: userEmail,
-                subject: 'Important Update on Your Mova99 Order',
-                html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:40px;background:#fafafa"><h2 style="font-size:20px;font-weight:900">Order Update</h2><p style="font-size:14px;color:#666;margin:12px 0">Dear ${firstName},</p><p style="font-size:14px;color:#444;line-height:1.6">We regret to inform you that we were unable to process your order for the following reason:</p><div style="border-left:4px solid #ef4444;background:#fff5f5;padding:16px 20px;margin:16px 0"><p style="color:#ef4444;font-size:14px;margin:0">${declineReason}</p></div><p style="font-size:14px;color:#444">Your refund will be processed within 2-5 business days to your original payment method.</p><p style="font-size:13px;color:#666;margin-top:20px">You are welcome to place a new order anytime from your dashboard.</p></div>`
+                subject: `Important Update on Your Mova99 Order #${orderIdShort}`,
+                html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:40px;background:#fafafa"><div style="background:#0a0a0a;padding:20px 28px;margin-bottom:24px"><h1 style="color:#fafafa;font-size:20px;font-weight:900;margin:0">Mova<span style="color:#c9a84c">99</span></h1></div><h2 style="font-size:20px;font-weight:900">Order Update</h2>${orderRefHtml}<p style="font-size:14px;color:#666;margin:12px 0">Dear ${firstName},</p><p style="font-size:14px;color:#444;line-height:1.6">We regret to inform you that we were unable to process your order for the following reason:</p><div style="border-left:4px solid #ef4444;background:#fff5f5;padding:16px 20px;margin:16px 0"><p style="color:#ef4444;font-size:14px;margin:0">${declineReason}</p></div><p style="font-size:14px;color:#444">Your refund will be processed within 2-5 business days to your original payment method.</p><p style="font-size:13px;color:#666;margin-top:20px">You are welcome to place a new order anytime from your dashboard.</p></div>`
             });
             return res.status(200).json({ success: true });
         }
@@ -282,7 +307,7 @@ async function handleAddManualOrder(req, res) {
             await resend.emails.send({
                 from: process.env.NT_EMAIL || 'Mova99 <notifications@mova99.com>', to: customerEmail,
                 subject: `Your Mova99 Order #${orderIdShort} Has Shipped!`,
-                html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:40px;background:#fafafa"><div style="background:#0a0a0a;padding:20px 28px;margin-bottom:24px"><h1 style="color:#fafafa;font-size:20px;font-weight:900;margin:0">Mova<span style="color:#c9a84c">99</span></h1></div><h2 style="font-size:22px;font-weight:900">Your Order is On Its Way! 📦</h2><p style="font-size:12px;color:#999;margin:0 0 8px">Order #${orderIdShort}</p><p style="color:#666;font-size:14px;margin:12px 0">Dear ${firstName}, your order for <strong>${productName}</strong>${qtyNum > 1 ? ` (x${qtyNum})` : ''} has been shipped.</p>${trackingNumber ? `<div style="border:2px solid #0a0a0a;padding:20px;margin:20px 0;text-align:center"><p style="font-size:11px;text-transform:uppercase;color:#999;margin:0 0 8px;letter-spacing:.1em">Tracking Number</p><p style="font-size:22px;font-weight:900;margin:0;letter-spacing:2px">${trackingNumber}</p></div>` : ''}<p style="font-size:13px;color:#666">Estimated delivery: 6-13 business days.</p><a href="https://www.mova99.com/dashboard#orders" style="display:inline-block;background:#0a0a0a;color:white;padding:12px 24px;text-decoration:none;font-size:11px;font-weight:800;text-transform:uppercase;margin-top:16px">Track Order →</a></div>`
+                html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:40px;background:#fafafa"><div style="background:#0a0a0a;padding:20px 28px;margin-bottom:24px"><h1 style="color:#fafafa;font-size:20px;font-weight:900;margin:0">Mova<span style="color:#c9a84c">99</span></h1></div><h2 style="font-size:22px;font-weight:900">Your Order is On Its Way! 📦</h2><p style="font-size:12px;color:#999;margin:0 0 4px">Order #${orderIdShort}</p><p style="font-size:12px;color:#999;margin:0 0 8px">Account: ${customerEmail}</p><p style="color:#666;font-size:14px;margin:12px 0">Dear ${firstName}, your order for <strong>${productName}</strong>${qtyNum > 1 ? ` (x${qtyNum})` : ''} has been shipped.</p>${trackingNumber ? `<div style="border:2px solid #0a0a0a;padding:20px;margin:20px 0;text-align:center"><p style="font-size:11px;text-transform:uppercase;color:#999;margin:0 0 8px;letter-spacing:.1em">Tracking Number</p><p style="font-size:22px;font-weight:900;margin:0;letter-spacing:2px">${trackingNumber}</p></div>` : ''}<p style="font-size:13px;color:#666">Estimated delivery: 6-13 business days.</p><a href="https://www.mova99.com/dashboard#orders" style="display:inline-block;background:#0a0a0a;color:white;padding:12px 24px;text-decoration:none;font-size:11px;font-weight:800;text-transform:uppercase;margin-top:16px">Track Order →</a></div>`
             });
         } else if (customerEmail) {
             // Not shipped yet — send an "order received" confirmation with full details
@@ -291,7 +316,7 @@ async function handleAddManualOrder(req, res) {
             await resend.emails.send({
                 from: process.env.NT_EMAIL || 'Mova99 <notifications@mova99.com>', to: customerEmail,
                 subject: `Order Received ✓ — Mova99 #${orderIdShort}`,
-                html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:40px;background:#fafafa"><div style="background:#0a0a0a;padding:20px 28px;margin-bottom:24px"><h1 style="color:#fafafa;font-size:20px;font-weight:900;margin:0">Mova<span style="color:#c9a84c">99</span></h1></div><h2 style="font-size:22px;font-weight:900">Order Received ✓</h2><p style="font-size:12px;color:#999;margin:0 0 8px">Order #${orderIdShort}</p><p style="color:#666;font-size:14px;margin:12px 0">Dear ${firstName}, we've received your order and it's now being processed. You'll get another email with tracking once it ships.</p>${prodBlock}${shipBlock}<div style="background:#f8f8f8;border-left:4px solid #c9a84c;padding:14px 18px;margin:16px 0"><p style="font-size:13px;margin:0"><strong>Order Total:</strong> $${(amountCents/100).toFixed(2)}<br><strong>Shipping:</strong> <span style="color:#22c55e;font-weight:700">FREE</span></p></div><p style="font-size:12px;color:#888;margin-top:16px">Need to change your shipping address? Reply to this email or contact support@mova99.com with your order number <strong>#${orderIdShort}</strong> before it ships.</p></div>`
+                html: `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:40px;background:#fafafa"><div style="background:#0a0a0a;padding:20px 28px;margin-bottom:24px"><h1 style="color:#fafafa;font-size:20px;font-weight:900;margin:0">Mova<span style="color:#c9a84c">99</span></h1></div><h2 style="font-size:22px;font-weight:900">Order Received ✓</h2><p style="font-size:12px;color:#999;margin:0 0 4px">Order #${orderIdShort}</p><p style="font-size:12px;color:#999;margin:0 0 8px">Account: ${customerEmail}</p><p style="color:#666;font-size:14px;margin:12px 0">Dear ${firstName}, we've received your order and it's now being processed. You'll get another email with tracking once it ships.</p>${prodBlock}${shipBlock}<div style="background:#f8f8f8;border-left:4px solid #c9a84c;padding:14px 18px;margin:16px 0"><p style="font-size:13px;margin:0"><strong>Order Total:</strong> $${(amountCents/100).toFixed(2)}<br><strong>Shipping:</strong> <span style="color:#22c55e;font-weight:700">FREE</span></p></div><p style="font-size:12px;color:#888;margin-top:16px">Need to change your shipping address? Reply to this email or contact support@mova99.com with your order number <strong>#${orderIdShort}</strong> before it ships.</p></div>`
             });
         }
         return res.status(200).json({ success: true, orderId: result.insertedId.toString(), orderIdShort, linked: !!user });
