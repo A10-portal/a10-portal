@@ -94,9 +94,32 @@ fbq('track', 'PageView');
     <script>
         (async function guard() {
             const session = JSON.parse(localStorage.getItem('foundry_session') || 'null');
-            if (!session) { window.location.replace('/'); return; }
             const params = new URLSearchParams(window.location.search);
+            const isPayPal = params.get('paypal') === '1';
             const stripeSessionId = params.get('session_id');
+
+            // PayPal orders: allow through for BOTH guests and logged-in users
+            if (isPayPal) {
+                document.addEventListener('DOMContentLoaded', async () => {
+                    let firstName = '';
+                    if (session && session.id) {
+                        try {
+                            const r = await fetch('/api/get-user?id=' + session.id);
+                            const u = await r.json();
+                            firstName = (u.fullName || '').split(' ')[0];
+                        } catch (e) {}
+                    }
+                    const greetEl = document.getElementById('greeting');
+                    if (greetEl) greetEl.textContent = firstName ? 'Dear ' + firstName + ',' : 'Dear Customer,';
+                    localStorage.removeItem('mova_cart');
+                    try{ fetch('https://track.mova99.com/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({step:'purchase',pid:''}),keepalive:true}).catch(function(){}); }catch(e){}
+                    try{ if(window.fbq){ fbq('track','Purchase',{currency:'USD',value:0}); } }catch(e){}
+                });
+                return;
+            }
+
+            // Stripe orders: require session + stripe session id (original behavior)
+            if (!session) { window.location.replace('/'); return; }
             if (!stripeSessionId || !stripeSessionId.startsWith('cs_')) {
                 window.location.replace('/dashboard'); return;
             }
