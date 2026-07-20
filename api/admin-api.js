@@ -145,18 +145,21 @@ async function handleUpdateUser(req, res) {
 
 async function handleFulfill(req, res) {
     const { orderId, userId, action, trackingNumber, trackingLink, declineReason } = req.body || {};
-    if (!orderId || !userId || !action) return res.status(400).json({ error: 'Missing fields' });
+    if (!orderId || !action) return res.status(400).json({ error: 'Order ID and action are required' });
     const client = new MongoClient(uri);
     try {
         await client.connect();
         const db = client.db('foundry_db');
         let objectId;
         try { objectId = new ObjectId(orderId); } catch (e) { return res.status(400).json({ error: 'Invalid order ID' }); }
-        const order = await db.collection('orders').findOne({ _id: objectId, userId });
+        // Match by orderId + userId if userId provided, otherwise match by orderId alone (guest orders)
+        const query = userId ? { _id: objectId, userId } : { _id: objectId };
+        const order = await db.collection('orders').findOne(query);
         if (!order) return res.status(404).json({ error: 'Order not found' });
-        const user = await db.collection('users').findOne({ uniqueID: userId });
+        const lookupUserId = userId || order.userId || '';
+        const user = lookupUserId ? await db.collection('users').findOne({ uniqueID: lookupUserId }) : null;
         const userEmail = user?.email || order.customerEmail || '';
-        const firstName = (user?.fullName || 'Customer').split(' ')[0];
+        const firstName = (user?.fullName || order.customerName || 'Customer').split(' ')[0];
 
         if (action === 'ship') {
             if (!trackingNumber) return res.status(400).json({ error: 'Tracking number required' });
@@ -185,7 +188,8 @@ async function handleFulfill(req, res) {
 
 
 async function handleAddManualOrder(req, res) {
-    const { userId, customerEmail, productName, price, qty, description, color, size, photo, trackingNumber, trackingLink, markShipped } = req.body || {};
+    const { userId, customerEmail, productName, price, qty, description, color, size, photo, trackingNumber, trackingLink, markShipped,
+            shipName, shipAddr1, shipAddr2, shipCity, shipState, shipZip, shipCountry, shipPhone } = req.body || {};
     if (!customerEmail || !productName || !price) return res.status(400).json({ error: 'Email, product name and price are required' });
     const client = new MongoClient(uri);
     try {
@@ -197,7 +201,7 @@ async function handleAddManualOrder(req, res) {
         if (userId) user = await db.collection('users').findOne({ uniqueID: userId });
         if (!user && customerEmail) user = await db.collection('users').findOne({ email: customerEmail });
         const linkedUserId = user?.uniqueID || userId || '';
-        const firstName = (user?.fullName || 'Customer').split(' ')[0];
+        const firstName = (user?.fullName || shipName || 'Customer').split(' ')[0];
         const priceNum = parseFloat(price) || 0;
         const qtyNum = Math.max(parseInt(qty) || 1, 1);
         const amountCents = Math.round(priceNum * qtyNum * 100); // total = price × qty, in cents
@@ -205,7 +209,16 @@ async function handleAddManualOrder(req, res) {
         const orderDoc = {
             userId: linkedUserId,
             customerEmail,
-            shippingName: user?.fullName || '',
+            customerPhone: shipPhone || user?.phone || '',
+            shippingName: shipName || user?.fullName || '',
+            shippingAddress: {
+                line1: shipAddr1 || '',
+                line2: shipAddr2 || '',
+                city: shipCity || '',
+                state: shipState || '',
+                postal_code: shipZip || '',
+                country: shipCountry || 'United States'
+            },
             items: [{
                 pid: 'MANUAL-' + Date.now(),
                 name: productName,
