@@ -1,6 +1,88 @@
 {
   "version": 2,
   "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/docs/01_about_mova99.pdf",
+      "destination": "/01_about_mova99",
+      "permanent": true
+    },
+    {
+      "source": "/docs/02_affiliate_influencer_program.pdf",
+      "destination": "/02_affiliate_influencer_program",
+      "permanent": true
+    },
+    {
+      "source": "/docs/03_contact_us.pdf",
+      "destination": "/03_contact_us",
+      "permanent": true
+    },
+    {
+      "source": "/docs/04_careers.pdf",
+      "destination": "/04_careers",
+      "permanent": true
+    },
+    {
+      "source": "/docs/05_press.pdf",
+      "destination": "/05_press",
+      "permanent": true
+    },
+    {
+      "source": "/docs/06_return_refund_policy.pdf",
+      "destination": "/06_return_refund_policy",
+      "permanent": true
+    },
+    {
+      "source": "/docs/07_intellectual_property_policy.pdf",
+      "destination": "/07_intellectual_property_policy",
+      "permanent": true
+    },
+    {
+      "source": "/docs/08_shipping_info.pdf",
+      "destination": "/08_shipping_info",
+      "permanent": true
+    },
+    {
+      "source": "/docs/09_report_suspicious_activity.pdf",
+      "destination": "/09_report_suspicious_activity",
+      "permanent": true
+    },
+    {
+      "source": "/docs/10_support_center_faq.pdf",
+      "destination": "/10_support_center_faq",
+      "permanent": true
+    },
+    {
+      "source": "/docs/11_safety_center.pdf",
+      "destination": "/11_safety_center",
+      "permanent": true
+    },
+    {
+      "source": "/docs/12_purchase_protection.pdf",
+      "destination": "/12_purchase_protection",
+      "permanent": true
+    },
+    {
+      "source": "/docs/13_sitemap.pdf",
+      "destination": "/13_sitemap",
+      "permanent": true
+    },
+    {
+      "source": "/docs/14_partner_with_mova99.pdf",
+      "destination": "/14_partner_with_mova99",
+      "permanent": true
+    },
+    {
+      "source": "/docs/15_terms_of_service.pdf",
+      "destination": "/15_terms_of_service",
+      "permanent": true
+    },
+    {
+      "source": "/docs/16_privacy_policy.pdf",
+      "destination": "/16_privacy_policy",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
