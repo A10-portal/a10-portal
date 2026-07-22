@@ -180,6 +180,56 @@ footer{background:var(--ink);color:#9a9a9a;padding:46px 20px 26px;margin-top:aut
 
 <p class="lead">At Mova99, every customer deserves fast, helpful, and friendly support. Our team is available <strong>24 hours a day, 7 days a week</strong> — Sunday through Saturday — for all your questions, orders, and concerns.</p>
 
+<h2 id="contact-form">Send Us a Message</h2>
+<div id="ct-msg" style="display:none;padding:13px 16px;border-radius:10px;font-size:13.5px;font-weight:600;margin-bottom:16px"></div>
+
+<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:15px">
+  <div style="flex:1;min-width:210px">
+    <label for="ct-name" style="display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#555;margin-bottom:6px">Full Name *</label>
+    <input id="ct-name" type="text" autocomplete="name" placeholder="Your full name" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;outline:none;transition:.15s" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--border)'">
+  </div>
+  <div style="flex:1;min-width:210px">
+    <label for="ct-email" style="display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#555;margin-bottom:6px">Email *</label>
+    <input id="ct-email" type="email" autocomplete="email" placeholder="you@example.com" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;outline:none;transition:.15s" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--border)'">
+  </div>
+</div>
+
+<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:15px">
+  <div style="flex:1;min-width:210px">
+    <label for="ct-phone" style="display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#555;margin-bottom:6px">Phone <span style="color:#aaa;font-weight:600">(optional)</span></label>
+    <input id="ct-phone" type="tel" autocomplete="tel" placeholder="(555) 123-4567" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;outline:none;transition:.15s" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--border)'">
+  </div>
+  <div style="flex:1;min-width:210px">
+    <label for="ct-subject" style="display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#555;margin-bottom:6px">Subject</label>
+    <select id="ct-subject" style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;outline:none;background:#fff;cursor:pointer" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--border)'">
+      <option>General Question</option>
+      <option>Order Status</option>
+      <option>Returns &amp; Refunds</option>
+      <option>Shipping Question</option>
+      <option>Product Question</option>
+      <option>Affiliate / Partnership</option>
+      <option>Report a Problem</option>
+    </select>
+  </div>
+</div>
+
+<div style="margin-bottom:14px">
+  <label for="ct-message" style="display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#555;margin-bottom:6px">Message *</label>
+  <textarea id="ct-message" rows="5" placeholder="How can we help? If this is about an order, please include your Order ID." style="width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;outline:none;resize:vertical;line-height:1.6;transition:.15s" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+</div>
+
+<label style="display:flex;align-items:center;gap:9px;margin-bottom:18px;cursor:pointer;font-size:13.5px;color:#444">
+  <input id="ct-customer" type="checkbox" style="width:16px;height:16px;accent-color:var(--orange);cursor:pointer">
+  <span>I've placed an order with Mova99 before</span>
+</label>
+
+<button id="ct-send" onclick="sendContact()" style="width:100%;padding:13px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:14.5px;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s" onmouseover="this.style.background='var(--orange-light)'" onmouseout="this.style.background='var(--orange)'">Send Message</button>
+
+<p style="text-align:center;font-size:12.5px;color:#888;margin:14px 0 6px;line-height:1.6">
+  Prefer email? Write to <a href="mailto:support@mova99.com" style="font-weight:700;text-decoration:none">support@mova99.com</a><br>
+  Fraud or security concerns: <a href="mailto:fraud-alerts@mova99.com" style="font-weight:700;text-decoration:none">fraud-alerts@mova99.com</a>
+</p>
+
 <h2>Support Channels</h2>
 <table>
 <tr><th>Channel</th><th>Contact Details</th><th>Availability</th></tr>
@@ -266,6 +316,60 @@ footer{background:var(--ink);color:#9a9a9a;padding:46px 20px 26px;margin-top:aut
     </div>
   </div>
 </footer>
+
+<script>
+/* ── CONTACT FORM ── */
+function ctShow(text, ok) {
+  var box = document.getElementById('ct-msg');
+  if (!box) return;
+  box.style.display = 'block';
+  box.textContent = text;
+  box.style.background = ok ? '#f0fdf4' : '#fff5f5';
+  box.style.color      = ok ? '#15803d' : '#b91c1c';
+  box.style.border     = '1px solid ' + (ok ? '#bbf7d0' : '#fecaca');
+  box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  if (ok) setTimeout(function () { box.style.display = 'none'; }, 8000);
+}
+
+async function sendContact() {
+  var name    = (document.getElementById('ct-name').value || '').trim();
+  var email   = (document.getElementById('ct-email').value || '').trim();
+  var phone   = (document.getElementById('ct-phone').value || '').trim();
+  var subject = document.getElementById('ct-subject').value || 'General Question';
+  var message = (document.getElementById('ct-message').value || '').trim();
+  var isExistingCustomer = document.getElementById('ct-customer').checked;
+  var btn = document.getElementById('ct-send');
+
+  if (!name) { ctShow('Please enter your full name.', false); return; }
+  if (!email || email.indexOf('@') === -1) { ctShow('Please enter a valid email address.', false); return; }
+  if (!message) { ctShow('Please enter a message so we know how to help.', false); return; }
+
+  btn.disabled = true; btn.textContent = 'Sending…'; btn.style.opacity = '.65';
+
+  try {
+    var r = await fetch('https://www.mova99.com/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, email: email, phone: phone, subject: subject, message: message, isExistingCustomer: isExistingCustomer })
+    });
+    var d = await r.json();
+    if (d.success) {
+      ctShow('Message sent. We\'ll reply to ' + email + ' within a few hours.', true);
+      document.getElementById('ct-name').value = '';
+      document.getElementById('ct-email').value = '';
+      document.getElementById('ct-phone').value = '';
+      document.getElementById('ct-message').value = '';
+      document.getElementById('ct-customer').checked = false;
+    } else {
+      ctShow(d.error || 'Could not send your message. Please email support@mova99.com.', false);
+    }
+  } catch (e) {
+    ctShow('Network error. Please check your connection or email support@mova99.com.', false);
+  }
+
+  btn.disabled = false; btn.textContent = 'Send Message'; btn.style.opacity = '1';
+}
+</script>
 
 <script>
 /* Shop buttons: go to the dashboard when signed in, otherwise to the home page.
