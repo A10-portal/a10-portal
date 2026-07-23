@@ -363,16 +363,16 @@ body { font-family: 'Inter', -apple-system, sans-serif; background: #fff; color:
   </div>
   <div class="sidebar-section">
     <p class="sidebar-heading">Shop</p>
-    <a class="sidebar-link" onclick="filterCat('')">🛍️ All Products</a>
-    <a class="sidebar-link" onclick="filterCat('women clothing')">👗 Women's</a>
-    <a class="sidebar-link" onclick="filterCat('men clothing')">👕 Men's</a>
-    <a class="sidebar-link" onclick="filterCat('shoes')">👟 Shoes</a>
-    <a class="sidebar-link" onclick="filterCat('bags')">👜 Bags</a>
-    <a class="sidebar-link" onclick="filterCat('jewelry')">💍 Jewelry</a>
-    <a class="sidebar-link" onclick="filterCat('beauty')">💄 Beauty</a>
-    <a class="sidebar-link" onclick="filterCat('electronics')">📱 Electronics</a>
-    <a class="sidebar-link" onclick="filterCat('home')">🏠 Home</a>
-    <a class="sidebar-link" onclick="filterCat('kids')">🧒 Kids</a>
+    <a class="sidebar-link" href="/" onclick="if(!event.metaKey&&!event.ctrlKey){event.preventDefault();filterCat('');}">🛍️ All Products</a>
+    <a class="sidebar-link" href="/womens-clothing" onclick="if(!event.metaKey&&!event.ctrlKey){event.preventDefault();filterCat('women clothing');}">👗 Women's</a>
+    <a class="sidebar-link" href="/mens-clothing" onclick="if(!event.metaKey&&!event.ctrlKey){event.preventDefault();filterCat('men clothing');}">👕 Men's</a>
+    <a class="sidebar-link" href="/womens-shoes" onclick="if(!event.metaKey&&!event.ctrlKey){event.preventDefault();filterCat('shoes');}">👟 Shoes</a>
+    <a class="sidebar-link" href="/bags-luggage" onclick="if(!event.metaKey&&!event.ctrlKey){event.preventDefault();filterCat('bags');}">👜 Bags</a>
+    <a class="sidebar-link" href="/jewelry-accessories" onclick="if(!event.metaKey&&!event.ctrlKey){event.preventDefault();filterCat('jewelry');}">💍 Jewelry</a>
+    <a class="sidebar-link" href="/beauty-health" onclick="if(!event.metaKey&&!event.ctrlKey){event.preventDefault();filterCat('beauty');}">💄 Beauty</a>
+    <a class="sidebar-link" href="/electronics" onclick="if(!event.metaKey&&!event.ctrlKey){event.preventDefault();filterCat('electronics');}">📱 Electronics</a>
+    <a class="sidebar-link" href="/home-kitchen" onclick="if(!event.metaKey&&!event.ctrlKey){event.preventDefault();filterCat('home');}">🏠 Home</a>
+    <a class="sidebar-link" href="/kids-fashion" onclick="if(!event.metaKey&&!event.ctrlKey){event.preventDefault();filterCat('kids');}">🧒 Kids</a>
   </div>
   <div class="sidebar-section">
     <p class="sidebar-heading">Company</p>
