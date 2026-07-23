@@ -186,6 +186,10 @@
   ],
   "rewrites": [
     {
+      "source": "/categories",
+      "destination": "/categories.html"
+    },
+    {
       "source": "/.well-known/assetlinks.json",
       "destination": "/.well-known/assetlinks.json"
     },
