@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 Allow: /login
 Allow: /signup
+Allow: /categories
 Disallow: /dashboard
 Disallow: /admin
 Disallow: /api/
