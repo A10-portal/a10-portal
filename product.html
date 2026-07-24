@@ -292,6 +292,26 @@ img{max-width:100%;height:auto}
 .lb-strip img{width:52px;height:52px;object-fit:cover;border-radius:8px;cursor:pointer;opacity:.42;border:2px solid transparent;transition:.18s;flex-shrink:0}
 .lb-strip img.on{opacity:1;border-color:#ff6100}
 body.lb-lock{overflow:hidden}
+
+/* ── Similar Products (Temu-style) ── */
+.sim-section{background:#fff;border-radius:14px;padding:18px 16px;border:1px solid var(--border);margin-top:16px}
+.sim-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sim-title{font-size:15px;font-weight:800;color:#1a1a1a;letter-spacing:-.2px}
+.sim-all{font-size:12px;font-weight:700;color:var(--orange);text-decoration:none;white-space:nowrap}
+.sim-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:520px){.sim-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:820px){.sim-grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:1100px){.sim-grid{grid-template-columns:repeat(5,1fr)}}
+.sim-card{display:block;text-decoration:none;color:inherit;background:#fff;border-radius:10px;overflow:hidden;border:1px solid transparent;transition:.2s}
+.sim-card:hover{border-color:var(--border);box-shadow:0 4px 16px rgba(0,0,0,.09)}
+.sim-imgwrap{position:relative;aspect-ratio:1;background:#f5f5f5;overflow:hidden;border-radius:10px}
+.sim-imgwrap img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s,transform .3s}
+.sim-imgwrap img.on{opacity:1}
+.sim-card:hover .sim-imgwrap img{transform:scale(1.05)}
+.sim-name{font-size:12px;line-height:1.45;color:#333;margin:7px 2px 3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:34px}
+.sim-price{font-size:15px;font-weight:900;color:var(--orange);margin:0 2px 4px}
+.sim-ship{font-size:10.5px;font-weight:700;color:#16a34a;margin:0 2px 8px}
+.sim-skel{aspect-ratio:1;border-radius:10px;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer .9s infinite}
 </style>
 </head>
 <body>
@@ -742,6 +762,7 @@ async function loadProduct(pid) {
     // _p.basePrice = listedPrice always — never changes from variant
     _p = { pid, name, basePrice: listedPrice, image: mainImage, qty: 1, vid: variants[0]?.vid||'', color: variants[0]?.color||'', size: variants[0]?.size||'' };
     setTimeout(function(){ try{ loadReviews(pid); }catch(e){} }, 100);
+    setTimeout(function(){ try{ loadSimilar(pid, d.categoryName, name); }catch(e){} }, 260);
     trackFunnel('view');
     try{ if(window.fbq) fbq('track','ViewContent',{content_ids:[pid],content_type:'product',value:_p.basePrice,currency:'USD'}); }catch(e){}
 
@@ -843,7 +864,14 @@ async function loadProduct(pid) {
             <div class="wc-item"><span>📦</span><div><b>Delivery Guarantee</b><small>Get a full refund if your order doesn't arrive, arrives damaged, or isn't as described.</small></div></div>
             <div class="wc-item"><span>↩️</span><div><b>Free Returns</b><small>Return your item within 30 days for a full money-back refund.</small></div></div>
           </div>
-          <div class="review-section" id="review-section">
+          <div class="sim-section" id="sim-section" style="display:none">
+            <div class="sim-head">
+              <span class="sim-title">Similar products</span>
+              <a class="sim-all" href="/categories">View all &rsaquo;</a>
+            </div>
+            <div class="sim-grid" id="sim-grid"></div>
+          </div>
+          <div class="review-section" id="review-section" style="display:none">
             <div class="desc-title">Customer Reviews</div>
             <div id="rv-body"><p class="rv-empty">Loading reviews…</p></div>
             <button class="rv-write-btn" onclick="toggleReviewForm()">✍️ Write a Review</button>
@@ -1211,6 +1239,49 @@ function saveCookiePreferences() {
 let _rvRating = 0;
 function starStr(n){ let f=Math.round(n); return '★★★★★'.slice(0,f)+'☆☆☆☆☆'.slice(0,5-f); }
 
+
+// ── Similar Products ──
+async function loadSimilar(pid, categoryName, productName) {
+  const sec  = document.getElementById('sim-section');
+  const grid = document.getElementById('sim-grid');
+  if (!sec || !grid) return;
+
+  // Build a search term: prefer the category, else the first words of the product name
+  let term = (categoryName || '').trim();
+  if (!term) term = String(productName || '').split(/[\s,\-|]+/).slice(0, 3).join(' ');
+  if (!term) return;
+
+  grid.innerHTML = Array(5).fill('<div class="sim-skel"></div>').join('');
+  sec.style.display = '';
+
+  try {
+    const r = await fetch('/api/get-products?keyword=' + encodeURIComponent(term) + '&page=1&pageSize=12');
+    const d = await r.json();
+    const list = Array.isArray(d) ? d : (d.products || []);
+
+    const items = list
+      .filter(function (x) { return String(x.pid) !== String(pid); })
+      .slice(0, 10);
+
+    if (!items.length) { sec.style.display = 'none'; return; }
+
+    grid.innerHTML = items.map(function (x) {
+      const img   = imgUrl(x.productImage || x.image || '');
+      const nm    = esc(x.productNameEn || x.productName || 'Product');
+      const price = parseFloat(x.sellPrice || x.price || 0);
+      return '<a class="sim-card" href="/product?pid=' + encodeURIComponent(x.pid) + '">'
+           +   '<div class="sim-imgwrap"><img src="' + img + '" alt="' + nm + '" loading="lazy" '
+           +     'onload="this.classList.add(\'on\')" onerror="this.style.opacity=.15"></div>'
+           +   '<div class="sim-name">' + nm + '</div>'
+           +   '<div class="sim-price">$' + (price ? price.toFixed(2) : '--') + '</div>'
+           +   '<div class="sim-ship">FREE SHIPPING</div>'
+           + '</a>';
+    }).join('');
+  } catch (e) {
+    sec.style.display = 'none';
+  }
+}
+
 async function loadReviews(pid){
   const body = document.getElementById('rv-body');
   if(!body) return;
@@ -1218,9 +1289,14 @@ async function loadReviews(pid){
     const r = await fetch('https://track.mova99.com/api/reviews?pid='+encodeURIComponent(pid));
     const d = await r.json();
     if(!d.count){
-      body.innerHTML = '<p class="rv-empty">No reviews yet. Be the first to review this product!</p>';
+      // No reviews yet — hide the entire section rather than showing an empty box
+      const sec = document.getElementById('review-section');
+      if (sec) sec.style.display = 'none';
       return;
     }
+    // Reviews exist — make sure the section is visible
+    const secOn = document.getElementById('review-section');
+    if (secOn) secOn.style.display = '';
     let bars = '';
     for(let st=5; st>=1; st--){
       const c = (d.breakdown&&d.breakdown[st])||0;
@@ -1243,7 +1319,9 @@ async function loadReviews(pid){
       +'<div class="rv-bars">'+bars+'</div></div>'+items;
     try{ markLikedButtons(); }catch(e){}
   }catch(e){
-    body.innerHTML = '<p class="rv-empty">Could not load reviews.</p>';
+    // On error, hide the section rather than showing a broken/empty box
+    const sec = document.getElementById('review-section');
+    if (sec) sec.style.display = 'none';
   }
 }
 function esc(t){ return String(t||'').replace(/[<>&]/g,function(c){return{'<':'&lt;','>':'&gt;','&':'&amp;'}[c];}); }
