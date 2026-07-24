@@ -28,6 +28,57 @@ const COLORS = new Set([
 
 // Color names to scan from product title
 const COLOR_NAMES = [
+
+// ---- Gallery normaliser -------------------------------------------------
+// CJ returns productGallery in several shapes depending on the product:
+//   - a real array of URLs
+//   - a JSON-encoded string:  "[\"https://...\",\"https://...\"]"
+//   - a comma-separated string
+//   - missing entirely, with extra images only inside productDescription
+// This flattens all of those into a clean array of unique http(s) URLs.
+function normaliseGallery(raw, description, mainImage) {
+    let out = [];
+
+    const pushAll = (val) => {
+        if (!val) return;
+        if (Array.isArray(val)) { val.forEach(pushAll); return; }
+        if (typeof val === 'object') {
+            pushAll(val.url || val.image || val.src || val.imageUrl || '');
+            return;
+        }
+        const str = String(val).trim();
+        if (!str) return;
+        // JSON-encoded array
+        if (str.startsWith('[')) {
+            try { pushAll(JSON.parse(str)); return; } catch (e) { /* fall through */ }
+        }
+        // comma separated list of urls
+        if (str.indexOf(',') > -1 && /https?:\/\//.test(str)) {
+            str.split(',').forEach(part => pushAll(part));
+            return;
+        }
+        if (/^https?:\/\//i.test(str)) out.push(str);
+    };
+
+    pushAll(raw);
+
+    // Fall back to any images embedded in the description HTML
+    if (out.length < 2 && description) {
+        const found = String(description).match(/https?:\/\/[^\s"'<>)]+\.(?:jpg|jpeg|png|webp|gif)/gi);
+        if (found) found.forEach(u => out.push(u));
+    }
+
+    // De-duplicate, drop the main image (shown separately), cap the list
+    const seen = {};
+    if (mainImage) seen[mainImage] = true;
+    return out.filter(u => {
+        if (!u || seen[u]) return false;
+        seen[u] = true;
+        return true;
+    }).slice(0, 12);
+}
+
+
     'Black','White','Red','Blue','Green','Yellow','Pink','Purple','Gray','Grey','Brown',
     'Orange','Beige','Navy','Gold','Silver','Rose','Khaki','Camel','Wine','Cream','Ivory',
     'Nude','Coral','Turquoise','Lavender','Mint','Teal','Leopard','Floral','Striped','Plaid'
@@ -184,7 +235,11 @@ export default async function handler(req, res) {
             productNameEn:   product.productNameEn || product.productName || '',
             sellPrice:       product.sellPrice ? markupPrice(product.sellPrice) : '',
             productImage:    product.productImage  || '',
-            productGallery:  product.productGallery || [],
+            productGallery:  normaliseGallery(
+                                 product.productGallery,
+                                 product.productDescription || product.description || '',
+                                 product.productImage || ''
+                             ),
             productSku:      product.productSku    || '',
             productWeight:   product.productWeight || '',
             categoryName:    product.categoryName  || '',
