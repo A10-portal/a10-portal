@@ -312,6 +312,21 @@ body.lb-lock{overflow:hidden}
 .sim-price{font-size:15px;font-weight:900;color:var(--orange);margin:0 2px 4px}
 .sim-ship{font-size:10.5px;font-weight:700;color:#16a34a;margin:0 2px 8px}
 .sim-skel{aspect-ratio:1;border-radius:10px;background:linear-gradient(90deg,#f0f0f0 25%,#e8e8e8 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer .9s infinite}
+
+/* ── Item reference strip ── */
+.item-ref{display:flex;align-items:center;gap:8px;background:#fafafa;border:1px solid var(--border);border-radius:9px;padding:8px 10px;margin-bottom:10px}
+.item-ref-label{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#999;flex-shrink:0}
+.item-ref-val{font-size:12.5px;font-weight:700;color:#444;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.item-ref-btn{flex-shrink:0;border:none;background:var(--orange);color:#fff;font-size:11px;font-weight:800;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap}
+.item-ref-btn:active{transform:scale(.96)}
+.item-ref-btn.done{background:#16a34a}
+@media(max-width:400px){.item-ref-label{display:none}}
+
+/* ── Similar product cart button ── */
+.sim-imgwrap{position:relative}
+.sim-cart{position:absolute;right:6px;bottom:6px;width:32px;height:32px;border:none;border-radius:50%;background:var(--orange);color:#fff;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.28);transition:.15s;padding:0}
+.sim-cart:hover{background:var(--orange-light)}
+.sim-cart:active{transform:scale(.9)}
 </style>
 </head>
 <body>
@@ -819,6 +834,11 @@ async function loadProduct(pid) {
         </div>
         <div>
           <div class="product-info">
+            <div class="item-ref">
+              <span class="item-ref-label">Item&nbsp;No.</span>
+              <span class="item-ref-val" id="item-ref-val">${pid}</span>
+              <button class="item-ref-btn" id="item-ref-btn" onclick="copyItemRef()">Copy</button>
+            </div>
             <h1 class="product-title">${name}</h1>
             <div id="prod-price" class="product-price">$${listedPrice.toFixed(2)}</div>
             <div class="shipping-badge" id="shipping-badge">🚚 FREE SHIPPING — USA</div>
@@ -1240,6 +1260,40 @@ let _rvRating = 0;
 function starStr(n){ let f=Math.round(n); return '★★★★★'.slice(0,f)+'☆☆☆☆☆'.slice(0,5-f); }
 
 
+
+// ── Copy item reference number ──
+function copyItemRef() {
+  const val = (document.getElementById('item-ref-val') || {}).textContent || '';
+  const btn = document.getElementById('item-ref-btn');
+  if (!val) return;
+
+  const done = function () {
+    if (!btn) return;
+    const original = btn.textContent;
+    btn.textContent = 'Copied';
+    btn.classList.add('done');
+    setTimeout(function () { btn.textContent = original; btn.classList.remove('done'); }, 1600);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(val).then(done).catch(function () { fallbackCopy(val, done); });
+  } else {
+    fallbackCopy(val, done);
+  }
+}
+
+function fallbackCopy(text, cb) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); if (cb) cb(); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
 // ── Similar Products ──
 async function loadSimilar(pid, categoryName, productName) {
   const sec  = document.getElementById('sim-section');
@@ -1269,9 +1323,13 @@ async function loadSimilar(pid, categoryName, productName) {
       const img   = imgUrl(x.productImage || x.image || '');
       const nm    = esc(x.productNameEn || x.productName || 'Product');
       const price = parseFloat(x.sellPrice || x.price || 0);
-      return '<a class="sim-card" href="/product?pid=' + encodeURIComponent(x.pid) + '">'
+      const link = '/product?pid=' + encodeURIComponent(x.pid);
+      return '<a class="sim-card" href="' + link + '">'
            +   '<div class="sim-imgwrap"><img src="' + img + '" alt="' + nm + '" loading="lazy" '
-           +     'onload="this.classList.add(\'on\')" onerror="this.style.opacity=.15"></div>'
+           +     'onload="this.classList.add(\'on\')" onerror="this.style.opacity=.15">'
+           +     '<button class="sim-cart" aria-label="View options and add to cart" '
+           +       'onclick="event.preventDefault();event.stopPropagation();window.location.href=\'' + link + '\'">&#128722;</button>'
+           +   '</div>'
            +   '<div class="sim-name">' + nm + '</div>'
            +   '<div class="sim-price">$' + (price ? price.toFixed(2) : '--') + '</div>'
            +   '<div class="sim-ship">FREE SHIPPING</div>'
