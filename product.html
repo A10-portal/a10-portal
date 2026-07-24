@@ -269,6 +269,29 @@ body{font-family:'Inter',sans-serif;background:#fff;color:var(--text)}
 
 html,body{overflow-x:hidden;max-width:100%}
 img{max-width:100%;height:auto}
+
+/* ── Image Lightbox (Temu-style) ── */
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:99999;display:none;flex-direction:column;touch-action:none}
+.lb.open{display:flex}
+.lb-top{position:relative;flex-shrink:0;height:52px;display:flex;align-items:center;justify-content:center;color:#fff}
+.lb-count{font-size:15px;font-weight:700;letter-spacing:.4px;font-variant-numeric:tabular-nums}
+.lb-close{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:none;background:rgba(255,255,255,.12);color:#fff;font-size:22px;line-height:1;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.lb-close:active{background:rgba(255,255,255,.25)}
+.lb-stage{flex:1;position:relative;overflow:hidden;display:flex;align-items:center}
+.lb-track{display:flex;height:100%;width:100%;transition:transform .28s cubic-bezier(.22,.61,.36,1);will-change:transform}
+.lb-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:8px}
+.lb-slide img{max-width:100%;max-height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.lb-arrow{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border:none;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:24px;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:2;font-family:inherit}
+.lb-arrow:hover{background:rgba(255,255,255,.26)}
+.lb-arrow[disabled]{opacity:.28;cursor:default}
+.lb-prev{left:14px}.lb-next{right:14px}
+@media(min-width:900px){.lb-arrow{display:flex}}
+.lb-strip{flex-shrink:0;display:flex;gap:8px;padding:12px 14px 18px;overflow-x:auto;justify-content:flex-start;scrollbar-width:none}
+.lb-strip::-webkit-scrollbar{display:none}
+@media(min-width:640px){.lb-strip{justify-content:center}}
+.lb-strip img{width:52px;height:52px;object-fit:cover;border-radius:8px;cursor:pointer;opacity:.42;border:2px solid transparent;transition:.18s;flex-shrink:0}
+.lb-strip img.on{opacity:1;border-color:#ff6100}
+body.lb-lock{overflow:hidden}
 </style>
 </head>
 <body>
@@ -725,6 +748,8 @@ async function loadProduct(pid) {
     const seen = {};
     const imgs = [mainImage, ...gallery, ...variants.map(v=>v.variantImage).filter(Boolean)]
       .filter(i => { if(!i||seen[i]) return false; seen[i]=true; return true; }).slice(0,12);
+    lbImages = imgs.map(i => imgUrl(i));
+    lbIndex = 0;
 
     const colorVars = variants.filter(v=>v.color?.trim());
     const sizeVars = variants.filter(v=>v.size?.trim());
@@ -765,10 +790,10 @@ async function loadProduct(pid) {
       <div class="product-layout">
         <div>
           <div class="gallery-main">
-            <img id="main-img" src="${imgUrl(mainImage)}" alt="${name}" loading="eager" style="opacity:0" onload="this.style.animation='flashIn .2s ease forwards';this.style.opacity='1'" onerror="this.style.opacity='.2'">
+            <img id="main-img" src="${imgUrl(mainImage)}" alt="${name}" loading="eager" style="opacity:0;cursor:zoom-in" onclick="lbOpen(lbIndex)" onload="this.style.animation='flashIn .2s ease forwards';this.style.opacity='1'" onerror="this.style.opacity='.2'">
           </div>
           <div class="gallery-thumbs">
-            ${imgs.map((img,i) => `<img class="thumb${i===0?' active':''}" src="${imgUrl(img)}" loading="eager" style="opacity:0" onload="this.style.animation='flashIn .2s ease forwards';this.style.opacity='1'" onclick="switchImg(this,'${imgUrl(img)}')">`).join('')}
+            ${imgs.map((img,i) => `<img class="thumb${i===0?' active':''}" src="${imgUrl(img)}" loading="eager" style="opacity:0" onload="this.style.animation='flashIn .2s ease forwards';this.style.opacity='1'" onclick="switchImg(this,'${imgUrl(img)}');lbOpen(${i})">`).join('')}
           </div>
         </div>
         <div>
@@ -843,10 +868,122 @@ async function loadProduct(pid) {
   }
 }
 
+
+// ── Image Lightbox (Temu-style, with counter + swipe) ──
+let lbImages = [];
+let lbIndex = 0;
+
+function lbOpen(i) {
+  if (!lbImages.length) return;
+  lbIndex = Math.max(0, Math.min(i, lbImages.length - 1));
+  const track = document.getElementById('lb-track');
+  const strip = document.getElementById('lb-strip');
+  track.innerHTML = lbImages.map(function (src) {
+    return '<div class="lb-slide"><img src="' + src + '" alt="" draggable="false"></div>';
+  }).join('');
+  strip.innerHTML = lbImages.map(function (src, n) {
+    return '<img src="' + src + '" onclick="lbGo(' + n + ')" alt="">';
+  }).join('');
+  document.getElementById('lb').classList.add('open');
+  document.body.classList.add('lb-lock');
+  lbRender(false);
+}
+
+function lbGo(i) {
+  if (i < 0 || i >= lbImages.length) return;
+  lbIndex = i;
+  lbRender(true);
+}
+
+function lbRender(animate) {
+  const track = document.getElementById('lb-track');
+  if (!track) return;
+  track.style.transition = animate ? 'transform .28s cubic-bezier(.22,.61,.36,1)' : 'none';
+  track.style.transform = 'translateX(' + (-lbIndex * 100) + '%)';
+  document.getElementById('lb-count').textContent = (lbIndex + 1) + '/' + lbImages.length;
+  const strip = document.getElementById('lb-strip');
+  Array.prototype.forEach.call(strip.children, function (el, n) {
+    el.classList.toggle('on', n === lbIndex);
+  });
+  const active = strip.children[lbIndex];
+  if (active && active.scrollIntoView) active.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  const prev = document.getElementById('lb-prev');
+  const next = document.getElementById('lb-next');
+  if (prev) prev.disabled = lbIndex === 0;
+  if (next) next.disabled = lbIndex === lbImages.length - 1;
+  // keep the main product image in sync with what was last viewed
+  const main = document.getElementById('main-img');
+  if (main) main.src = lbImages[lbIndex];
+  document.querySelectorAll('.thumb').forEach(function (t, n) {
+    t.classList.toggle('active', n === lbIndex);
+  });
+}
+
+function lbClose() {
+  document.getElementById('lb').classList.remove('open');
+  document.body.classList.remove('lb-lock');
+}
+
+// Swipe + drag
+(function () {
+  let x0 = null, dx = 0, dragging = false;
+  function startX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const stage = document.getElementById('lb-stage');
+    const track = document.getElementById('lb-track');
+    if (!stage || !track) return;
+
+    function down(e) {
+      if (e.target.closest('.lb-arrow')) return;
+      x0 = startX(e); dx = 0; dragging = true;
+      track.style.transition = 'none';
+    }
+    function move(e) {
+      if (!dragging || x0 === null) return;
+      dx = startX(e) - x0;
+      const pct = (dx / stage.offsetWidth) * 100;
+      track.style.transform = 'translateX(' + (-lbIndex * 100 + pct) + '%)';
+    }
+    function up() {
+      if (!dragging) return;
+      dragging = false;
+      const threshold = stage.offsetWidth * 0.18;
+      if (dx > threshold && lbIndex > 0) lbIndex--;
+      else if (dx < -threshold && lbIndex < lbImages.length - 1) lbIndex++;
+      x0 = null; dx = 0;
+      lbRender(true);
+    }
+
+    stage.addEventListener('touchstart', down, { passive: true });
+    stage.addEventListener('touchmove', move, { passive: true });
+    stage.addEventListener('touchend', up);
+    stage.addEventListener('mousedown', down);
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+
+    // close by tapping the dark background
+    stage.addEventListener('click', function (e) {
+      if (e.target === stage || e.target.classList.contains('lb-slide')) lbClose();
+    });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    const lb = document.getElementById('lb');
+    if (!lb || !lb.classList.contains('open')) return;
+    if (e.key === 'Escape') lbClose();
+    if (e.key === 'ArrowLeft') lbGo(lbIndex - 1);
+    if (e.key === 'ArrowRight') lbGo(lbIndex + 1);
+  });
+})();
+
 function switchImg(el, src) {
   document.getElementById('main-img').src = src;
-  document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+  const thumbs = Array.from(document.querySelectorAll('.thumb'));
+  thumbs.forEach(t => t.classList.remove('active'));
   el.classList.add('active');
+  const i = thumbs.indexOf(el);
+  if (i > -1) lbIndex = i;
 }
 
 // Init
@@ -1208,5 +1345,19 @@ window.shareReview = function(){
     <button class="sc-btn" onclick="addToCart()">🛒 Add to Cart</button>
     <button class="sc-btn sc-buy" onclick="buyNow()">⚡ Buy Now</button>
   </div>
+
+<!-- Image Lightbox -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Product images">
+  <div class="lb-top">
+    <span class="lb-count" id="lb-count">1/1</span>
+    <button class="lb-close" onclick="lbClose()" aria-label="Close">&times;</button>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <button class="lb-arrow lb-prev" id="lb-prev" onclick="lbGo(lbIndex-1)" aria-label="Previous">&#8249;</button>
+    <div class="lb-track" id="lb-track"></div>
+    <button class="lb-arrow lb-next" id="lb-next" onclick="lbGo(lbIndex+1)" aria-label="Next">&#8250;</button>
+  </div>
+  <div class="lb-strip" id="lb-strip"></div>
+</div>
 </body>
 </html>
