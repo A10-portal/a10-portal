@@ -1308,6 +1308,10 @@ async function loadSimilar(pid, categoryName, productName) {
   grid.innerHTML = Array(5).fill('<div class="sim-skel"></div>').join('');
   sec.style.display = '';
 
+  // Point "View all" at the homepage feed, pre-filtered to the same term
+  const allLink = sec.querySelector('.sim-all');
+  if (allLink) allLink.href = '/?q=' + encodeURIComponent(term);
+
   try {
     const r = await fetch('/api/get-products?keyword=' + encodeURIComponent(term) + '&page=1&pageSize=12');
     const d = await r.json();
