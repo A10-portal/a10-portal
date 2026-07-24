@@ -719,7 +719,7 @@ async function loadProduct(pid) {
 
     const seen = {};
     const imgs = [mainImage, ...gallery, ...variants.map(v=>v.variantImage).filter(Boolean)]
-      .filter(i => { if(!i||seen[i]) return false; seen[i]=true; return true; }).slice(0,8);
+      .filter(i => { if(!i||seen[i]) return false; seen[i]=true; return true; }).slice(0,12);
 
     const colorVars = variants.filter(v=>v.color?.trim());
     const sizeVars = variants.filter(v=>v.size?.trim());
