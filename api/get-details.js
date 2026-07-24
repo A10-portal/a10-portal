@@ -28,16 +28,22 @@ const COLORS = new Set([
 
 // Color names to scan from product title
 const COLOR_NAMES = [
+    'Black','White','Red','Blue','Green','Yellow','Pink','Purple','Gray','Grey','Brown',
+    'Orange','Beige','Navy','Gold','Silver','Rose','Khaki','Camel','Wine','Cream','Ivory',
+    'Nude','Coral','Turquoise','Lavender','Mint','Teal','Leopard','Floral','Striped','Plaid'
+];
+
+// Size labels mapped from SKU suffix index
+const SIZE_MAP = ['S','M','L','XL','2XL','3XL','4XL','5XL','6XL'];
 
 // ---- Gallery normaliser -------------------------------------------------
 // CJ returns productGallery in several shapes depending on the product:
 //   - a real array of URLs
-//   - a JSON-encoded string:  "[\"https://...\",\"https://...\"]"
+//   - a JSON-encoded string
 //   - a comma-separated string
 //   - missing entirely, with extra images only inside productDescription
-// This flattens all of those into a clean array of unique http(s) URLs.
 function normaliseGallery(raw, description, mainImage) {
-    let out = [];
+    const out = [];
 
     const pushAll = (val) => {
         if (!val) return;
@@ -48,13 +54,11 @@ function normaliseGallery(raw, description, mainImage) {
         }
         const str = String(val).trim();
         if (!str) return;
-        // JSON-encoded array
-        if (str.startsWith('[')) {
-            try { pushAll(JSON.parse(str)); return; } catch (e) { /* fall through */ }
+        if (str.charAt(0) === '[') {
+            try { pushAll(JSON.parse(str)); return; } catch (e) { /* not JSON */ }
         }
-        // comma separated list of urls
         if (str.indexOf(',') > -1 && /https?:\/\//.test(str)) {
-            str.split(',').forEach(part => pushAll(part));
+            str.split(',').forEach(pushAll);
             return;
         }
         if (/^https?:\/\//i.test(str)) out.push(str);
@@ -62,13 +66,11 @@ function normaliseGallery(raw, description, mainImage) {
 
     pushAll(raw);
 
-    // Fall back to any images embedded in the description HTML
     if (out.length < 2 && description) {
         const found = String(description).match(/https?:\/\/[^\s"'<>)]+\.(?:jpg|jpeg|png|webp|gif)/gi);
         if (found) found.forEach(u => out.push(u));
     }
 
-    // De-duplicate, drop the main image (shown separately), cap the list
     const seen = {};
     if (mainImage) seen[mainImage] = true;
     return out.filter(u => {
@@ -78,14 +80,6 @@ function normaliseGallery(raw, description, mainImage) {
     }).slice(0, 12);
 }
 
-
-    'Black','White','Red','Blue','Green','Yellow','Pink','Purple','Gray','Grey','Brown',
-    'Orange','Beige','Navy','Gold','Silver','Rose','Khaki','Camel','Wine','Cream','Ivory',
-    'Nude','Coral','Turquoise','Lavender','Mint','Teal','Leopard','Floral','Striped','Plaid'
-];
-
-// Size labels mapped from SKU suffix index
-const SIZE_MAP = ['S','M','L','XL','2XL','3XL','4XL','5XL','6XL'];
 
 function isSize(s) {
     const l = s.toLowerCase().trim();
