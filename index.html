@@ -1320,6 +1320,37 @@ setTimeout(() => document.querySelectorAll('.fade-up').forEach(el=>el.classList.
 window.addEventListener('DOMContentLoaded', () => {
   document.body.classList.add('has-sidebar');
   updateCartBadge();
+
+  // ── Accept ?q= (search) or ?cat= (category) from an incoming link ──
+  // e.g. /?q=hoodie  or  /?cat=women%20clothing
+  // Lets other pages (product page "View all", emails, ads) land here pre-filtered.
+  var _params = new URLSearchParams(window.location.search);
+  var _q   = (_params.get('q') || '').trim();
+  var _cat = (_params.get('cat') || '').trim();
+
+  if (_q) {
+    FEED.query = _q;
+    FEED.keyword = '';
+    var si = document.getElementById('search-input');
+    var sm = document.getElementById('search-input-m');
+    if (si) si.value = _q;
+    if (sm) sm.value = _q;
+    var sc = document.getElementById('search-clear');
+    if (sc) sc.style.display = 'block';
+    var ft = document.getElementById('feed-title');
+    if (ft) ft.textContent = 'Results for "' + _q + '"';
+  } else if (_cat) {
+    FEED.keyword = _cat;
+    FEED.query = '';
+    _catLabel = _cat.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    var ft2 = document.getElementById('feed-title');
+    if (ft2) ft2.textContent = _catLabel;
+    // sync the filter chips if one matches
+    document.querySelectorAll('.fchip').forEach(function (c) {
+      c.classList.toggle('active', c.textContent.trim().toLowerCase().indexOf(_cat.toLowerCase()) > -1);
+    });
+  }
+
   loadFeed(); // initial product feed
 
   // ── Infinite scroll via IntersectionObserver ──
