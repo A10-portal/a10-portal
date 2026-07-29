@@ -181,6 +181,7 @@ tr:hover td { background: #fafafa; }
     <div class="nav-item active" id="nav-home" onclick="showTab('home')"><span class="nav-icon">📊</span> Dashboard</div>
     <div class="nav-item" id="nav-orders" onclick="showTab('orders')"><span class="nav-icon">📦</span> Orders</div>
     <div class="nav-item" id="nav-manual" onclick="showTab('manual')"><span class="nav-icon">➕</span> Add Manual Order</div>
+    <div class="nav-item" id="nav-withdrawals" onclick="showTab('withdrawals')"><span class="nav-icon">💰</span> Withdrawals</div>
     <div class="nav-item" id="nav-users" onclick="showTab('users')"><span class="nav-icon">👥</span> Users</div>
     <div class="nav-item" id="nav-fulfill" onclick="showTab('fulfill')"><span class="nav-icon">🚚</span> Fulfill</div>
     <div class="nav-item" id="nav-push" onclick="showTab('push')"><span class="nav-icon">🔔</span> Push Notify</div>
@@ -238,7 +239,7 @@ function af(url, opts = {}) {
 // ══════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════
-const TAB_TITLES = { home:'Dashboard', orders:'Orders', manual:'Add Manual Order', users:'Users', fulfill:'Fulfill Order', push:'Push Notifications' };
+const TAB_TITLES = { home:'Dashboard', orders:'Orders', manual:'Add Manual Order', withdrawals:'Withdrawals', users:'Users', fulfill:'Fulfill Order', push:'Push Notifications' };
 
 function showTab(tab) {
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -251,12 +252,13 @@ function showTab(tab) {
   content.innerHTML = '<div class="spinner"></div>';
   content.className = 'content fade-in';
 
-  if (tab === 'home')    loadHome();
-  if (tab === 'orders')  loadOrders();
-  if (tab === 'users')   loadUsers();
-  if (tab === 'fulfill') renderFulfill();
-  if (tab === 'manual')  renderManualOrder();
-  if (tab === 'push')    renderPush();
+  if (tab === 'home')        loadHome();
+  if (tab === 'orders')      loadOrders();
+  if (tab === 'users')       loadUsers();
+  if (tab === 'fulfill')     renderFulfill();
+  if (tab === 'manual')      renderManualOrder();
+  if (tab === 'withdrawals') loadAdminWithdrawals();
+  if (tab === 'push')        renderPush();
 }
 
 // ══════════════════════════════════════════
@@ -1103,6 +1105,129 @@ async function sendPush() {
   } catch(e) { showMsg(msg,'Network error',false); }
   if (btn) { btn.textContent='Send to All Users 🔔'; btn.disabled=false; }
 }
+
+// ══════════════════════════════════════════
+// WITHDRAWAL MANAGEMENT
+// ══════════════════════════════════════════
+let WITHDRAWAL_API_URL = 'http://localhost:3000/api/withdrawal';
+
+async function initWithdrawalAPI() {
+  try {
+    const response = await fetch('/api/get-config');
+    const config = await response.json();
+    WITHDRAWAL_API_URL = config.withdrawalApiUrl || WITHDRAWAL_API_URL;
+  } catch (e) {
+    console.log('Using default withdrawal API');
+  }
+}
+
+async function loadAdminWithdrawals() {
+  try {
+    const adminToken = localStorage.getItem('adminToken');
+    const response = await fetch(WITHDRAWAL_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-token': adminToken,
+      },
+      body: JSON.stringify({
+        action: 'get-all-withdrawals',
+        adminToken,
+      }),
+    });
+    const data = await response.json();
+    const withdrawals = data.withdrawals || [];
+    const content = document.getElementById('content');
+    let html = '<div style="max-width:1200px"><h2 style="font-size:18px;font-weight:700;margin-bottom:20px">Withdrawal Requests</h2>';
+    if (withdrawals.length === 0) {
+      html += '<div style="text-align:center;padding:40px;color:#999">No withdrawal requests</div>';
+    } else {
+      withdrawals.forEach((w) => {
+        const date = new Date(w.createdAt).toLocaleDateString();
+        const time = new Date(w.createdAt).toLocaleTimeString();
+        const statusColor = w.status === 'sent' ? '#16a34a' : w.status === 'rejected' ? '#dc2626' : '#f59e0b';
+        let statusText = w.status.charAt(0).toUpperCase() + w.status.slice(1);
+        if (w.status === 'rejected' && w.rejectionNote) statusText += ` - ${w.rejectionNote}`;
+        html += `<div style="border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;background:white">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px">
+            <div>
+              <p style="margin:0;font-weight:700;font-size:15px">${w.userName}</p>
+              <p style="margin:4px 0 0;font-size:12px;color:var(--muted)">${w.userEmail}</p>
+            </div>
+            <span style="background:${statusColor};color:white;padding:6px 12px;border-radius:4px;font-size:12px;font-weight:700">${statusText}</span>
+          </div>
+          <div style="background:#fafafa;padding:12px;border-radius:6px;margin-bottom:12px;font-size:13px">
+            <p style="margin:0 0 8px"><strong>Amount:</strong> $${w.amount.toFixed(2)}</p>
+            <p style="margin:0 0 8px"><strong>Date:</strong> ${date} ${time}</p>
+            <p style="margin:0 0 8px"><strong>Method:</strong> ${w.paymentMethod}</p>
+            <p style="margin:0"><strong>Gmail:</strong> ${w.userEmail || 'N/A'}</p>
+          </div>
+          <div style="display:flex;gap:8px">
+            ${w.status === 'pending' ? `
+              <button onclick="markWithdrawalSent('${w._id}')" style="flex:1;padding:10px;background:#16a34a;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-size:13px">✓ Mark as Sent</button>
+              <button onclick="showRejectWithdrawalModal('${w._id}')" style="flex:1;padding:10px;background:#dc2626;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-size:13px">✕ Reject</button>
+            ` : '<p style="margin:0;color:#999;font-size:13px">No actions available for ' + w.status + ' status</p>'}
+          </div>
+        </div>`;
+      });
+    }
+    html += '</div>';
+    content.innerHTML = html;
+  } catch (error) {
+    console.error('Error loading withdrawals:', error);
+    document.getElementById('content').innerHTML = '<div style="padding:20px;color:#dc2626">Error loading withdrawals</div>';
+  }
+}
+
+async function markWithdrawalSent(withdrawalId) {
+  if (!confirm('Mark this withdrawal as sent?')) return;
+  try {
+    const adminToken = localStorage.getItem('adminToken');
+    const response = await fetch(WITHDRAWAL_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+      body: JSON.stringify({ action: 'mark-sent', withdrawalId, adminToken })
+    });
+    const data = await response.json();
+    if (data.success) { alert('✓ Withdrawal marked as sent!'); loadAdminWithdrawals(); }
+    else { alert('Error: ' + (data.error || 'Unknown error')); }
+  } catch (error) { console.error('Error:', error); alert('Error marking as sent'); }
+}
+
+function showRejectWithdrawalModal(withdrawalId) {
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999';
+  modal.id = `reject-modal-${withdrawalId}`;
+  modal.innerHTML = `<div style="background:white;border-radius:12px;padding:28px;max-width:480px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3)">
+    <h2 style="margin:0 0 12px;font-size:18px;color:#222">Reject Withdrawal</h2>
+    <p style="color:#666;font-size:13px;margin:0 0 16px">Add a note explaining why this withdrawal is being rejected.</p>
+    <textarea id="rejection-note-${withdrawalId}" placeholder="Enter rejection reason..." style="width:100%;height:100px;padding:12px;border:1px solid var(--border);border-radius:6px;font-size:13px;box-sizing:border-box;font-family:inherit;margin-bottom:16px;resize:vertical"></textarea>
+    <button onclick="submitRejection('${withdrawalId}')" style="width:100%;padding:11px;background:#dc2626;color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:14px">Reject & Refund</button>
+    <button onclick="closeRejectModal('${withdrawalId}')" style="width:100%;padding:11px;background:#f0f0f0;color:#333;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:14px;margin-top:8px">Cancel</button>
+  </div>`;
+  document.body.appendChild(modal);
+}
+
+async function submitRejection(withdrawalId) {
+  const note = document.getElementById(`rejection-note-${withdrawalId}`)?.value;
+  if (!note || note.trim().length === 0) { alert('Please enter a rejection reason'); return; }
+  try {
+    const adminToken = localStorage.getItem('adminToken');
+    const response = await fetch(WITHDRAWAL_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken },
+      body: JSON.stringify({ action: 'reject-withdrawal', withdrawalId, rejectionNote: note, adminToken })
+    });
+    const data = await response.json();
+    if (data.success) { alert('✓ Withdrawal rejected! User has been notified.'); closeRejectModal(withdrawalId); loadAdminWithdrawals(); }
+    else { alert('Error: ' + (data.error || 'Unknown error')); }
+  } catch (error) { console.error('Error:', error); alert('Error rejecting withdrawal'); }
+}
+
+function closeRejectModal(withdrawalId) { document.getElementById(`reject-modal-${withdrawalId}`)?.remove(); }
+
+// Initialize on load
+window.addEventListener('load', () => { initWithdrawalAPI(); });
 </script>
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
 </body>
